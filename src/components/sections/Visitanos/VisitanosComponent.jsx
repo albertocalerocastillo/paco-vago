@@ -1,5 +1,6 @@
 import { MapPin, Clock, Phone } from 'lucide-react';
 import { horarios } from '../../../data/horarios';
+import { TELEFONO, TELEFONO_HREF, DIRECCION } from '../../../data/contacto';
 
 const MAPS_EMBED_URL =
   'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3164.5!2d-5.6435!3d37.4710!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sPuerta%20de%20Sevilla%2C%20Carmona!5e0!3m2!1ses!2ses!4v1234567890';
@@ -26,7 +27,7 @@ export default function VisitanosComponent() {
               <div>
                 <h3 className="text-sm font-bold uppercase tracking-wider mb-2">Dónde</h3>
                 <p className="text-stone-300">
-                  Puerta de Sevilla<br />Carmona, Sevilla
+                  {DIRECCION.calle}<br />{DIRECCION.ciudad}, {DIRECCION.provincia}
                 </p>
               </div>
             </div>
@@ -58,10 +59,10 @@ export default function VisitanosComponent() {
               <div>
                 <h3 className="text-sm font-bold uppercase tracking-wider mb-2">Teléfono</h3>
                 <a
-                  href="tel:+34954140871"
+                  href={TELEFONO_HREF}
                   className="text-stone-300 hover:text-amber-400 transition-colors text-lg"
                 >
-                  954 14 08 71
+                  {TELEFONO}
                 </a>
               </div>
             </div>

@@ -1,7 +1,6 @@
-import { MessageCircle } from 'lucide-react';
+import { Phone } from 'lucide-react';
 import { categorias } from '../../../data/categorias';
-
-const WHATSAPP_URL = 'https://wa.me/34954140871';
+import { TELEFONO_HREF, TELEFONO } from '../../../data/contacto';
 
 export default function ProductosComponent() {
   return (
@@ -46,18 +45,16 @@ export default function ProductosComponent() {
           })}
         </div>
 
-        {/* CTA WhatsApp */}
+        {/* CTA llamada directa */}
         <div className="mt-12 text-center">
           <p className="text-stone-600 mb-6">
-            ¿No ves lo que buscas? Pregúntanos, seguramente lo tenemos o te lo conseguimos.
+            ¿No ves lo que buscas? Llámanos y te lo conseguimos.
           </p>
           <a
-            href={WHATSAPP_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 bg-stone-900 hover:bg-amber-700 text-stone-50 px-8 py-4 uppercase text-sm tracking-widest transition-colors"
+            href={TELEFONO_HREF}
+            className="inline-flex items-center gap-3 bg-stone-900 hover:bg-amber-700 text-stone-50 px-8 py-4 uppercase text-sm tracking-widest transition-colors"
           >
-            <MessageCircle size={18} /> Pregúntanos
+            <Phone size={18} /> Llámanos · {TELEFONO}
           </a>
         </div>
       </div>

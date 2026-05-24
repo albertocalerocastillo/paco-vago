@@ -5,7 +5,7 @@ import HistoriaComponent from './components/sections/Historia/HistoriaComponent'
 import ProductosComponent from './components/sections/Productos/ProductosComponent';
 import VisitanosComponent from './components/sections/Visitanos/VisitanosComponent';
 import ContactoComponent from './components/sections/Contacto/ContactoComponent';
-import WhatsAppButtonComponent from './components/ui/WhatsAppButton/WhatsAppButtonComponent';
+import PhoneButtonComponent from './components/ui/PhoneButton/PhoneButtonComponent';
 
 export default function App() {
   return (
@@ -17,7 +17,7 @@ export default function App() {
       <VisitanosComponent />
       <ContactoComponent />
       <FooterComponent />
-      <WhatsAppButtonComponent />
+      <PhoneButtonComponent />
     </div>
   );
 }

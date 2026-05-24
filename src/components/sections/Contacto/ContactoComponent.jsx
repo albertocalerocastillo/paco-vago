@@ -1,17 +1,26 @@
 import InstagramIcon from '../../ui/InstagramIcon/InstagramIcon';
+import { REDES_SOCIALES } from '../../../data/contacto';
 
 const REDES = [
   {
-    href: 'https://www.instagram.com/paco_vago_puerta_sevilla',
-    icon: <InstagramIcon className="mx-auto mb-4 text-stone-900 group-hover:text-amber-700 transition-colors" size={48} strokeWidth={1.5} />,
+    href: REDES_SOCIALES.instagram.url,
+    handle: REDES_SOCIALES.instagram.handle,
     nombre: 'Instagram',
-    handle: '@paco_vago_puerta_sevilla'
+    icon: (
+      <InstagramIcon
+        className="mx-auto mb-4 text-stone-900 group-hover:text-amber-700 transition-colors"
+        size={48}
+        strokeWidth={1.5}
+      />
+    )
   },
   {
-    href: 'https://www.tiktok.com/@paco.vago.puerta',
-    icon: <div className="text-4xl mb-4 group-hover:scale-110 transition-transform inline-block">🎵</div>,
+    href: REDES_SOCIALES.tiktok.url,
+    handle: REDES_SOCIALES.tiktok.handle,
     nombre: 'TikTok',
-    handle: '@paco.vago.puerta'
+    icon: (
+      <div className="text-4xl mb-4 group-hover:scale-110 transition-transform inline-block">🎵</div>
+    )
   }
 ];
 

@@ -6,7 +6,7 @@ import LocalComponent from './components/sections/Local/LocalComponent';
 import ProductosComponent from './components/sections/Productos/ProductosComponent';
 import VisitanosComponent from './components/sections/Visitanos/VisitanosComponent';
 import ContactoComponent from './components/sections/Contacto/ContactoComponent';
-import PhoneButtonComponent from './components/ui/PhoneButton/PhoneButtonComponent';
+import FloatingActionsComponent from './components/ui/FloatingActions/FloatingActionsComponent';
 
 export default function App() {
   return (
@@ -19,7 +19,7 @@ export default function App() {
       <VisitanosComponent />
       <ContactoComponent />
       <FooterComponent />
-      <PhoneButtonComponent />
+      <FloatingActionsComponent />
     </div>
   );
 }

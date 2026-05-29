@@ -7,6 +7,10 @@ export const TELEFONO = '954 14 08 71';
 export const TELEFONO_TEL = '+34954140871';
 export const TELEFONO_HREF = `tel:${TELEFONO_TEL}`;
 
+export const WHATSAPP = '615 323 072';
+export const WHATSAPP_NUM = '34615323072'; // formato internacional sin signos
+export const WHATSAPP_HREF = `https://wa.me/${WHATSAPP_NUM}`;
+
 export const DIRECCION = {
   calle: 'Puerta de Sevilla',
   ciudad: 'Carmona',

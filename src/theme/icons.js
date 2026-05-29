@@ -28,6 +28,7 @@ export {
   Sparkles
 } from 'lucide-react';
 
-// Icono de marca personalizado (SVG propio: lucide eliminó los iconos
+// Iconos de marca personalizados (SVG propios: lucide eliminó los iconos
 // de marcas comerciales en la v1.x)
 export { default as InstagramIcon } from '../components/ui/InstagramIcon/InstagramIcon';
+export { default as WhatsAppIcon } from '../components/ui/WhatsAppIcon/WhatsAppIcon';

@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="800" height="800">
+  <rect width="200" height="200" fill="#fafaf9"/>
+  <defs>
+    <path id="logoTop" d="M 38,100 A 62,62 0 0 1 162,100" />
+    <path id="logoBot" d="M 35,100 A 65,65 0 0 0 165,100" />
+  </defs>
+
+  <circle cx="100" cy="100" r="94" fill="none" stroke="#b45309" stroke-width="1.5"/>
+  <circle cx="100" cy="100" r="87" fill="none" stroke="#b45309" stroke-width="4"/>
+
+  <text font-family="Georgia, 'Times New Roman', serif" font-size="16" font-weight="bold" letter-spacing="4" fill="#b45309" text-anchor="middle">
+    <textPath href="#logoTop" startOffset="50%">PACO · VAGO</textPath>
+  </text>
+  <text font-family="Georgia, 'Times New Roman', serif" font-size="9.5" letter-spacing="1.5" fill="#b45309" text-anchor="middle">
+    <textPath href="#logoBot" startOffset="50%">PUERTA DE SEVILLA · CARMONA</textPath>
+  </text>
+
+  <g fill="#b45309">
+    <path d="M11,93 L12.8,98.2 L18,100 L12.8,101.8 L11,107 L9.2,101.8 L4,100 L9.2,98.2 Z"/>
+    <path d="M189,93 L190.8,98.2 L196,100 L190.8,101.8 L189,107 L187.2,101.8 L182,100 L187.2,98.2 Z"/>
+  </g>
+
+  <text x="100" y="98" font-family="Georgia, 'Times New Roman', serif" font-size="46" font-weight="bold" fill="#78350f" text-anchor="middle">PV</text>
+
+  <g>
+    <path d="M70,116 Q100,122 130,116" fill="none" stroke="#b45309" stroke-width="1.6"/>
+    <g fill="#78350f">
+      <ellipse cx="76"  cy="114" rx="5.5" ry="2.4" transform="rotate(-30 76 114)"/>
+      <ellipse cx="86"  cy="118" rx="5.5" ry="2.4" transform="rotate(-15 86 118)"/>
+      <ellipse cx="95"  cy="120" rx="5.5" ry="2.4" transform="rotate(-6 95 120)"/>
+      <ellipse cx="105" cy="120" rx="5.5" ry="2.4" transform="rotate(6 105 120)"/>
+      <ellipse cx="114" cy="118" rx="5.5" ry="2.4" transform="rotate(15 114 118)"/>
+      <ellipse cx="124" cy="114" rx="5.5" ry="2.4" transform="rotate(30 124 114)"/>
+    </g>
+    <g fill="#b45309">
+      <circle cx="91" cy="122" r="2.2"/>
+      <circle cx="109" cy="122" r="2.2"/>
+    </g>
+  </g>
+
+  <text x="100" y="140" font-family="Georgia, 'Times New Roman', serif" font-size="18" font-weight="bold" letter-spacing="3" fill="#78350f" text-anchor="middle">1924</text>
+</svg>

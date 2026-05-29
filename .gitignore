@@ -16,6 +16,11 @@ dist-ssr
 dev-out.txt
 dev-err.txt
 
+# Previsualizaciones locales
+logos-preview.html
+logo-export.html
+logo-paco-vago.png
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

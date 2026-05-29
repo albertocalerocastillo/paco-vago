@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Menu, X } from '../../../theme/icons';
 import { useScrolled } from '../../../hooks/useScrolled';
 import { scrollToSection } from '../../../utils/scroll';
+import LogoComponent from '../../ui/Logo/LogoComponent';
 
 const NAV_LINKS = ['historia', 'productos', 'visitanos', 'contacto'];
 
@@ -19,10 +20,17 @@ export default function NavComponent() {
       <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
 
         {/* Logo */}
-        <div className={`text-2xl tracking-tight transition-colors ${scrolled ? 'text-stone-900' : 'text-stone-50'}`}>
-          <span className="font-bold">Paco Vago</span>
-          <span className="text-xs ml-2 font-normal opacity-70">Desde 1924</span>
-        </div>
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="flex items-center gap-3"
+          aria-label="Ir al inicio"
+        >
+          <LogoComponent size={48} variant={scrolled ? 'light' : 'dark'} />
+          <span className={`hidden sm:flex flex-col items-start leading-tight transition-colors ${scrolled ? 'text-stone-900' : 'text-stone-50'}`}>
+            <span className="text-xl font-bold tracking-tight">Paco Vago</span>
+            <span className="text-[10px] uppercase tracking-[0.25em] opacity-70">Desde 1924</span>
+          </span>
+        </button>
 
         {/* Links escritorio */}
         <div className="hidden md:flex gap-8 text-sm uppercase tracking-widest">

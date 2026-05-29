@@ -1,4 +1,4 @@
-import { Wheat, Wine, ShoppingBag, Palette, Home, Tent, Sparkles } from 'lucide-react';
+import { Wheat, Wine, ShoppingBag, Palette, Home, Tent, Sparkles } from '../theme/icons';
 
 export const categorias = [
   {

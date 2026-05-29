@@ -10,7 +10,7 @@ import PhoneButtonComponent from './components/ui/PhoneButton/PhoneButtonCompone
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-stone-50 text-stone-900" style={{ fontFamily: 'Georgia, serif' }}>
+    <div className="min-h-screen bg-stone-50 text-stone-900 font-serif">
       <NavComponent />
       <HeroComponent />
       <HistoriaComponent />

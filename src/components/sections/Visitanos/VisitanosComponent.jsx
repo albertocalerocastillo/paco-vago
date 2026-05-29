@@ -1,4 +1,4 @@
-import { MapPin, Clock, Phone } from 'lucide-react';
+import { MapPin, Clock, Phone } from '../../../theme/icons';
 import { TELEFONO, TELEFONO_HREF, DIRECCION } from '../../../data/contacto';
 import EstadoTiendaBadge from './EstadoTiendaBadge';
 import HorariosGrid from './HorariosGrid';

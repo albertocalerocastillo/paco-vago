@@ -1,4 +1,4 @@
-import InstagramIcon from '../../ui/InstagramIcon/InstagramIcon';
+import { InstagramIcon } from '../../../theme/icons';
 import { REDES_SOCIALES } from '../../../data/contacto';
 
 const REDES = [

@@ -1,4 +1,4 @@
-import { Phone } from 'lucide-react';
+import { Phone } from '../../../theme/icons';
 import { TELEFONO_HREF } from '../../../data/contacto';
 
 /**

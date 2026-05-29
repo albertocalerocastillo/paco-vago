@@ -1,0 +1,37 @@
+/* ════════════════════════════════════════════════════════════
+   THEME — Identidad visual de Paco Vago
+   Equivalente a Theme/Theme.scss + _themeVariables.scss de tms.web,
+   adaptado a Tailwind v4 (tokens con @theme en lugar de SCSS).
+   ════════════════════════════════════════════════════════════ */
+
+@import "tailwindcss";
+
+/* ─── TOKENS DE MARCA ───────────────────────────────────────
+   Definir aquí cualquier color/fuente compartido.
+   Tailwind genera utilidades automáticamente:
+     --color-marca         →  bg-marca, text-marca, border-marca…
+     --font-serif          →  font-serif
+   ──────────────────────────────────────────────────────────── */
+@theme {
+  /* Tipografía */
+  --font-serif: Georgia, "Times New Roman", Times, serif;
+
+  /* Paleta de marca (alias semánticos sobre la paleta cálida andaluza) */
+  --color-marca:        #b45309; /* ámbar principal  (amber-700) */
+  --color-marca-claro:  #d97706; /* hover / acentos  (amber-600) */
+  --color-marca-oscuro: #78350f; /* fondos profundos (amber-900) */
+}
+
+/* ─── ESTILOS BASE ──────────────────────────────────────────
+   Equivalente a _overrides.scss: estilos globales del documento.
+   ──────────────────────────────────────────────────────────── */
+@layer base {
+  body {
+    font-family: var(--font-serif);
+  }
+
+  /* Scroll suave en toda la página (para los enlaces del menú) */
+  html {
+    scroll-behavior: smooth;
+  }
+}

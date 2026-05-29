@@ -1,4 +1,4 @@
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight } from '../../../theme/icons';
 import { scrollToSection } from '../../../utils/scroll';
 
 export default function HeroComponent() {

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, X } from '../../../theme/icons';
 import { useScrolled } from '../../../hooks/useScrolled';
 import { scrollToSection } from '../../../utils/scroll';
 

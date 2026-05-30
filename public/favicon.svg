@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
-  <rect width="200" height="200" rx="28" fill="#fafaf9"/>
-  <circle cx="100" cy="100" r="92" fill="none" stroke="#b45309" stroke-width="7"/>
-  <circle cx="100" cy="100" r="80" fill="none" stroke="#b45309" stroke-width="3"/>
-  <text x="100" y="133" font-family="Georgia, 'Times New Roman', serif" font-size="100" font-weight="bold" fill="#78350f" text-anchor="middle">PV</text>
-</svg>

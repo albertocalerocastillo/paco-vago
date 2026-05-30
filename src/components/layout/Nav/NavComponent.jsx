@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Menu, X } from '../../../theme/icons';
 import { useScrolled } from '../../../hooks/useScrolled';
 import { scrollToSection } from '../../../utils/scroll';
-import LogoComponent from '../../ui/Logo/LogoComponent';
 
 const NAV_LINKS = ['historia', 'productos', 'visitanos', 'contacto'];
 
@@ -25,7 +24,11 @@ export default function NavComponent() {
           className="flex items-center gap-3"
           aria-label="Ir al inicio"
         >
-          <LogoComponent size={48} variant={scrolled ? 'light' : 'dark'} />
+          <img
+            src="/logo.png"
+            alt="Paco Vago · Desde 1924"
+            className="h-14 w-14 rounded-full object-cover ring-1 ring-amber-700/30 shadow-md"
+          />
           <span className={`hidden sm:flex flex-col items-start leading-tight transition-colors ${scrolled ? 'text-stone-900' : 'text-stone-50'}`}>
             <span className="text-xl font-bold tracking-tight">Paco Vago</span>
             <span className="text-[10px] uppercase tracking-[0.25em] opacity-70">Desde 1924</span>

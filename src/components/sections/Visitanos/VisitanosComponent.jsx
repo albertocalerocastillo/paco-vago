@@ -61,7 +61,7 @@ export default function VisitanosComponent() {
           </div>
 
           {/* Columna derecha: mapa */}
-          <div className="bg-stone-800 aspect-square md:aspect-auto rounded-sm overflow-hidden min-h-[400px]">
+          <div className="bg-stone-800 rounded-sm overflow-hidden h-80 md:h-auto md:min-h-[400px]">
             <iframe
               src={MAPS_EMBED_URL}
               width="100%"

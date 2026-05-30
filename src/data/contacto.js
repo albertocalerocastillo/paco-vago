@@ -9,7 +9,9 @@ export const TELEFONO_HREF = `tel:${TELEFONO_TEL}`;
 
 export const WHATSAPP = '615 323 072';
 export const WHATSAPP_NUM = '34615323072'; // formato internacional sin signos
-export const WHATSAPP_HREF = `https://wa.me/${WHATSAPP_NUM}`;
+// Mensaje que aparece ya escrito al abrir el chat (el cliente solo pulsa enviar)
+export const WHATSAPP_MENSAJE = 'Hola, os escribo desde la web de Paco Vago. Quería preguntaros por...';
+export const WHATSAPP_HREF = `https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(WHATSAPP_MENSAJE)}`;
 
 export const DIRECCION = {
   calle: 'Puerta de Sevilla',

@@ -24,21 +24,37 @@ export default function ProductosComponent() {
             return (
               <div
                 key={i}
-                className="group bg-white p-8 border border-stone-200 hover:border-amber-700 transition-all hover:shadow-xl cursor-pointer"
+                className="group bg-white border border-stone-200 hover:border-amber-700 transition-all hover:shadow-xl cursor-pointer overflow-hidden flex flex-col"
               >
-                <Icon
-                  className="text-amber-700 mb-4 group-hover:scale-110 transition-transform"
-                  size={40}
-                  strokeWidth={1.5}
-                />
-                <h3 className="text-2xl font-bold mb-3">{cat.titulo}</h3>
-                <p className="text-stone-600 mb-4 text-sm leading-relaxed">{cat.desc}</p>
-                <div className="flex flex-wrap gap-2">
-                  {cat.items.map(item => (
-                    <span key={item} className="text-xs bg-stone-100 text-stone-700 px-3 py-1 rounded-full">
-                      {item}
-                    </span>
-                  ))}
+                {/* Cabecera: foto real si existe, si no el icono sobre fondo */}
+                {cat.foto ? (
+                  <div className="relative h-48 overflow-hidden">
+                    <img
+                      src={cat.foto}
+                      alt={cat.titulo}
+                      loading="lazy"
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                    <Icon className="absolute top-4 left-4 text-white drop-shadow" size={28} strokeWidth={1.5} />
+                  </div>
+                ) : (
+                  <div className="h-48 flex items-center justify-center bg-stone-100">
+                    <Icon className="text-amber-700 group-hover:scale-110 transition-transform" size={56} strokeWidth={1.25} />
+                  </div>
+                )}
+
+                {/* Contenido */}
+                <div className="p-8 flex flex-col flex-1">
+                  <h3 className="text-2xl font-bold mb-3">{cat.titulo}</h3>
+                  <p className="text-stone-600 mb-4 text-sm leading-relaxed">{cat.desc}</p>
+                  <div className="flex flex-wrap gap-2 mt-auto">
+                    {cat.items.map(item => (
+                      <span key={item} className="text-xs bg-stone-100 text-stone-700 px-3 py-1 rounded-full">
+                        {item}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
             );

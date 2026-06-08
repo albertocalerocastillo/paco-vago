@@ -10,13 +10,19 @@ export const categorias = [
     icon: Wheat,
     titulo: 'Gourmet',
     desc: 'Jamones, quesos, chacinas, frutos secos, especias a granel, miel 100% natural, legumbres y AOVE. Patés de mar exclusivos y, por supuesto, las mejores conservas: Albo, Ortiz, La Tarifeña, Herpac, gildas y banderillas…',
-    items: ['Jamones', 'Quesos', 'Chacinas', 'Patés de mar', 'Conservas', 'Especias a granel', 'Miel', 'AOVE'],
+    items: ['Jamones', 'Quesos', 'Chacinas', 'Patés de mar', 'Conservas', 'Encurtidos', 'Especias a granel', 'Infusiones', 'Miel', 'AOVE'],
     productos: [
+      { src: '/fotos/variedad.jpg', nombre: 'Nuestro mostrador gourmet', desc: 'Jamones, quesos al corte, aceites, encurtidos… lo mejor de la tienda' },
       { src: '/fotos/pates.jpg', nombre: 'Patés de mar Agromar', desc: 'Exclusivos: oricios, centollo, bogavante y cabracho' },
-      { src: '/fotos/miel-1.jpg', nombre: 'Miel Mi Vieja Colmena', desc: 'Miel 100% natural de apicultor · azahar, eucalipto, tomillo, mil flores' },
+      { src: '/fotos/aceite.jpg', nombre: 'AOVE de Carmona', desc: 'Aceite de oliva virgen extra local: El Molino de Carmona, La Matilla…' },
+      { src: '/fotos/embutido.jpg', nombre: 'Chacinas e ibéricos', desc: 'Mojama de Barbate, chorizo cular ibérico, salchichón, panceta…' },
+      { src: '/fotos/miel-3.jpg', nombre: 'Miel Mi Vieja Colmena', desc: 'Miel 100% natural de apicultor · azahar, romero, flores, eucalipto…' },
       { src: '/fotos/miel-2.jpg', nombre: 'Jalea real, polen y orzas', desc: 'Jalea real, polen de abeja y orzas con miel' },
       { src: '/fotos/especias.jpg', nombre: 'Especias a granel', desc: 'Pimentón, orégano, comino, ajo molido… al peso' },
+      { src: '/fotos/infusiones.jpg', nombre: 'Infusiones y tés a granel', desc: 'Anís estrellado, flor de Jamaica, té verde, Embrujo de Granada, té Pakistaní…' },
       { src: '/fotos/legumbres.jpg', nombre: 'Máxima selección en legumbres', desc: 'Garbanzos, lentejas y judión Vegas Bañezanas' },
+      { src: '/fotos/aceitunas.jpg', nombre: 'Aceitunas y encurtidos', desc: 'Aceitunas, pepinillos, alcaparras y banderillas' },
+      { src: '/fotos/conservas-4.jpg', nombre: 'Conservas selectas', desc: 'Lo mejor en conserva: Ortiz, Tejero, Balea, La Tarifeña, Lotamar…' },
       { src: '/fotos/conservas-1.jpg', nombre: 'Conservas Albo', desc: 'Sardinas, caballa, atún, ventresca…' },
       { src: '/fotos/conservas-2.jpg', nombre: 'Conservas Ortiz', desc: 'Atún claro, bonito, anchoas…' },
       { src: '/fotos/conservas-3.jpg', nombre: 'Conservas Balea', desc: 'Sardinillas, mejillones, agujas…' },
@@ -26,9 +32,11 @@ export const categorias = [
   {
     icon: Wine,
     titulo: 'Bodega',
-    desc: 'Selección de licores, whiskys y vinos cuidadosamente escogidos.',
-    items: ['Vinos selectos', 'Whiskys', 'Licores'],
-    productos: []
+    desc: 'Vinos, whiskys y licores selectos. Y un tesoro local: licores y cremas artesanas elaboradas aquí, en Carmona.',
+    items: ['Vinos selectos', 'Whiskys', 'Licores de Carmona', 'Cremas artesanas'],
+    productos: [
+      { src: '/fotos/licores.jpg', nombre: 'Licores artesanos de Carmona', desc: 'Cremas de roscón, arroz con leche, torrijas, brownie, whisky; limonchelo, naranchelo y más' }
+    ]
   },
   {
     icon: Candy,

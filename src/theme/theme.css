@@ -34,4 +34,27 @@
   html {
     scroll-behavior: smooth;
   }
+
+  /* ─── ANIMACIÓN DE APARICIÓN (fade-in al hacer scroll) ───
+     Acelerada por GPU (opacity + transform) → fluida en móvil. */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    will-change: opacity, transform;
+  }
+  .reveal-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Accesibilidad: si el usuario pide reducir movimiento, sin animación. */
+  @media (prefers-reduced-motion: reduce) {
+    .reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+    html { scroll-behavior: auto; }
+  }
 }

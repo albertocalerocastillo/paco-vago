@@ -1,5 +1,6 @@
 import { InstagramIcon } from '../../../theme/icons';
 import { REDES_SOCIALES } from '../../../data/contacto';
+import Reveal from '../../ui/Reveal/RevealComponent';
 
 const REDES = [
   {
@@ -30,13 +31,15 @@ export default function ContactoComponent() {
       <div className="max-w-4xl mx-auto text-center">
 
         {/* Cabecera */}
-        <div className="text-amber-700 text-sm uppercase tracking-[0.4em] mb-4">Síguenos</div>
-        <h2 className="text-5xl md:text-6xl font-bold mb-6">En las redes</h2>
-        <div className="w-24 h-px bg-amber-700 mx-auto mb-12"></div>
+        <Reveal>
+          <div className="text-amber-700 text-sm uppercase tracking-[0.4em] mb-4">Síguenos</div>
+          <h2 className="text-5xl md:text-6xl font-bold mb-6">En las redes</h2>
+          <div className="w-24 h-px bg-amber-700 mx-auto mb-12"></div>
 
-        <p className="text-lg text-stone-700 mb-12">
-          Descubre cada día las novedades, productos destacados y la vida en la tienda.
-        </p>
+          <p className="text-lg text-stone-700 mb-12">
+            Descubre cada día las novedades, productos destacados y la vida en la tienda.
+          </p>
+        </Reveal>
 
         {/* Tarjetas de redes sociales */}
         <div className="grid sm:grid-cols-2 gap-6">

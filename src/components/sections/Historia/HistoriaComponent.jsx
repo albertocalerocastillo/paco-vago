@@ -1,3 +1,5 @@
+import Reveal from '../../ui/Reveal/RevealComponent';
+
 const hitos = [
   {
     anyo: '1924',
@@ -36,11 +38,11 @@ export default function HistoriaComponent() {
       <div className="max-w-4xl mx-auto">
 
         {/* Cabecera */}
-        <div className="text-center mb-16">
+        <Reveal className="text-center mb-16">
           <div className="text-amber-700 text-sm uppercase tracking-[0.4em] mb-4">Nuestra historia</div>
           <h2 className="text-5xl md:text-6xl font-bold mb-6">Un siglo en Carmona</h2>
           <div className="w-24 h-px bg-amber-700 mx-auto"></div>
-        </div>
+        </Reveal>
 
         {/* Línea temporal */}
         <div className="space-y-8 text-lg leading-relaxed text-stone-700">

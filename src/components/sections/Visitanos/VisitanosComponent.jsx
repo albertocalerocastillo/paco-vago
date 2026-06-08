@@ -2,6 +2,7 @@ import { MapPin, Clock, Phone } from '../../../theme/icons';
 import { TELEFONO, TELEFONO_HREF, DIRECCION } from '../../../data/contacto';
 import EstadoTiendaBadge from './EstadoTiendaBadge';
 import HorariosGrid from './HorariosGrid';
+import Reveal from '../../ui/Reveal/RevealComponent';
 
 const MAPS_EMBED_URL =
   'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3164.5!2d-5.6435!3d37.4710!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sPuerta%20de%20Sevilla%2C%20Carmona!5e0!3m2!1ses!2ses!4v1234567890';
@@ -12,14 +13,14 @@ export default function VisitanosComponent() {
       <div className="max-w-7xl mx-auto">
 
         {/* Cabecera */}
-        <div className="text-center mb-16">
+        <Reveal className="text-center mb-16">
           <div className="text-amber-400 text-sm uppercase tracking-[0.4em] mb-4">Visítanos</div>
           <h2 className="text-5xl md:text-6xl font-bold mb-6">Te esperamos</h2>
           <div className="w-24 h-px bg-amber-400 mx-auto mb-8"></div>
 
           {/* Estado abierto/cerrado en tiempo real */}
           <EstadoTiendaBadge />
-        </div>
+        </Reveal>
 
         <div className="grid md:grid-cols-2 gap-12">
 

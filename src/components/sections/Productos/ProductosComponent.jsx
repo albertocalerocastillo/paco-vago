@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Phone, X, ChevronRight } from '../../../theme/icons';
 import { categorias } from '../../../data/categorias';
 import { TELEFONO_HREF, TELEFONO } from '../../../data/contacto';
+import Reveal from '../../ui/Reveal/RevealComponent';
 
 export default function ProductosComponent() {
   const [abierta, setAbierta] = useState(null);   // categoría seleccionada (panel)
@@ -36,14 +37,14 @@ export default function ProductosComponent() {
       <div className="max-w-7xl mx-auto">
 
         {/* Cabecera */}
-        <div className="text-center mb-16">
+        <Reveal className="text-center mb-16">
           <div className="text-amber-700 text-sm uppercase tracking-[0.4em] mb-4">Qué encontrarás</div>
           <h2 className="text-5xl md:text-6xl font-bold mb-6">Tenemos de todo</h2>
           <div className="w-24 h-px bg-amber-700 mx-auto mb-6"></div>
           <p className="text-lg text-stone-600 max-w-2xl mx-auto">
             Desde lo más tradicional hasta lo que ni te imaginas. Si no lo tenemos, te lo conseguimos.
           </p>
-        </div>
+        </Reveal>
 
         {/* Grid de categorías */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -51,10 +52,14 @@ export default function ProductosComponent() {
             const Icon = cat.icon;
             const tieneProductos = cat.productos && cat.productos.length > 0;
             return (
-              <div
+              <Reveal
                 key={i}
+                delay={(i % 3) * 90}
+                className="h-full"
+              >
+              <div
                 onClick={() => tieneProductos && setAbierta(cat)}
-                className={`group bg-white border border-stone-200 transition-all overflow-hidden flex flex-col ${
+                className={`group bg-white border border-stone-200 transition-all overflow-hidden flex flex-col h-full ${
                   tieneProductos ? 'hover:border-amber-700 hover:shadow-xl cursor-pointer' : ''
                 }`}
               >
@@ -92,6 +97,7 @@ export default function ProductosComponent() {
                   </div>
                 </div>
               </div>
+              </Reveal>
             );
           })}
         </div>

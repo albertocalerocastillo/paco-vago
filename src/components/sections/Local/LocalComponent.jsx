@@ -1,7 +1,9 @@
+import Reveal from '../../ui/Reveal/RevealComponent';
+
 export default function LocalComponent() {
   return (
     <section id="local" className="py-24 px-6 bg-stone-50">
-      <div className="max-w-7xl mx-auto">
+      <Reveal className="max-w-7xl mx-auto">
 
         <div className="grid md:grid-cols-2 gap-12 items-center">
 
@@ -44,7 +46,7 @@ export default function LocalComponent() {
             </div>
           </div>
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }

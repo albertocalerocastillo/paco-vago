@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from 'react';
 import { ChevronRight, X } from '../../../theme/icons';
 import { galeria } from '../../../data/galeria';
+import Reveal from '../../ui/Reveal/RevealComponent';
 
 export default function GaleriaComponent() {
   const trackRef = useRef(null);
@@ -28,14 +29,14 @@ export default function GaleriaComponent() {
       <div className="max-w-7xl mx-auto">
 
         {/* Cabecera */}
-        <div className="text-center mb-12">
+        <Reveal className="text-center mb-12">
           <div className="text-amber-700 text-sm uppercase tracking-[0.4em] mb-4">Galería</div>
           <h2 className="text-5xl md:text-6xl font-bold mb-6">La tienda por dentro</h2>
           <div className="w-24 h-px bg-amber-700 mx-auto mb-6"></div>
           <p className="text-lg text-stone-600 max-w-2xl mx-auto">
             Un vistazo a lo que vas a encontrar al cruzar la Puerta de Sevilla.
           </p>
-        </div>
+        </Reveal>
 
         {/* Carrusel */}
         <div className="relative">

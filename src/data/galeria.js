@@ -1,17 +1,31 @@
+import { categorias } from './categorias';
+
 /**
- * Fotos de la galería "La tienda por dentro".
- * Para añadir más: guarda la foto en public/fotos/ y añade una línea aquí.
- * Orden pensado para alternar temáticas (no agrupar todo lo mismo junto).
+ * Galería automática: se construye sola a partir de TODOS los productos
+ * de todas las categorías. Cada foto que añadas a un producto aparece
+ * aquí sin tocar nada más.
+ *
+ * Las fotos se intercalan por categoría (round-robin) para que no salgan
+ * todas las de la misma categoría seguidas.
  */
-export const galeria = [
-  { src: '/fotos/moda.jpg',        alt: 'Sombreros Panamá en Paco Vago' },
-  { src: '/fotos/miel-1.jpg',      alt: 'Miel artesanal Mi Vieja Colmena en Paco Vago' },
-  { src: '/fotos/piel-1.jpg',      alt: 'Bolsos de piel en Paco Vago' },
-  { src: '/fotos/conservas-1.jpg', alt: 'Conservas Albo en Paco Vago' },
-  { src: '/fotos/gorras.jpg',      alt: 'Gorras de temporada en Paco Vago' },
-  { src: '/fotos/coches.jpg',      alt: 'Gama Gorilux de limpieza de coche en Paco Vago' },
-  { src: '/fotos/conservas-5.jpg', alt: 'Conservas Tejero en Paco Vago' },
-  { src: '/fotos/chuches-1.jpg',   alt: 'Golosinas a granel en Paco Vago' },
-  { src: '/fotos/piel-3.jpg',      alt: 'Bolsos bandolera en Paco Vago' },
-  { src: '/fotos/latas-1.jpg',     alt: 'Gran surtido de conservas en Paco Vago' }
+
+// Fotos "de ambiente" que no son un producto concreto (surtido, tienda…).
+const EXTRAS = [
+  { src: '/fotos/latas-1.jpg', alt: 'Gran surtido de conservas en Paco Vago' }
 ];
+
+// Agrupa las fotos de producto por categoría
+const grupos = categorias.map(cat =>
+  (cat.productos || []).map(p => ({ src: p.src, alt: `${p.nombre} · Paco Vago` }))
+);
+
+// Intercala: 1ª de cada categoría, luego 2ª de cada una, etc.
+const intercaladas = [];
+const maxLen = grupos.reduce((m, g) => Math.max(m, g.length), 0);
+for (let i = 0; i < maxLen; i++) {
+  for (const g of grupos) {
+    if (g[i]) intercaladas.push(g[i]);
+  }
+}
+
+export const galeria = [...intercaladas, ...EXTRAS];

@@ -42,29 +42,28 @@ export default function ProductosComponent() {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {categorias.map((cat, i) => {
             const Icon = cat.icon;
-            const tieneFotos = cat.fotos && cat.fotos.length > 0;
+            const tieneProductos = cat.productos && cat.productos.length > 0;
             return (
               <div
                 key={i}
-                onClick={() => tieneFotos && setAbierta(cat)}
+                onClick={() => tieneProductos && setAbierta(cat)}
                 className={`group bg-white border border-stone-200 transition-all overflow-hidden flex flex-col ${
-                  tieneFotos ? 'hover:border-amber-700 hover:shadow-xl cursor-pointer' : ''
+                  tieneProductos ? 'hover:border-amber-700 hover:shadow-xl cursor-pointer' : ''
                 }`}
               >
-                {/* Cabecera: foto si existe, si no el icono */}
-                {tieneFotos ? (
+                {/* Cabecera: foto del primer producto si hay, si no el icono */}
+                {tieneProductos ? (
                   <div className="relative h-48 overflow-hidden">
                     <img
-                      src={cat.fotos[0]}
+                      src={cat.productos[0].src}
                       alt={cat.titulo}
                       loading="lazy"
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
                     <Icon className="absolute top-4 left-4 text-white drop-shadow" size={28} strokeWidth={1.5} />
-                    {/* contador de fotos */}
                     <span className="absolute bottom-3 right-3 text-xs bg-black/55 text-white px-2.5 py-1 rounded-full backdrop-blur-sm">
-                      {cat.fotos.length} fotos · ver
+                      {cat.productos.length} productos · ver
                     </span>
                   </div>
                 ) : (
@@ -117,7 +116,7 @@ export default function ProductosComponent() {
             onClick={(e) => e.stopPropagation()}
             className="bg-stone-50 w-full sm:max-w-3xl max-h-[92vh] sm:rounded-lg overflow-hidden flex flex-col shadow-2xl"
           >
-            {/* Carrusel de fotos */}
+            {/* Carrusel de productos */}
             <div className="relative shrink-0">
               <button
                 onClick={() => setAbierta(null)}
@@ -130,41 +129,47 @@ export default function ProductosComponent() {
                 ref={trackRef}
                 className="flex overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
               >
-                {abierta.fotos.map((src, idx) => (
-                  <img
-                    key={idx}
-                    src={src}
-                    alt={`${abierta.titulo} ${idx + 1}`}
-                    className="snap-center shrink-0 w-full h-64 sm:h-80 object-cover"
-                  />
+                {abierta.productos.map((p, idx) => (
+                  <div key={idx} className="relative snap-center shrink-0 w-full">
+                    <img
+                      src={p.src}
+                      alt={p.nombre}
+                      className="w-full h-64 sm:h-80 object-cover"
+                    />
+                    {/* Nombre del producto sobre la foto */}
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 to-transparent p-4 pt-10">
+                      <p className="text-white text-lg font-bold leading-tight">{p.nombre}</p>
+                      {p.desc && <p className="text-stone-200 text-sm">{p.desc}</p>}
+                    </div>
+                  </div>
                 ))}
               </div>
 
-              {/* Flechas (solo cuando hay más de una foto) */}
-              {abierta.fotos.length > 1 && (
+              {/* Flechas (solo cuando hay más de un producto) */}
+              {abierta.productos.length > 1 && (
                 <>
                   <button
                     onClick={() => desplazar(-1)}
                     className="hidden md:flex items-center justify-center absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 hover:bg-white shadow-lg text-stone-800 hover:text-amber-700 transition-colors"
-                    aria-label="Foto anterior"
+                    aria-label="Producto anterior"
                   >
                     <ChevronRight className="rotate-180" size={22} />
                   </button>
                   <button
                     onClick={() => desplazar(1)}
                     className="hidden md:flex items-center justify-center absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 hover:bg-white shadow-lg text-stone-800 hover:text-amber-700 transition-colors"
-                    aria-label="Foto siguiente"
+                    aria-label="Producto siguiente"
                   >
                     <ChevronRight size={22} />
                   </button>
-                  <span className="absolute bottom-3 left-1/2 -translate-x-1/2 text-xs bg-black/55 text-white px-3 py-1 rounded-full backdrop-blur-sm">
-                    {abierta.fotos.length} fotos
+                  <span className="absolute top-3 left-3 text-xs bg-black/55 text-white px-3 py-1 rounded-full backdrop-blur-sm">
+                    {abierta.productos.length} productos
                   </span>
                 </>
               )}
             </div>
 
-            {/* Info */}
+            {/* Info de la categoría */}
             <div className="p-6 sm:p-8 overflow-y-auto">
               <h3 className="text-3xl font-bold mb-3">{abierta.titulo}</h3>
               <p className="text-stone-600 mb-5 leading-relaxed">{abierta.desc}</p>

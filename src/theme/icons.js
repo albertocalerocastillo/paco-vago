@@ -26,7 +26,8 @@ export {
   Home,
   Tent,
   Sparkles,
-  Car
+  Car,
+  Candy
 } from 'lucide-react';
 
 // Iconos de marca personalizados (SVG propios: lucide eliminó los iconos

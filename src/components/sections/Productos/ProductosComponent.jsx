@@ -4,7 +4,8 @@ import { categorias } from '../../../data/categorias';
 import { TELEFONO_HREF, TELEFONO } from '../../../data/contacto';
 
 export default function ProductosComponent() {
-  const [abierta, setAbierta] = useState(null); // categoría seleccionada (modal)
+  const [abierta, setAbierta] = useState(null);   // categoría seleccionada (panel)
+  const [ampliada, setAmpliada] = useState(null); // foto ampliada (lightbox)
   const trackRef = useRef(null);
 
   const desplazar = (dir) => {
@@ -12,17 +13,23 @@ export default function ProductosComponent() {
     if (el) el.scrollBy({ left: dir * el.clientWidth, behavior: 'smooth' });
   };
 
-  // Cerrar con Escape + bloquear scroll de fondo
+  const cerrarPanel = () => { setAmpliada(null); setAbierta(null); };
+
+  // Cerrar con Escape (primero la foto ampliada, luego el panel) + bloquear scroll
   useEffect(() => {
     if (!abierta) return;
-    const onKey = (e) => { if (e.key === 'Escape') setAbierta(null); };
+    const onKey = (e) => {
+      if (e.key !== 'Escape') return;
+      if (ampliada) setAmpliada(null);
+      else setAbierta(null);
+    };
     window.addEventListener('keydown', onKey);
     document.body.style.overflow = 'hidden';
     return () => {
       window.removeEventListener('keydown', onKey);
       document.body.style.overflow = '';
     };
-  }, [abierta]);
+  }, [abierta, ampliada]);
 
   return (
     <section id="productos" className="py-24 px-6 bg-stone-50">
@@ -106,7 +113,7 @@ export default function ProductosComponent() {
       {/* PANEL DE DETALLE DE CATEGORÍA */}
       {abierta && (
         <div
-          onClick={() => setAbierta(null)}
+          onClick={cerrarPanel}
           className="fixed inset-0 z-50 bg-black/80 flex items-end sm:items-center justify-center sm:p-4"
           role="dialog"
           aria-modal="true"
@@ -119,7 +126,7 @@ export default function ProductosComponent() {
             {/* Carrusel de productos */}
             <div className="relative shrink-0">
               <button
-                onClick={() => setAbierta(null)}
+                onClick={cerrarPanel}
                 className="absolute top-3 right-3 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-black/50 hover:bg-black/70 text-white transition-colors"
                 aria-label="Cerrar"
               >
@@ -134,10 +141,11 @@ export default function ProductosComponent() {
                     <img
                       src={p.src}
                       alt={p.nombre}
-                      className="w-full h-64 sm:h-80 object-cover"
+                      onClick={() => setAmpliada(p)}
+                      className="w-full h-64 sm:h-80 object-cover cursor-zoom-in"
                     />
                     {/* Nombre del producto sobre la foto */}
-                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 to-transparent p-4 pt-10">
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 to-transparent p-4 pt-10 pointer-events-none">
                       <p className="text-white text-lg font-bold leading-tight">{p.nombre}</p>
                       {p.desc && <p className="text-stone-200 text-sm">{p.desc}</p>}
                     </div>
@@ -189,6 +197,36 @@ export default function ProductosComponent() {
               </a>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* LIGHTBOX: foto de producto a pantalla completa (encima del panel) */}
+      {ampliada && (
+        <div
+          onClick={() => setAmpliada(null)}
+          className="fixed inset-0 z-[60] bg-black/90 flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Foto ampliada: ${ampliada.nombre}`}
+        >
+          <button
+            onClick={() => setAmpliada(null)}
+            className="absolute top-4 right-4 text-white/80 hover:text-white transition-colors"
+            aria-label="Cerrar"
+          >
+            <X size={36} />
+          </button>
+          <figure onClick={(e) => e.stopPropagation()} className="flex flex-col items-center">
+            <img
+              src={ampliada.src}
+              alt={ampliada.nombre}
+              className="max-w-full max-h-[80vh] object-contain rounded-sm shadow-2xl"
+            />
+            <figcaption className="text-stone-200 mt-4 text-center">
+              <span className="block text-lg font-semibold">{ampliada.nombre}</span>
+              {ampliada.desc && <span className="text-sm text-stone-400">{ampliada.desc}</span>}
+            </figcaption>
+          </figure>
         </div>
       )}
     </section>

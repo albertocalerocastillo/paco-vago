@@ -24,6 +24,13 @@ const INTERIOR = [
   }
 ];
 
+// Producciones de cine y TV rodadas en la tienda / su fachada
+const RODAJES = [
+  { titulo: 'Manolete', tipo: 'Película', detalle: 'Con Penélope Cruz y Adrien Brody' },
+  { titulo: 'La Peste', tipo: 'Serie · Movistar+', detalle: 'Ambientada en la Sevilla del XVI' },
+  { titulo: 'La chica invisible', tipo: 'Serie', detalle: 'Rodada en Carmona' }
+];
+
 export default function LocalComponent() {
   const [ampliada, setAmpliada] = useState(null);
 
@@ -59,10 +66,11 @@ export default function LocalComponent() {
                 histórico de Carmona.
               </p>
               <p>
-                Sobre la fachada todavía pueden leerse las pintadas históricas de la antigua
-                <span className="italic"> Cooperativa Olivarera</span>: <span className="font-semibold">"Aceites"</span>,
-                <span className="font-semibold"> "Aceitunas"</span>, <span className="font-semibold">"Exportación"</span>.
-                Es nuestro pequeño testimonio del Carmona del siglo XX.
+                Las letras de <span className="font-semibold">"Aceites · Aceitunas · Cooperativa Olivarera"</span>
+                que ves en la fachada tienen una historia curiosa: son herencia del rodaje de la película
+                <span className="italic"> Manolete</span>. El equipo las pintó como "Cooperativa Olivarera
+                Cordobesa" y nosotros decidimos conservarlas —quitando lo de "cordobesa"— como guiño y porque,
+                además, aquí siempre se han vendido buenos aceites.
               </p>
               <p>
                 Cruzar el arco y entrar en nuestra tienda es, literalmente, dar un paseo por
@@ -92,6 +100,26 @@ export default function LocalComponent() {
               </figcaption>
             </figure>
           ))}
+        </div>
+
+        {/* Han rodado aquí: cine y televisión */}
+        <div className="mt-16 bg-stone-900 text-stone-50 rounded-sm p-8 md:p-10">
+          <div className="text-center mb-8">
+            <div className="text-amber-400 text-sm uppercase tracking-[0.4em] mb-3">🎬 Escenario de cine y TV</div>
+            <h3 className="text-2xl md:text-3xl font-bold">También han rodado aquí</h3>
+            <p className="text-stone-400 mt-3 max-w-2xl mx-auto text-sm">
+              Nuestra fachada y la tienda han sido escenario de cine y televisión.
+            </p>
+          </div>
+          <div className="grid sm:grid-cols-3 gap-4">
+            {RODAJES.map((r) => (
+              <div key={r.titulo} className="text-center border border-stone-700/60 rounded-sm p-5">
+                <div className="text-amber-400 text-xs uppercase tracking-widest mb-2">{r.tipo}</div>
+                <div className="text-xl font-bold mb-1">{r.titulo}</div>
+                <div className="text-stone-400 text-sm">{r.detalle}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </Reveal>
 

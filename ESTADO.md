@@ -57,7 +57,11 @@ src/
 2. **Hero** — foto de la tienda de fondo + lema.
 3. **Historia** — timeline 1924→2025 + retratos de Paco y José Antonio (foto reportaje
    La Voz del Sur, con crédito). Fotos ampliables (lightbox).
-4. **El local** — fachada + dúo/trío interior (panorámica, utensilios, maderas), ampliables.
+4. **El local** — fachada + trío interior (panorámica, utensilios, maderas, ampliables) +
+   bloque "🎬 Han rodado aquí" (Manolete con Penélope Cruz y Adrien Brody, La Peste de
+   Movistar+, La chica invisible). OJO: las letras de la fachada ("Aceites/Aceitunas/
+   Cooperativa Olivarera") NO son de una cooperativa histórica — son del rodaje de Manolete,
+   la familia las conservó quitando "cordobesa". (Dato confirmado por el dueño).
 5. **Productos ("Tenemos de todo")** — 9 categorías en tarjetas. Al pulsar una con fotos se
    abre un PANEL con carrusel de productos (dedo/flechas) + lightbox al pulsar foto.
 6. **Galería ("La tienda por dentro")** — carrusel automático + lightbox.

@@ -82,9 +82,11 @@ export const categorias = [
   {
     icon: Tent,
     titulo: 'Aire libre',
-    desc: 'Todo para camping, playa, equipos de fútbol, juguetes y artículos de emergencia.',
-    items: ['Camping', 'Playa', 'Equipos de fútbol', 'Juguetes', 'Emergencias'],
-    productos: []
+    desc: 'Todo para camping, playa, equipos de fútbol, juguetes y emergencias. Y navajas artesanas, con servicio de afilado.',
+    items: ['Camping', 'Playa', 'Navajas', 'Afilado', 'Equipos de fútbol', 'Juguetes'],
+    productos: [
+      { src: '/fotos/navajas.jpg', nombre: 'Navajas y afilado', desc: 'Navajas artesanas y servicio de afilado' }
+    ]
   },
   {
     icon: Car,
@@ -98,8 +100,12 @@ export const categorias = [
   {
     icon: Sparkles,
     titulo: 'Perfumería',
-    desc: 'Perfumes, colonias y aceites esenciales seleccionados.',
-    items: ['Perfumes', 'Colonias', 'Aceites esenciales'],
-    productos: []
+    desc: 'Perfumes, colonias y cosmética. Y todo para el afeitado clásico y la higiene personal: brochas, after shave, cremas, dental y mucho más.',
+    items: ['Perfumes', 'Colonias', 'Afeitado', 'Higiene personal', 'Cosmética', 'Aceites esenciales'],
+    productos: [
+      { src: '/fotos/perfumeria.jpg', nombre: 'Perfumería y cosmética', desc: 'Colonias, cremas, desodorantes…' },
+      { src: '/fotos/afeitado.jpg', nombre: 'Todo para el afeitado', desc: 'Maquinillas, brochas, espumas y after shave (Floïd, LEA, Williams…)' },
+      { src: '/fotos/higiene.jpg', nombre: 'Higiene y cuidado personal', desc: 'Dental, cepillos, colonias clásicas…' }
+    ]
   }
 ];

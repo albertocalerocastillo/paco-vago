@@ -67,9 +67,15 @@ src/
 6. **Galería ("La tienda por dentro")** — carrusel automático + lightbox.
 7. **Visítanos** — dirección, teléfono, horario (lista en móvil / cuadrícula 7 días en
    escritorio), badge ABIERTO/CERRADO en tiempo real, mapa.
-8. **Contacto** — Instagram + TikTok.
+8. **Síguenos** (id `redes`, antes "Contacto" + "Videos", ahora UNIFICADAS) — carrusel de
+   vídeos (TikTok + Reels de Instagram, enlaces ligeros, NO embeds) con su icono de red +
+   botones de seguir Instagram y TikTok. Datos en `data/videos.js` ({url, red, portada}).
+   Para añadir vídeo: nueva línea con red 'tiktok'|'instagram'.
 9. **Footer** — logo + datos.
 10. **Botones flotantes** — WhatsApp (615 323 072, con mensaje predefinido) + teléfono fijo.
+
+NOTA: el menú (NAV_LINKS en Nav) usa el texto como id de ancla. Ahora: historia, productos,
+visitanos, **redes**.
 
 ## Datos del negocio
 
@@ -90,8 +96,9 @@ src/
 - ✅ **Moda y Piel** — sombreros, gorras, bolsos de piel, marroquinería
 - ✅ **Mercería y Hogar** — droguería/control de plagas + ECOJIN (limpiador biodegradable, en texto)
 - ✅ **Automoción** — gama Gorilux
-- ⬜ **Artesanía** — SIN foto aún (palma, souvenirs)
-- ⬜ **Perfumería** — SIN foto aún
+- ✅ **Aire libre** — navajas y afilado (camping, playa, juguetes)
+- ✅ **Perfumería** — perfumería/cosmética, afeitado, higiene personal
+- ⬜ **Artesanía** — SIN foto aún (palma, souvenirs) ← ÚNICA categoría que falta
 
 ## Flujo de trabajo acordado
 

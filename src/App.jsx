@@ -6,7 +6,7 @@ import LocalComponent from './components/sections/Local/LocalComponent';
 import ProductosComponent from './components/sections/Productos/ProductosComponent';
 import GaleriaComponent from './components/sections/Galeria/GaleriaComponent';
 import VisitanosComponent from './components/sections/Visitanos/VisitanosComponent';
-import ContactoComponent from './components/sections/Contacto/ContactoComponent';
+import SiguenosComponent from './components/sections/Siguenos/SiguenosComponent';
 import FloatingActionsComponent from './components/ui/FloatingActions/FloatingActionsComponent';
 
 export default function App() {
@@ -19,7 +19,7 @@ export default function App() {
       <ProductosComponent />
       <GaleriaComponent />
       <VisitanosComponent />
-      <ContactoComponent />
+      <SiguenosComponent />
       <FooterComponent />
       <FloatingActionsComponent />
     </div>

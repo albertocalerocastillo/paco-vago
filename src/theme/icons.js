@@ -34,3 +34,4 @@ export {
 // de marcas comerciales en la v1.x)
 export { default as InstagramIcon } from '../components/ui/InstagramIcon/InstagramIcon';
 export { default as WhatsAppIcon } from '../components/ui/WhatsAppIcon/WhatsAppIcon';
+export { default as TikTokIcon } from '../components/ui/TikTokIcon/TikTokIcon';

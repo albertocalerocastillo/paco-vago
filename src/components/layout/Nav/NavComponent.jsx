@@ -3,7 +3,7 @@ import { Menu, X } from '../../../theme/icons';
 import { useScrolled } from '../../../hooks/useScrolled';
 import { scrollToSection } from '../../../utils/scroll';
 
-const NAV_LINKS = ['historia', 'productos', 'visitanos', 'contacto'];
+const NAV_LINKS = ['historia', 'productos', 'visitanos', 'redes'];
 
 export default function NavComponent() {
   const [menuOpen, setMenuOpen] = useState(false);

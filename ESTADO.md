@@ -81,7 +81,10 @@ visitanos, **redes**.
 
 - **Teléfono (fijo):** 954 14 08 71
 - **WhatsApp (móvil):** 615 323 072
-- **Horario:** L-V 9:30-13:30 y 17:30-20:30 · Sáb 10:00-14:00 · Jueves tarde y domingos cerrado
+- **Horario (VERANO, en data/horarios.js + TEMPORADA):** L-V mañanas 9:30-13:30 · tardes
+  18:00-21:00 (Lun/Mar/Mié/Vie) · Jueves 9:30-14:00 (tarde cerrado) · Sáb 10:00-14:00 ·
+  Domingo cerrado. OJO: en invierno cambian las tardes (17:30-20:30) y jueves (hasta 13:30);
+  actualizar `data/horarios.js`, `TEMPORADA` y el `openingHoursSpecification` de `index.html`.
 - **Instagram:** @paco_vago_puerta_sevilla · **TikTok:** @paco.vago.puerta
 - **Logo oficial:** sello "Paco Vago / Desde 1924" con dibujo de la Puerta de Sevilla
   (lo hizo el dueño con ChatGPT; está en `public/fotos/`… realmente como `logo.png`,

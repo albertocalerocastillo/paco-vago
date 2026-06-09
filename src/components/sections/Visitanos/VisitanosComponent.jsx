@@ -1,5 +1,6 @@
 import { MapPin, Clock, Phone } from '../../../theme/icons';
 import { TELEFONO, TELEFONO_HREF, DIRECCION } from '../../../data/contacto';
+import { TEMPORADA } from '../../../data/horarios';
 import EstadoTiendaBadge from './EstadoTiendaBadge';
 import HorariosGrid from './HorariosGrid';
 import Reveal from '../../ui/Reveal/RevealComponent';
@@ -55,7 +56,12 @@ export default function VisitanosComponent() {
             <div className="flex items-start gap-4">
               <Clock className="text-amber-400 mt-1 shrink-0" size={24} />
               <div className="flex-1">
-                <h3 className="text-sm font-bold uppercase tracking-wider mb-4">Horario semanal</h3>
+                <div className="flex items-center gap-3 mb-4 flex-wrap">
+                  <h3 className="text-sm font-bold uppercase tracking-wider">Horario semanal</h3>
+                  <span className="text-xs bg-amber-500/20 text-amber-300 px-3 py-1 rounded-full">
+                    ☀️ {TEMPORADA}
+                  </span>
+                </div>
                 <HorariosGrid />
               </div>
             </div>

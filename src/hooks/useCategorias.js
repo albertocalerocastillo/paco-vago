@@ -9,6 +9,7 @@ import * as Icons from '../theme/icons';
  */
 function mapearCategoria(cat) {
   const productos = (cat.productos || [])
+    .filter(p => p.disponible !== false)   // oculta los marcados como no disponibles
     .slice()
     .sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0))
     .map(p => ({
@@ -43,7 +44,7 @@ export function useCategorias() {
     (async () => {
       const { data, error } = await supabase
         .from('categorias')
-        .select('slug, titulo, icono, descripcion, tags, orden, productos(nombre, descripcion, foto, orden)')
+        .select('slug, titulo, icono, descripcion, tags, orden, productos(nombre, descripcion, foto, orden, disponible)')
         .order('orden', { ascending: true });
 
       if (cancelado) return;

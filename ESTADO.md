@@ -103,6 +103,34 @@ visitanos, **redes**.
 - ✅ **Perfumería** — perfumería/cosmética, afeitado, higiene personal
 - ⬜ **Artesanía** — SIN foto aún (palma, souvenirs) ← ÚNICA categoría que falta
 
+## 🛒 BACKEND / TIENDA ONLINE — Fase 2 (EN CURSO)
+
+> Trabajo en la **rama `feature/backend`** (NO en master, para no tocar producción).
+> El catálogo de la web sigue en `data/categorias.js` (estático) hasta que migremos.
+
+**Decidido:** empezar por la base sólida (Supabase gratis: BD + auth + storage).
+**Hecho hasta ahora:**
+- Rama `feature/backend` creada.
+- Esquema SQL preparado en [`supabase/schema.sql`](supabase/schema.sql): tablas
+  `categorias` y `productos` (con `precio` nullable para el futuro, `disponible`, RLS de
+  lectura pública). Aún NO ejecutado en Supabase.
+
+**Pendiente (siguiente sesión), por orden:**
+1. ⬜ El usuario crea cuenta en **supabase.com** + proyecto `paco-vago` (región EU, plan Free).
+2. ⬜ Ejecutar `supabase/schema.sql` en el SQL Editor de Supabase (crea las tablas).
+3. ⬜ El usuario pasa **Project URL** + **anon public key** (Settings → API). La anon key es
+   pública/segura para el front; la Database Password NO se comparte.
+4. ⬜ Instalar `@supabase/supabase-js`, crear cliente con variables de entorno
+   (`.env` → `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`; añadir a Vercel también).
+5. ⬜ Migrar el catálogo de `data/categorias.js` a la BD (script de inserción).
+6. ⬜ Que la web lea categorías/productos desde Supabase (en vez del archivo estático).
+7. ⬜ (Fase 2c) Panel de administración con login para que el tío gestione productos/fotos.
+8. ⬜ (Fase 3) precios → carrito → checkout → pagos (Stripe/Redsys) + legal.
+
+**Importante:** trabajar en `feature/backend`; cuando esté estable y probado, fusionar a
+master. Las fotos siguen en `public/fotos/` (campo `foto` guarda la ruta); más adelante se
+puede pasar a Supabase Storage.
+
 ## Flujo de trabajo acordado
 
 - **NO hacer `git push` sin que el usuario lo confirme.** Hacer cambios + `npm run build`

@@ -74,6 +74,31 @@ export default function GestionProductos() {
     if (r1.error || r2.error) window.alert('Error al reordenar. Recarga la página.');
   };
 
+  // Intercambia el orden de una categoría con su vecina (dir: -1 sube, +1 baja)
+  const moverCategoria = async (catId, dir) => {
+    const orden = categorias.slice().sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0));
+    const i = orden.findIndex(c => c.id === catId);
+    const j = i + dir;
+    if (i < 0 || j < 0 || j >= orden.length) return;
+
+    const a = orden[i];
+    const b = orden[j];
+    const ordenA = a.orden ?? i;
+    const ordenB = b.orden ?? j;
+
+    setCategorias(cats =>
+      cats.map(c =>
+        c.id === a.id ? { ...c, orden: ordenB } : c.id === b.id ? { ...c, orden: ordenA } : c
+      )
+    );
+
+    const [r1, r2] = await Promise.all([
+      supabase.from('categorias').update({ orden: ordenB }).eq('id', a.id),
+      supabase.from('categorias').update({ orden: ordenA }).eq('id', b.id),
+    ]);
+    if (r1.error || r2.error) window.alert('Error al reordenar categorías. Recarga la página.');
+  };
+
   // Salta a la sección de una categoría
   const irA = (catId) => {
     const el = document.getElementById(`cat-${catId}`);
@@ -83,11 +108,13 @@ export default function GestionProductos() {
   if (cargando) return <p className="text-stone-500">Cargando productos…</p>;
   if (error) return <p className="text-red-700">Error al cargar: {error}</p>;
 
+  const cats = categorias.slice().sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0));
+
   return (
     <div>
       {/* Índice fijo para saltar a una categoría sin scrollear */}
       <nav className="sticky top-0 z-20 -mx-6 px-6 py-3 mb-8 bg-stone-100/95 backdrop-blur border-b border-stone-200 flex gap-2 overflow-x-auto [scrollbar-width:thin]">
-        {categorias.map((cat) => (
+        {cats.map((cat) => (
           <button
             key={cat.id}
             onClick={() => irA(cat.id)}
@@ -99,14 +126,17 @@ export default function GestionProductos() {
       </nav>
 
       <div className="space-y-10">
-        {categorias.map((cat) => (
+        {cats.map((cat, i) => (
           <CategoriaSeccion
             key={cat.id}
             categoria={cat}
+            esPrimera={i === 0}
+            esUltima={i === cats.length - 1}
             onCreado={(nuevo) => añadirProducto(cat.id, nuevo)}
             onBorrado={(prodId) => quitarProducto(cat.id, prodId)}
             onMover={(prodId, dir) => moverProducto(cat.id, prodId, dir)}
             onActualizada={(campos) => actualizarCategoria(cat.id, campos)}
+            onMoverCategoria={(dir) => moverCategoria(cat.id, dir)}
           />
         ))}
       </div>
@@ -115,7 +145,7 @@ export default function GestionProductos() {
 }
 
 /* ── Sección de una categoría (cabecera + alta + lista) ───── */
-function CategoriaSeccion({ categoria, onCreado, onBorrado, onMover, onActualizada }) {
+function CategoriaSeccion({ categoria, esPrimera, esUltima, onCreado, onBorrado, onMover, onActualizada, onMoverCategoria }) {
   const [añadiendo, setAñadiendo] = useState(false);
   const [editando, setEditando] = useState(false);
   const productos = (categoria.productos || []).slice().sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0));
@@ -123,9 +153,27 @@ function CategoriaSeccion({ categoria, onCreado, onBorrado, onMover, onActualiza
   return (
     <section id={`cat-${categoria.id}`} className="scroll-mt-24">
       <div className="flex items-center justify-between border-b border-stone-300 pb-2 mb-4 gap-3">
-        <h2 className="text-xl font-bold">
-          {categoria.titulo}
-          <span className="text-stone-400 text-sm font-normal"> · {productos.length} productos</span>
+        <h2 className="text-xl font-bold flex items-center gap-2 min-w-0">
+          <span className="flex flex-col shrink-0">
+            <button
+              onClick={() => onMoverCategoria(-1)}
+              disabled={esPrimera}
+              aria-label="Subir categoría"
+              className="leading-none text-xs text-stone-400 hover:text-amber-700 disabled:opacity-30 disabled:hover:text-stone-400"
+            >
+              ▲
+            </button>
+            <button
+              onClick={() => onMoverCategoria(1)}
+              disabled={esUltima}
+              aria-label="Bajar categoría"
+              className="leading-none text-xs text-stone-400 hover:text-amber-700 disabled:opacity-30 disabled:hover:text-stone-400"
+            >
+              ▼
+            </button>
+          </span>
+          <span className="truncate">{categoria.titulo}</span>
+          <span className="text-stone-400 text-sm font-normal shrink-0"> · {productos.length} productos</span>
         </h2>
         <div className="flex items-center gap-4 shrink-0">
           <button

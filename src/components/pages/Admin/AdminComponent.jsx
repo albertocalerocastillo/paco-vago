@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '../../../lib/supabase';
 import { useAuth } from '../../../hooks/useAuth';
+import GestionProductos from './GestionProductos';
 
 /**
  * Panel de administración (/admin).
@@ -107,11 +108,12 @@ function Panel({ sesion }) {
       </header>
 
       <main className="max-w-3xl mx-auto px-6 py-12">
-        <h1 className="text-3xl font-bold mb-3">¡Has entrado!</h1>
-        <p className="text-stone-600">
-          Aquí podrás gestionar las categorías y productos de la tienda. La edición se
-          añadirá en el siguiente paso.
+        <h1 className="text-3xl font-bold mb-2">Productos</h1>
+        <p className="text-stone-600 mb-8">
+          Edita el nombre, la descripción o si un producto se muestra en la web. Los cambios
+          se guardan al instante y aparecen en la tienda.
         </p>
+        <GestionProductos />
       </main>
     </div>
   );

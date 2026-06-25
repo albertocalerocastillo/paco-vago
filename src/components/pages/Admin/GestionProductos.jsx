@@ -207,12 +207,22 @@ export default function GestionProductos() {
         >
           {migrando && !migrando.done ? 'Migrando…' : 'Migrar fotos antiguas a Storage'}
         </button>
-        {migrando && (
-          <p className="text-sm mt-2 text-stone-600">
-            {migrando.done
-              ? `Listo: ${migrando.hechas} migradas${migrando.errores ? `, ${migrando.errores} con error` : ''}.`
-              : `Migrando ${migrando.hechas} de ${migrando.total}…`}
-          </p>
+        {migrando && !migrando.done && (
+          <p className="text-sm mt-2 text-stone-600">Migrando {migrando.hechas} de {migrando.total}…</p>
+        )}
+        {migrando && migrando.done && (
+          <div className="text-sm mt-2 text-stone-600 flex items-center gap-3 flex-wrap">
+            <span>
+              Listo: {migrando.hechas} migradas{migrando.errores ? `, ${migrando.errores} con error` : ''}.
+              Recarga para ver todo uniforme.
+            </span>
+            <button
+              onClick={() => window.location.reload()}
+              className="border border-stone-400 hover:border-amber-700 hover:text-amber-700 text-stone-700 px-3 py-1 text-xs uppercase tracking-wider transition-colors"
+            >
+              Recargar
+            </button>
+          </div>
         )}
       </div>
     </div>

@@ -1,9 +1,10 @@
 import { useRef, useState, useEffect } from 'react';
 import { ChevronRight, X } from '../../../theme/icons';
-import { galeria } from '../../../data/galeria';
+import { useGaleria } from '../../../hooks/useGaleria';
 import Reveal from '../../ui/Reveal/RevealComponent';
 
 export default function GaleriaComponent() {
+  const galeria = useGaleria();   // fotos derivadas del catálogo (Supabase con fallback)
   const trackRef = useRef(null);
   const [seleccionada, setSeleccionada] = useState(null);
 

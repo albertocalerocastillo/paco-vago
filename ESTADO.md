@@ -116,16 +116,27 @@ visitanos, **redes**.
   lectura pública). Aún NO ejecutado en Supabase.
 
 **Pendiente (siguiente sesión), por orden:**
-1. ⬜ El usuario crea cuenta en **supabase.com** + proyecto `paco-vago` (región EU, plan Free).
-2. ⬜ Ejecutar `supabase/schema.sql` en el SQL Editor de Supabase (crea las tablas).
-3. ⬜ El usuario pasa **Project URL** + **anon public key** (Settings → API). La anon key es
-   pública/segura para el front; la Database Password NO se comparte.
-4. ⬜ Instalar `@supabase/supabase-js`, crear cliente con variables de entorno
-   (`.env` → `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`; añadir a Vercel también).
-5. ⬜ Migrar el catálogo de `data/categorias.js` a la BD (script de inserción).
-6. ⬜ Que la web lea categorías/productos desde Supabase (en vez del archivo estático).
+1. ✅ Proyecto `paco-vago` creado en supabase.com (región Europe, plan Free).
+   Project ref: `krjnhnevzpsxpjsnpbjm` → URL `https://krjnhnevzpsxpjsnpbjm.supabase.co`.
+2. ✅ `supabase/schema.sql` ejecutado (tablas `categorias` + `productos` + RLS). Se añadió
+   columna `tags text[]` a `categorias` (chips de la tarjeta).
+3. ✅ Credenciales en `.env` local (URL + anon key). El `.env` está en `.gitignore`
+   (plantilla en `.env.example`). FALTA ponerlas en Vercel antes de desplegar a master.
+4. ✅ `@supabase/supabase-js` instalado. Cliente en `src/lib/supabase.js` (a prueba de
+   fallos: si faltan env vars NO rompe, queda en null y se usa el catálogo estático).
+5. ✅ Catálogo migrado a la BD con `supabase/seed.sql` (idempotente): 9 categorías + 31
+   productos. Verificado vía API REST (lectura pública RLS OK).
+6. ✅ La web lee el catálogo desde Supabase mediante el hook `src/hooks/useCategorias.js`
+   (Opción A: arranca con el estático, lo sustituye por la BD al responder, y ante
+   cualquier fallo se queda con el estático). Conectado en `ProductosComponent` y, vía
+   `src/hooks/useGaleria.js`, también en `GaleriaComponent`. `data/galeria.js` ELIMINADO
+   (la galería se deriva del catálogo). `data/categorias.js` se mantiene como fallback.
+   Nota: el bundle JS subió a ~447 kB (gzip 128) al incluir supabase-js.
 7. ⬜ (Fase 2c) Panel de administración con login para que el tío gestione productos/fotos.
 8. ⬜ (Fase 3) precios → carrito → checkout → pagos (Stripe/Redsys) + legal.
+
+**Cómo probar en local:** `npm run dev` y abrir la sección "Tenemos de todo". Para confirmar
+que viene de la BD: edita un título en Supabase (Table Editor) y recarga; debe cambiar.
 
 **Importante:** trabajar en `feature/backend`; cuando esté estable y probado, fusionar a
 master. Las fotos siguen en `public/fotos/` (campo `foto` guarda la ruta); más adelante se

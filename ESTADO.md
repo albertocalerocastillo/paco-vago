@@ -136,8 +136,25 @@ visitanos, **redes**.
    puestas en Vercel (solo entorno **Production**; Preview/Development NO las tienen, así que
    los previews de rama usarán el catálogo estático). Verificado: el bundle de
    `paco-vago.vercel.app` embebe la URL de Supabase → producción lee de la BD.
-8. ⬜ (Fase 2c) Panel de administración con login para que el tío gestione productos/fotos.
+8. ✅ (Fase 2c) Panel de administración DESPLEGADO en `/admin`. Hecho en la rama
+   `feature/admin` (fusionada a master). Incluye:
+   - Login con **Supabase Auth** (email/contraseña). Registros públicos DESACTIVADOS
+     (Authentication → Sign In/Up). Usuarios se crean a mano en Authentication → Users
+     (Add user + Auto Confirm). De momento solo el de Alberto; falta crear el del tío.
+   - **react-router-dom**: rutas `/` (web) y `/admin` (panel). `vercel.json` con rewrite SPA.
+   - `src/components/pages/Admin/` (AdminComponent = login+layout; GestionProductos = CRUD).
+     `src/hooks/useAuth.js` = sesión.
+   - Productos: editar (nombre/descr./disponible), crear, borrar, reordenar (▲▼), e índice
+     fijo de categorías para saltar rápido. La web pública oculta lo no `disponible`.
+   - **Fotos**: subida a Supabase **Storage** (bucket público `productos`, ver
+     `supabase/storage.sql`; permisos de escritura solo autenticados). Fotos antiguas siguen
+     en `public/fotos/` (conviven); se migran solas según el tío las vaya cambiando.
+   - Permisos de escritura en BD: `supabase/policies-admin.sql` (solo autenticados).
 9. ⬜ (Fase 3) precios → carrito → checkout → pagos (Stripe/Redsys) + legal.
+
+**Pendientes menores Fase 2c (opcionales):** crear el usuario del tío; editar categorías
+(título/desc./chips) desde el panel; lazy-load del panel para aligerar el bundle (>500 kB);
+botón para migrar de golpe las fotos antiguas a Storage.
 
 **Cómo probar (local o producción):** abrir la sección "Tenemos de todo". Para confirmar
 que viene de la BD: edita un título en Supabase (Table Editor) y recarga; debe cambiar.

@@ -15,7 +15,7 @@ export default function GestionProductos() {
     (async () => {
       const { data, error } = await supabase
         .from('categorias')
-        .select('id, titulo, orden, productos(id, nombre, descripcion, foto, disponible, orden)')
+        .select('id, titulo, descripcion, tags, orden, productos(id, nombre, descripcion, foto, disponible, orden)')
         .order('orden', { ascending: true });
 
       if (error) setError(error.message);
@@ -35,6 +35,9 @@ export default function GestionProductos() {
         c.id === catId ? { ...c, productos: (c.productos || []).filter(p => p.id !== prodId) } : c
       )
     );
+
+  const actualizarCategoria = (catId, campos) =>
+    setCategorias(cats => cats.map(c => (c.id === catId ? { ...c, ...campos } : c)));
 
   // Intercambia el orden de un producto con su vecino (dir: -1 sube, +1 baja)
   const moverProducto = async (catId, prodId, dir) => {
@@ -103,6 +106,7 @@ export default function GestionProductos() {
             onCreado={(nuevo) => añadirProducto(cat.id, nuevo)}
             onBorrado={(prodId) => quitarProducto(cat.id, prodId)}
             onMover={(prodId, dir) => moverProducto(cat.id, prodId, dir)}
+            onActualizada={(campos) => actualizarCategoria(cat.id, campos)}
           />
         ))}
       </div>
@@ -111,8 +115,9 @@ export default function GestionProductos() {
 }
 
 /* ── Sección de una categoría (cabecera + alta + lista) ───── */
-function CategoriaSeccion({ categoria, onCreado, onBorrado, onMover }) {
+function CategoriaSeccion({ categoria, onCreado, onBorrado, onMover, onActualizada }) {
   const [añadiendo, setAñadiendo] = useState(false);
+  const [editando, setEditando] = useState(false);
   const productos = (categoria.productos || []).slice().sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0));
 
   return (
@@ -122,13 +127,28 @@ function CategoriaSeccion({ categoria, onCreado, onBorrado, onMover }) {
           {categoria.titulo}
           <span className="text-stone-400 text-sm font-normal"> · {productos.length} productos</span>
         </h2>
-        <button
-          onClick={() => setAñadiendo(a => !a)}
-          className="shrink-0 text-amber-700 hover:text-amber-800 text-sm font-semibold transition-colors"
-        >
-          {añadiendo ? 'Cancelar' : '+ Añadir producto'}
-        </button>
+        <div className="flex items-center gap-4 shrink-0">
+          <button
+            onClick={() => setEditando(e => !e)}
+            className="text-stone-500 hover:text-stone-800 text-sm font-semibold transition-colors"
+          >
+            {editando ? 'Cancelar' : 'Editar'}
+          </button>
+          <button
+            onClick={() => setAñadiendo(a => !a)}
+            className="text-amber-700 hover:text-amber-800 text-sm font-semibold transition-colors"
+          >
+            {añadiendo ? 'Cancelar' : '+ Añadir producto'}
+          </button>
+        </div>
       </div>
+
+      {editando && (
+        <CategoriaEditor
+          categoria={categoria}
+          onGuardado={(campos) => { onActualizada(campos); setEditando(false); }}
+        />
+      )}
 
       {añadiendo && (
         <NuevoProducto
@@ -405,5 +425,74 @@ function SubirFoto({ foto, onSubida }) {
       </label>
       {error && <p className="text-red-700 text-[11px] mt-1 leading-tight">{error}</p>}
     </div>
+  );
+}
+
+/* ── Editar una categoría (título, descripción, etiquetas) ── */
+function CategoriaEditor({ categoria, onGuardado }) {
+  const [titulo, setTitulo] = useState(categoria.titulo || '');
+  const [descripcion, setDescripcion] = useState(categoria.descripcion || '');
+  const [tags, setTags] = useState((categoria.tags || []).join(', '));
+  const [guardando, setGuardando] = useState(false);
+  const [error, setError] = useState(null);
+
+  const guardar = async (e) => {
+    e.preventDefault();
+    setGuardando(true);
+    setError(null);
+
+    const tagsArr = tags.split(',').map(t => t.trim()).filter(Boolean);
+    const campos = { titulo, descripcion: descripcion || null, tags: tagsArr };
+
+    const { error } = await supabase.from('categorias').update(campos).eq('id', categoria.id);
+    setGuardando(false);
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    onGuardado({ titulo, descripcion, tags: tagsArr });
+  };
+
+  return (
+    <form onSubmit={guardar} className="bg-stone-50 border border-dashed border-stone-300 p-4 space-y-3 mb-4">
+      <div>
+        <label className="block text-sm text-stone-600 mb-1">Título</label>
+        <input
+          value={titulo}
+          onChange={(e) => setTitulo(e.target.value)}
+          required
+          className="w-full font-semibold border border-stone-300 px-2 py-1 focus:outline-none focus:border-amber-700"
+        />
+      </div>
+      <div>
+        <label className="block text-sm text-stone-600 mb-1">Descripción</label>
+        <textarea
+          value={descripcion}
+          onChange={(e) => setDescripcion(e.target.value)}
+          rows={3}
+          className="w-full text-sm text-stone-600 border border-stone-300 px-2 py-1 resize-y focus:outline-none focus:border-amber-700"
+        />
+      </div>
+      <div>
+        <label className="block text-sm text-stone-600 mb-1">Etiquetas (separadas por comas)</label>
+        <input
+          value={tags}
+          onChange={(e) => setTags(e.target.value)}
+          placeholder="Jamones, Quesos, Conservas…"
+          className="w-full text-sm border border-stone-300 px-2 py-1 focus:outline-none focus:border-amber-700"
+        />
+        <p className="text-xs text-stone-400 mt-1">Son los pequeños chips que aparecen en la tarjeta de la categoría.</p>
+      </div>
+
+      {error && <p className="text-red-700 text-sm">{error}</p>}
+
+      <button
+        type="submit"
+        disabled={guardando}
+        className="bg-stone-900 hover:bg-amber-700 disabled:opacity-40 text-stone-50 px-4 py-1.5 text-sm uppercase tracking-wider transition-colors"
+      >
+        {guardando ? 'Guardando…' : 'Guardar categoría'}
+      </button>
+    </form>
   );
 }

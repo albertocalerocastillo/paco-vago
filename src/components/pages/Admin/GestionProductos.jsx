@@ -283,15 +283,15 @@ function CategoriaSeccion({ categoria, busqueda, coincide, esPrimera, esUltima, 
 
   return (
     <section id={`cat-${categoria.id}`} className="scroll-mt-24">
-      <div className="flex items-center justify-between border-b border-stone-300 pb-2 mb-4 gap-3">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3 border-b border-stone-300 pb-2 mb-4">
         <h2 className="text-xl font-bold flex items-center gap-2 min-w-0">
           {!buscando && (
-            <span className="flex flex-col shrink-0">
+            <span className="flex flex-col shrink-0 leading-none">
               <button
                 onClick={() => onMoverCategoria(-1)}
                 disabled={esPrimera}
                 aria-label="Subir categoría"
-                className="leading-none text-xs text-stone-400 hover:text-amber-700 disabled:opacity-30 disabled:hover:text-stone-400"
+                className="text-base sm:text-xs leading-none px-1 text-stone-400 hover:text-amber-700 disabled:opacity-30 disabled:hover:text-stone-400"
               >
                 ▲
               </button>
@@ -299,13 +299,13 @@ function CategoriaSeccion({ categoria, busqueda, coincide, esPrimera, esUltima, 
                 onClick={() => onMoverCategoria(1)}
                 disabled={esUltima}
                 aria-label="Bajar categoría"
-                className="leading-none text-xs text-stone-400 hover:text-amber-700 disabled:opacity-30 disabled:hover:text-stone-400"
+                className="text-base sm:text-xs leading-none px-1 text-stone-400 hover:text-amber-700 disabled:opacity-30 disabled:hover:text-stone-400"
               >
                 ▼
               </button>
             </span>
           )}
-          <span className="truncate">{categoria.titulo}</span>
+          <span>{categoria.titulo}</span>
           <span className="text-stone-400 text-sm font-normal shrink-0">
             {' · '}{buscando ? `${visibles.length} de ${productos.length}` : `${productos.length} productos`}
           </span>

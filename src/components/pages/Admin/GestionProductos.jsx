@@ -140,6 +140,7 @@ function CategoriaSeccion({ categoria, onCreado, onBorrado, onMover }) {
 function ProductoFila({ producto, esPrimero, esUltimo, onBorrado, onMover }) {
   const [nombre, setNombre] = useState(producto.nombre || '');
   const [descripcion, setDescripcion] = useState(producto.descripcion || '');
+  const [foto, setFoto] = useState(producto.foto || '');
   const [disponible, setDisponible] = useState(producto.disponible);
   const [estado, setEstado] = useState('idle'); // idle | guardando | guardado | error
   const [borrando, setBorrando] = useState(false);
@@ -147,13 +148,14 @@ function ProductoFila({ producto, esPrimero, esUltimo, onBorrado, onMover }) {
   const modificado =
     nombre !== (producto.nombre || '') ||
     descripcion !== (producto.descripcion || '') ||
+    foto !== (producto.foto || '') ||
     disponible !== producto.disponible;
 
   const guardar = async () => {
     setEstado('guardando');
     const { error } = await supabase
       .from('productos')
-      .update({ nombre, descripcion, disponible })
+      .update({ nombre, descripcion, foto: foto || null, disponible })
       .eq('id', producto.id);
 
     if (error) {
@@ -161,6 +163,7 @@ function ProductoFila({ producto, esPrimero, esUltimo, onBorrado, onMover }) {
     } else {
       producto.nombre = nombre;
       producto.descripcion = descripcion;
+      producto.foto = foto;
       producto.disponible = disponible;
       setEstado('guardado');
       setTimeout(() => setEstado('idle'), 2000);
@@ -201,9 +204,7 @@ function ProductoFila({ producto, esPrimero, esUltimo, onBorrado, onMover }) {
         </button>
       </div>
 
-      {producto.foto && (
-        <img src={producto.foto} alt={nombre} className="w-20 h-20 object-cover shrink-0 rounded-sm" />
-      )}
+      <SubirFoto foto={foto} onSubida={setFoto} />
 
       <div className="flex-1 min-w-0">
         <input
@@ -291,7 +292,7 @@ function NuevoProducto({ categoria, onCreado }) {
   };
 
   return (
-    <form onSubmit={crear} className="bg-stone-50 border border-dashed border-stone-300 p-4 space-y-2 mb-4">
+    <form onSubmit={crear} className="bg-stone-50 border border-dashed border-stone-300 p-4 space-y-3 mb-4">
       <input
         value={nombre}
         onChange={(e) => setNombre(e.target.value)}
@@ -306,16 +307,10 @@ function NuevoProducto({ categoria, onCreado }) {
         placeholder="Descripción (opcional)"
         className="w-full text-sm text-stone-600 border border-stone-300 px-2 py-1 resize-y focus:outline-none focus:border-amber-700"
       />
-      <input
-        value={foto}
-        onChange={(e) => setFoto(e.target.value)}
-        placeholder="Ruta de la foto, ej: /fotos/mi-foto.jpg (opcional)"
-        className="w-full text-sm border border-stone-300 px-2 py-1 focus:outline-none focus:border-amber-700"
-      />
-      <p className="text-xs text-stone-400">
-        De momento la foto debe existir ya en <code>public/fotos/</code>. La subida de imágenes
-        llegará en el siguiente paso.
-      </p>
+      <div className="flex items-center gap-3">
+        <SubirFoto foto={foto} onSubida={setFoto} />
+        <span className="text-xs text-stone-400">Foto del producto (opcional)</span>
+      </div>
 
       {error && <p className="text-red-700 text-sm">{error}</p>}
 
@@ -327,5 +322,67 @@ function NuevoProducto({ categoria, onCreado }) {
         {guardando ? 'Creando…' : 'Crear producto'}
       </button>
     </form>
+  );
+}
+
+/* ── Subir / cambiar la foto (Supabase Storage) ───────────── */
+function SubirFoto({ foto, onSubida }) {
+  const [subiendo, setSubiendo] = useState(false);
+  const [error, setError] = useState(null);
+
+  const subir = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Límite razonable para no llenar el almacenamiento gratis
+    if (file.size > 5 * 1024 * 1024) {
+      setError('La imagen supera 5 MB.');
+      e.target.value = '';
+      return;
+    }
+
+    setSubiendo(true);
+    setError(null);
+
+    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+    const ruta = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+
+    const { error: upErr } = await supabase.storage.from('productos').upload(ruta, file, {
+      cacheControl: '3600',
+      upsert: false,
+    });
+
+    setSubiendo(false);
+    e.target.value = ''; // permite volver a elegir el mismo archivo
+    if (upErr) {
+      setError(upErr.message);
+      return;
+    }
+
+    const { data } = supabase.storage.from('productos').getPublicUrl(ruta);
+    onSubida(data.publicUrl);
+  };
+
+  return (
+    <div className="shrink-0 w-20">
+      {foto ? (
+        <img src={foto} alt="" className="w-20 h-20 object-cover rounded-sm border border-stone-200" />
+      ) : (
+        <div className="w-20 h-20 bg-stone-100 border border-stone-200 rounded-sm flex items-center justify-center text-stone-400 text-xs">
+          Sin foto
+        </div>
+      )}
+      <label className="mt-1 block text-center text-xs text-amber-700 hover:text-amber-800 cursor-pointer">
+        {subiendo ? 'Subiendo…' : foto ? 'Cambiar' : 'Subir foto'}
+        <input
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={subir}
+          disabled={subiendo}
+        />
+      </label>
+      {error && <p className="text-red-700 text-[11px] mt-1 leading-tight">{error}</p>}
+    </div>
   );
 }

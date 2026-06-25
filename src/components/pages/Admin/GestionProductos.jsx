@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../../lib/supabase';
 
+// Minúsculas + sin acentos, para buscar "atun" y que encuentre "atún".
+const normaliza = (s) => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+
 /**
  * Gestión de productos del panel de admin (2c.2 + 2c.3 + orden).
  * Lista las categorías con sus productos y permite editar, crear, borrar y
@@ -11,6 +14,7 @@ export default function GestionProductos() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
   const [migrando, setMigrando] = useState(null); // null | { hechas, total, errores, done }
+  const [busqueda, setBusqueda] = useState('');
 
   useEffect(() => {
     (async () => {
@@ -167,28 +171,61 @@ export default function GestionProductos() {
     (c.productos || []).some(p => p.foto && p.foto.startsWith('/fotos/'))
   );
 
+  // Búsqueda: filtra productos por nombre/descripción (sin acentos)
+  const q = normaliza(busqueda.trim());
+  const buscando = q.length > 0;
+  const coincide = (p) => normaliza(`${p.nombre || ''} ${p.descripcion || ''}`).includes(q);
+  const catsVisibles = buscando ? cats.filter(c => (c.productos || []).some(coincide)) : cats;
+
   return (
     <div>
-      {/* Índice fijo para saltar a una categoría sin scrollear */}
-      <nav className="sticky top-0 z-20 -mx-6 px-6 py-3 mb-8 bg-stone-100/95 backdrop-blur border-b border-stone-200 flex gap-2 overflow-x-auto [scrollbar-width:thin]">
-        {cats.map((cat) => (
-          <button
-            key={cat.id}
-            onClick={() => irA(cat.id)}
-            className="shrink-0 text-sm px-3 py-1 rounded-full bg-white border border-stone-300 text-stone-700 hover:border-amber-700 hover:text-amber-700 whitespace-nowrap transition-colors"
-          >
-            {cat.titulo}
-          </button>
-        ))}
-      </nav>
+      {/* Zona fija: buscador + índice de categorías */}
+      <div className="sticky top-0 z-20 -mx-6 px-6 py-3 mb-8 bg-stone-100/95 backdrop-blur border-b border-stone-200 space-y-3">
+        <div className="relative">
+          <input
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            placeholder="Buscar producto…"
+            className="w-full border border-stone-300 px-3 py-2 pr-8 focus:outline-none focus:border-amber-700"
+          />
+          {buscando && (
+            <button
+              onClick={() => setBusqueda('')}
+              aria-label="Limpiar búsqueda"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+        {!buscando && (
+          <nav className="flex gap-2 overflow-x-auto [scrollbar-width:thin]">
+            {cats.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => irA(cat.id)}
+                className="shrink-0 text-sm px-3 py-1 rounded-full bg-white border border-stone-300 text-stone-700 hover:border-amber-700 hover:text-amber-700 whitespace-nowrap transition-colors"
+              >
+                {cat.titulo}
+              </button>
+            ))}
+          </nav>
+        )}
+      </div>
+
+      {buscando && catsVisibles.length === 0 && (
+        <p className="text-stone-500">No hay productos que coincidan con “{busqueda}”.</p>
+      )}
 
       <div className="space-y-10">
-        {cats.map((cat, i) => (
+        {catsVisibles.map((cat, i) => (
           <CategoriaSeccion
             key={cat.id}
             categoria={cat}
+            busqueda={buscando ? q : ''}
+            coincide={coincide}
             esPrimera={i === 0}
-            esUltima={i === cats.length - 1}
+            esUltima={i === catsVisibles.length - 1}
             onCreado={(nuevo) => añadirProducto(cat.id, nuevo)}
             onBorrado={(prodId) => quitarProducto(cat.id, prodId)}
             onMover={(prodId, dir) => moverProducto(cat.id, prodId, dir)}
@@ -237,76 +274,85 @@ export default function GestionProductos() {
 }
 
 /* ── Sección de una categoría (cabecera + alta + lista) ───── */
-function CategoriaSeccion({ categoria, esPrimera, esUltima, onCreado, onBorrado, onMover, onActualizada, onMoverCategoria }) {
+function CategoriaSeccion({ categoria, busqueda, coincide, esPrimera, esUltima, onCreado, onBorrado, onMover, onActualizada, onMoverCategoria }) {
   const [añadiendo, setAñadiendo] = useState(false);
   const [editando, setEditando] = useState(false);
+  const buscando = !!busqueda;
   const productos = (categoria.productos || []).slice().sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0));
+  const visibles = buscando ? productos.filter(coincide) : productos;
 
   return (
     <section id={`cat-${categoria.id}`} className="scroll-mt-24">
       <div className="flex items-center justify-between border-b border-stone-300 pb-2 mb-4 gap-3">
         <h2 className="text-xl font-bold flex items-center gap-2 min-w-0">
-          <span className="flex flex-col shrink-0">
-            <button
-              onClick={() => onMoverCategoria(-1)}
-              disabled={esPrimera}
-              aria-label="Subir categoría"
-              className="leading-none text-xs text-stone-400 hover:text-amber-700 disabled:opacity-30 disabled:hover:text-stone-400"
-            >
-              ▲
-            </button>
-            <button
-              onClick={() => onMoverCategoria(1)}
-              disabled={esUltima}
-              aria-label="Bajar categoría"
-              className="leading-none text-xs text-stone-400 hover:text-amber-700 disabled:opacity-30 disabled:hover:text-stone-400"
-            >
-              ▼
-            </button>
-          </span>
+          {!buscando && (
+            <span className="flex flex-col shrink-0">
+              <button
+                onClick={() => onMoverCategoria(-1)}
+                disabled={esPrimera}
+                aria-label="Subir categoría"
+                className="leading-none text-xs text-stone-400 hover:text-amber-700 disabled:opacity-30 disabled:hover:text-stone-400"
+              >
+                ▲
+              </button>
+              <button
+                onClick={() => onMoverCategoria(1)}
+                disabled={esUltima}
+                aria-label="Bajar categoría"
+                className="leading-none text-xs text-stone-400 hover:text-amber-700 disabled:opacity-30 disabled:hover:text-stone-400"
+              >
+                ▼
+              </button>
+            </span>
+          )}
           <span className="truncate">{categoria.titulo}</span>
-          <span className="text-stone-400 text-sm font-normal shrink-0"> · {productos.length} productos</span>
+          <span className="text-stone-400 text-sm font-normal shrink-0">
+            {' · '}{buscando ? `${visibles.length} de ${productos.length}` : `${productos.length} productos`}
+          </span>
         </h2>
-        <div className="flex items-center gap-4 shrink-0">
-          <button
-            onClick={() => setEditando(e => !e)}
-            className="text-stone-500 hover:text-stone-800 text-sm font-semibold transition-colors"
-          >
-            {editando ? 'Cancelar' : 'Editar'}
-          </button>
-          <button
-            onClick={() => setAñadiendo(a => !a)}
-            className="text-amber-700 hover:text-amber-800 text-sm font-semibold transition-colors"
-          >
-            {añadiendo ? 'Cancelar' : '+ Añadir producto'}
-          </button>
-        </div>
+        {!buscando && (
+          <div className="flex items-center gap-4 shrink-0">
+            <button
+              onClick={() => setEditando(e => !e)}
+              className="text-stone-500 hover:text-stone-800 text-sm font-semibold transition-colors"
+            >
+              {editando ? 'Cancelar' : 'Editar'}
+            </button>
+            <button
+              onClick={() => setAñadiendo(a => !a)}
+              className="text-amber-700 hover:text-amber-800 text-sm font-semibold transition-colors"
+            >
+              {añadiendo ? 'Cancelar' : '+ Añadir producto'}
+            </button>
+          </div>
+        )}
       </div>
 
-      {editando && (
+      {!buscando && editando && (
         <CategoriaEditor
           categoria={categoria}
           onGuardado={(campos) => { onActualizada(campos); setEditando(false); }}
         />
       )}
 
-      {añadiendo && (
+      {!buscando && añadiendo && (
         <NuevoProducto
           categoria={categoria}
           onCreado={(nuevo) => { onCreado(nuevo); setAñadiendo(false); }}
         />
       )}
 
-      {productos.length === 0 ? (
+      {visibles.length === 0 ? (
         <p className="text-stone-400 text-sm italic">Sin productos todavía.</p>
       ) : (
         <div className="space-y-4">
-          {productos.map((p, i) => (
+          {visibles.map((p, i) => (
             <ProductoFila
               key={p.id}
               producto={p}
+              mostrarOrden={!buscando}
               esPrimero={i === 0}
-              esUltimo={i === productos.length - 1}
+              esUltimo={i === visibles.length - 1}
               onBorrado={() => onBorrado(p.id)}
               onMover={(dir) => onMover(p.id, dir)}
             />
@@ -318,7 +364,7 @@ function CategoriaSeccion({ categoria, esPrimera, esUltima, onCreado, onBorrado,
 }
 
 /* ── Fila editable de un producto ─────────────────────────── */
-function ProductoFila({ producto, esPrimero, esUltimo, onBorrado, onMover }) {
+function ProductoFila({ producto, mostrarOrden = true, esPrimero, esUltimo, onBorrado, onMover }) {
   const [nombre, setNombre] = useState(producto.nombre || '');
   const [descripcion, setDescripcion] = useState(producto.descripcion || '');
   const [foto, setFoto] = useState(producto.foto || '');
@@ -365,25 +411,27 @@ function ProductoFila({ producto, esPrimero, esUltimo, onBorrado, onMover }) {
 
   return (
     <div className="bg-white border border-stone-200 p-4 flex gap-3">
-      {/* Flechas de orden */}
-      <div className="flex flex-col justify-center gap-1 shrink-0">
-        <button
-          onClick={() => onMover(-1)}
-          disabled={esPrimero}
-          aria-label="Subir"
-          className="w-7 h-7 flex items-center justify-center border border-stone-300 text-stone-600 hover:border-amber-700 hover:text-amber-700 disabled:opacity-30 disabled:hover:border-stone-300 disabled:hover:text-stone-600 transition-colors"
-        >
-          ▲
-        </button>
-        <button
-          onClick={() => onMover(1)}
-          disabled={esUltimo}
-          aria-label="Bajar"
-          className="w-7 h-7 flex items-center justify-center border border-stone-300 text-stone-600 hover:border-amber-700 hover:text-amber-700 disabled:opacity-30 disabled:hover:border-stone-300 disabled:hover:text-stone-600 transition-colors"
-        >
-          ▼
-        </button>
-      </div>
+      {/* Flechas de orden (ocultas durante la búsqueda) */}
+      {mostrarOrden && (
+        <div className="flex flex-col justify-center gap-1 shrink-0">
+          <button
+            onClick={() => onMover(-1)}
+            disabled={esPrimero}
+            aria-label="Subir"
+            className="w-7 h-7 flex items-center justify-center border border-stone-300 text-stone-600 hover:border-amber-700 hover:text-amber-700 disabled:opacity-30 disabled:hover:border-stone-300 disabled:hover:text-stone-600 transition-colors"
+          >
+            ▲
+          </button>
+          <button
+            onClick={() => onMover(1)}
+            disabled={esUltimo}
+            aria-label="Bajar"
+            className="w-7 h-7 flex items-center justify-center border border-stone-300 text-stone-600 hover:border-amber-700 hover:text-amber-700 disabled:opacity-30 disabled:hover:border-stone-300 disabled:hover:text-stone-600 transition-colors"
+          >
+            ▼
+          </button>
+        </div>
+      )}
 
       <SubirFoto foto={foto} onSubida={setFoto} />
 

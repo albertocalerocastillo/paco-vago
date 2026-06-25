@@ -10,6 +10,7 @@ export default function GestionProductos() {
   const [categorias, setCategorias] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
+  const [migrando, setMigrando] = useState(null); // null | { hechas, total, errores, done }
 
   useEffect(() => {
     (async () => {
@@ -105,6 +106,57 @@ export default function GestionProductos() {
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
+  // Migra (una sola vez) las fotos que aún viven en /fotos/ a Supabase Storage.
+  const migrarFotos = async () => {
+    const pendientes = [];
+    categorias.forEach(c =>
+      (c.productos || []).forEach(p => {
+        if (p.foto && p.foto.startsWith('/fotos/')) pendientes.push({ catId: c.id, p });
+      })
+    );
+    if (pendientes.length === 0) {
+      window.alert('No hay fotos antiguas que migrar. Todo está ya en Storage.');
+      return;
+    }
+    if (!window.confirm(`Se migrarán ${pendientes.length} fotos a Storage. ¿Continuar?`)) return;
+
+    let hechas = 0;
+    let errores = 0;
+    setMigrando({ hechas, total: pendientes.length, errores, done: false });
+
+    for (const { catId, p } of pendientes) {
+      try {
+        const resp = await fetch(p.foto);
+        if (!resp.ok) throw new Error('imagen no encontrada');
+        const blob = await resp.blob();
+        const ext = (p.foto.split('.').pop() || 'jpg').toLowerCase();
+        const ruta = `mig-${p.id}-${Date.now()}.${ext}`;
+
+        const { error: upErr } = await supabase.storage
+          .from('productos')
+          .upload(ruta, blob, { cacheControl: '3600', upsert: false, contentType: blob.type || undefined });
+        if (upErr) throw upErr;
+
+        const { data } = supabase.storage.from('productos').getPublicUrl(ruta);
+        const { error: dbErr } = await supabase.from('productos').update({ foto: data.publicUrl }).eq('id', p.id);
+        if (dbErr) throw dbErr;
+
+        setCategorias(cats =>
+          cats.map(c =>
+            c.id === catId
+              ? { ...c, productos: c.productos.map(x => (x.id === p.id ? { ...x, foto: data.publicUrl } : x)) }
+              : c
+          )
+        );
+        hechas++;
+      } catch {
+        errores++;
+      }
+      setMigrando({ hechas, total: pendientes.length, errores, done: false });
+    }
+    setMigrando({ hechas, total: pendientes.length, errores, done: true });
+  };
+
   if (cargando) return <p className="text-stone-500">Cargando productos…</p>;
   if (error) return <p className="text-red-700">Error al cargar: {error}</p>;
 
@@ -139,6 +191,29 @@ export default function GestionProductos() {
             onMoverCategoria={(dir) => moverCategoria(cat.id, dir)}
           />
         ))}
+      </div>
+
+      {/* Mantenimiento (uso puntual del administrador) */}
+      <div className="mt-16 pt-6 border-t border-stone-200">
+        <h3 className="text-sm font-bold text-stone-500 uppercase tracking-wider mb-2">Mantenimiento</h3>
+        <p className="text-sm text-stone-500 mb-3">
+          Pasa las fotos antiguas (las que están en <code>/fotos/</code>) al almacenamiento de
+          Supabase. Es una tarea de una sola vez; las fotos nuevas ya van directas a Storage.
+        </p>
+        <button
+          onClick={migrarFotos}
+          disabled={migrando && !migrando.done}
+          className="border border-stone-400 hover:border-amber-700 hover:text-amber-700 disabled:opacity-40 text-stone-700 px-4 py-1.5 text-sm uppercase tracking-wider transition-colors"
+        >
+          {migrando && !migrando.done ? 'Migrando…' : 'Migrar fotos antiguas a Storage'}
+        </button>
+        {migrando && (
+          <p className="text-sm mt-2 text-stone-600">
+            {migrando.done
+              ? `Listo: ${migrando.hechas} migradas${migrando.errores ? `, ${migrando.errores} con error` : ''}.`
+              : `Migrando ${migrando.hechas} de ${migrando.total}…`}
+          </p>
+        )}
       </div>
     </div>
   );

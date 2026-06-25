@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { Phone, X, ChevronRight } from '../../../theme/icons';
-import { categorias } from '../../../data/categorias';
+import { useCategorias } from '../../../hooks/useCategorias';
 import { TELEFONO_HREF, TELEFONO } from '../../../data/contacto';
 import Reveal from '../../ui/Reveal/RevealComponent';
 
 export default function ProductosComponent() {
+  const categorias = useCategorias();              // catálogo (Supabase con fallback al estático)
   const [abierta, setAbierta] = useState(null);   // categoría seleccionada (panel)
   const [ampliada, setAmpliada] = useState(null); // foto ampliada (lightbox)
   const trackRef = useRef(null);

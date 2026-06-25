@@ -11,6 +11,7 @@ create table if not exists categorias (
   titulo      text not null,                 -- ej: 'Gourmet'
   icono       text,                          -- nombre del icono lucide (ej: 'Wheat')
   descripcion text,
+  tags        text[],                        -- chips de la tarjeta (ej: {Jamones,Quesos})
   orden       int  default 0,                -- para ordenar en la web
   creado_en   timestamptz default now()
 );

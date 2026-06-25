@@ -132,11 +132,16 @@ visitanos, **redes**.
    `src/hooks/useGaleria.js`, también en `GaleriaComponent`. `data/galeria.js` ELIMINADO
    (la galería se deriva del catálogo). `data/categorias.js` se mantiene como fallback.
    Nota: el bundle JS subió a ~447 kB (gzip 128) al incluir supabase-js.
-7. ⬜ (Fase 2c) Panel de administración con login para que el tío gestione productos/fotos.
-8. ⬜ (Fase 3) precios → carrito → checkout → pagos (Stripe/Redsys) + legal.
+7. ✅ DESPLEGADO a producción (master). Env vars `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY`
+   puestas en Vercel (solo entorno **Production**; Preview/Development NO las tienen, así que
+   los previews de rama usarán el catálogo estático). Verificado: el bundle de
+   `paco-vago.vercel.app` embebe la URL de Supabase → producción lee de la BD.
+8. ⬜ (Fase 2c) Panel de administración con login para que el tío gestione productos/fotos.
+9. ⬜ (Fase 3) precios → carrito → checkout → pagos (Stripe/Redsys) + legal.
 
-**Cómo probar en local:** `npm run dev` y abrir la sección "Tenemos de todo". Para confirmar
+**Cómo probar (local o producción):** abrir la sección "Tenemos de todo". Para confirmar
 que viene de la BD: edita un título en Supabase (Table Editor) y recarga; debe cambiar.
+En local: `npm run dev` (reinícialo si cambiaste el `.env`).
 
 **Importante:** trabajar en `feature/backend`; cuando esté estable y probado, fusionar a
 master. Las fotos siguen en `public/fotos/` (campo `foto` guarda la ruta); más adelante se

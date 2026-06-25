@@ -162,6 +162,11 @@ export default function GestionProductos() {
 
   const cats = categorias.slice().sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0));
 
+  // ¿Quedan fotos antiguas (/fotos/) sin migrar? Solo entonces tiene sentido Mantenimiento.
+  const hayFotosAntiguas = categorias.some(c =>
+    (c.productos || []).some(p => p.foto && p.foto.startsWith('/fotos/'))
+  );
+
   return (
     <div>
       {/* Índice fijo para saltar a una categoría sin scrollear */}
@@ -193,7 +198,8 @@ export default function GestionProductos() {
         ))}
       </div>
 
-      {/* Mantenimiento (uso puntual del administrador) */}
+      {/* Mantenimiento: solo si quedan fotos antiguas por migrar (o mientras se migran) */}
+      {(hayFotosAntiguas || migrando) && (
       <div className="mt-16 pt-6 border-t border-stone-200">
         <h3 className="text-sm font-bold text-stone-500 uppercase tracking-wider mb-2">Mantenimiento</h3>
         <p className="text-sm text-stone-500 mb-3">
@@ -225,6 +231,7 @@ export default function GestionProductos() {
           </div>
         )}
       </div>
+      )}
     </div>
   );
 }

@@ -71,20 +71,41 @@ export default function GestionProductos() {
     if (r1.error || r2.error) window.alert('Error al reordenar. Recarga la página.');
   };
 
+  // Salta a la sección de una categoría
+  const irA = (catId) => {
+    const el = document.getElementById(`cat-${catId}`);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   if (cargando) return <p className="text-stone-500">Cargando productos…</p>;
   if (error) return <p className="text-red-700">Error al cargar: {error}</p>;
 
   return (
-    <div className="space-y-10">
-      {categorias.map((cat) => (
-        <CategoriaSeccion
-          key={cat.id}
-          categoria={cat}
-          onCreado={(nuevo) => añadirProducto(cat.id, nuevo)}
-          onBorrado={(prodId) => quitarProducto(cat.id, prodId)}
-          onMover={(prodId, dir) => moverProducto(cat.id, prodId, dir)}
-        />
-      ))}
+    <div>
+      {/* Índice fijo para saltar a una categoría sin scrollear */}
+      <nav className="sticky top-0 z-20 -mx-6 px-6 py-3 mb-8 bg-stone-100/95 backdrop-blur border-b border-stone-200 flex gap-2 overflow-x-auto [scrollbar-width:thin]">
+        {categorias.map((cat) => (
+          <button
+            key={cat.id}
+            onClick={() => irA(cat.id)}
+            className="shrink-0 text-sm px-3 py-1 rounded-full bg-white border border-stone-300 text-stone-700 hover:border-amber-700 hover:text-amber-700 whitespace-nowrap transition-colors"
+          >
+            {cat.titulo}
+          </button>
+        ))}
+      </nav>
+
+      <div className="space-y-10">
+        {categorias.map((cat) => (
+          <CategoriaSeccion
+            key={cat.id}
+            categoria={cat}
+            onCreado={(nuevo) => añadirProducto(cat.id, nuevo)}
+            onBorrado={(prodId) => quitarProducto(cat.id, prodId)}
+            onMover={(prodId, dir) => moverProducto(cat.id, prodId, dir)}
+          />
+        ))}
+      </div>
     </div>
   );
 }
@@ -95,7 +116,7 @@ function CategoriaSeccion({ categoria, onCreado, onBorrado, onMover }) {
   const productos = (categoria.productos || []).slice().sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0));
 
   return (
-    <section>
+    <section id={`cat-${categoria.id}`} className="scroll-mt-24">
       <div className="flex items-center justify-between border-b border-stone-300 pb-2 mb-4 gap-3">
         <h2 className="text-xl font-bold">
           {categoria.titulo}

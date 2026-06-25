@@ -144,17 +144,23 @@ visitanos, **redes**.
    - **react-router-dom**: rutas `/` (web) y `/admin` (panel). `vercel.json` con rewrite SPA.
    - `src/components/pages/Admin/` (AdminComponent = login+layout; GestionProductos = CRUD).
      `src/hooks/useAuth.js` = sesión.
-   - Productos: editar (nombre/descr./disponible), crear, borrar, reordenar (▲▼), e índice
-     fijo de categorías para saltar rápido. La web pública oculta lo no `disponible`.
+   - Productos: **buscador** (insensible a acentos), editar (nombre/descr./disponible),
+     crear, borrar, reordenar (▲▼), e índice fijo de categorías. La web pública oculta lo
+     no `disponible`.
+   - **Categorías**: editar (título/descripción/etiquetas) y reordenar (▲▼) desde el panel.
    - **Fotos**: subida a Supabase **Storage** (bucket público `productos`, ver
-     `supabase/storage.sql`; permisos de escritura solo autenticados). Fotos antiguas siguen
-     en `public/fotos/` (conviven); se migran solas según el tío las vaya cambiando.
+     `supabase/storage.sql`; escritura solo autenticados). Las fotos antiguas YA se
+     migraron a Storage (botón de Mantenimiento, que se oculta cuando no quedan `/fotos/`).
+     Las imágenes de `public/fotos/` siguen en el repo pero ya no se usan en el catálogo
+     (salvo la "de ambiente" `latas-1.jpg` y el logo); se pueden limpiar con cuidado.
    - Permisos de escritura en BD: `supabase/policies-admin.sql` (solo autenticados).
+   - **Rendimiento**: panel cargado con lazy-load (chunk aparte); web pública más ligera.
+   - **Móvil**: cabecera de categoría apilada y flechas grandes en móvil; escritorio igual.
 9. ⬜ (Fase 3) precios → carrito → checkout → pagos (Stripe/Redsys) + legal.
 
-**Pendientes menores Fase 2c (opcionales):** crear el usuario del tío; editar categorías
-(título/desc./chips) desde el panel; lazy-load del panel para aligerar el bundle (>500 kB);
-botón para migrar de golpe las fotos antiguas a Storage.
+**Pendientes (opcionales):** crear el usuario del tío (Authentication → Users → Add user +
+Auto Confirm) y pasarle `paco-vago.vercel.app/admin`; limpiar `public/fotos/` ya migradas;
+seguir puliendo el responsive de las tarjetas de producto si hace falta.
 
 **Cómo probar (local o producción):** abrir la sección "Tenemos de todo". Para confirmar
 que viene de la BD: edita un título en Supabase (Table Editor) y recarga; debe cambiar.

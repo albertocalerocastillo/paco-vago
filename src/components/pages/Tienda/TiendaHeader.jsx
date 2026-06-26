@@ -4,27 +4,46 @@ import { useCarrito } from '../../../hooks/useCarrito';
 
 /**
  * Cabecera común de todas las páginas de la tienda (listado, ficha, carrito).
- * Logo → tienda, enlace a la web informativa y carrito con contador.
+ * Barra superior de marca + sello (logo) + carrito con contador.
  */
 export default function TiendaHeader() {
   const { cantidadTotal } = useCarrito();
 
   return (
-    <header className="sticky top-0 z-30 bg-stone-50/95 backdrop-blur border-b border-stone-200 px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
-      <Link to="/tienda" className="font-bold text-lg tracking-tight">Paco Vago</Link>
-      <div className="flex items-center gap-5">
-        <Link to="/" className="text-sm text-stone-600 hover:text-amber-700 transition-colors hidden sm:inline">
-          ← Volver a la web
-        </Link>
-        <Link to="/tienda/carrito" className="relative text-stone-700 hover:text-amber-700 transition-colors" aria-label="Ver carrito">
-          <ShoppingCart size={24} />
-          {cantidadTotal > 0 && (
-            <span className="absolute -top-2 -right-2 bg-amber-700 text-white text-[11px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
-              {cantidadTotal}
-            </span>
-          )}
-        </Link>
+    <>
+      {/* Barra superior de marca (se va al hacer scroll) */}
+      <div className="bg-amber-800 text-amber-50 text-center text-[11px] sm:text-xs uppercase tracking-[0.25em] py-2 px-4">
+        Envíos a toda España · La tienda que tiene de todo desde 1924
       </div>
-    </header>
+
+      {/* Cabecera fija */}
+      <header className="sticky top-0 z-30 bg-stone-50/95 backdrop-blur border-b border-stone-200 px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+        <Link to="/tienda" className="flex items-center gap-3" aria-label="Tienda Paco Vago">
+          <img
+            src="/logo.png"
+            alt="Paco Vago · Desde 1924"
+            className="h-11 w-11 rounded-full object-cover ring-1 ring-amber-700/30 shadow"
+          />
+          <span className="flex flex-col leading-tight">
+            <span className="text-lg font-bold tracking-tight">Paco Vago</span>
+            <span className="text-[10px] uppercase tracking-[0.25em] text-stone-500">Tienda online</span>
+          </span>
+        </Link>
+
+        <div className="flex items-center gap-5">
+          <Link to="/" className="text-sm text-stone-600 hover:text-amber-700 transition-colors hidden sm:inline">
+            ← Volver a la web
+          </Link>
+          <Link to="/tienda/carrito" className="relative text-stone-700 hover:text-amber-700 transition-colors" aria-label="Ver carrito">
+            <ShoppingCart size={24} />
+            {cantidadTotal > 0 && (
+              <span className="absolute -top-2 -right-2 bg-amber-700 text-white text-[11px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                {cantidadTotal}
+              </span>
+            )}
+          </Link>
+        </div>
+      </header>
+    </>
   );
 }

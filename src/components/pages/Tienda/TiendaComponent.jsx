@@ -36,25 +36,35 @@ export default function TiendaComponent() {
     <div className="min-h-screen bg-stone-50 text-stone-900 font-serif">
       <TiendaHeader />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
-        {/* Cabecera de sección, al estilo de la home */}
-        <div className="text-center mb-10">
-          <div className="text-amber-700 text-sm uppercase tracking-[0.4em] mb-4">Tienda online</div>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6">Nuestros productos</h1>
-          <div className="w-24 h-px bg-amber-700 mx-auto mb-6"></div>
-          <p className="text-lg text-stone-600 max-w-2xl mx-auto">
-            Lo mejor de Paco Vago, a un clic. ¿No ves el precio de alguno? Pulsa{' '}
-            <span className="font-semibold">Me interesa</span> y te informamos por WhatsApp.
+      {/* Hero de la tienda (misma receta visual que la home) */}
+      <section className="relative">
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: 'url(/tienda.jpg)' }}></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-stone-900/75 via-stone-900/65 to-stone-900/90"></div>
+        <div
+          className="absolute inset-0 opacity-30 mix-blend-multiply"
+          style={{
+            backgroundImage:
+              'radial-gradient(circle at 20% 30%, rgba(217,119,6,0.4) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(120,53,15,0.5) 0%, transparent 50%)',
+          }}
+        ></div>
+        <div className="relative z-10 text-center px-6 pt-20 pb-28 sm:pt-24 sm:pb-32 max-w-3xl mx-auto">
+          <div className="text-amber-300 text-sm uppercase tracking-[0.4em] mb-5 drop-shadow-lg">Tienda online</div>
+          <h1 className="text-5xl md:text-6xl font-bold text-stone-50 mb-5 tracking-tight drop-shadow-2xl">Nuestros productos</h1>
+          <div className="w-24 h-px bg-amber-400 mx-auto mb-6"></div>
+          <p className="text-lg md:text-xl text-stone-100 italic font-light drop-shadow-lg">
+            Lo mejor de Paco Vago, a un clic.
           </p>
         </div>
+      </section>
 
-        {/* Buscador */}
-        <div className="relative max-w-xl mx-auto mb-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-16">
+        {/* Buscador flotante sobre el hero */}
+        <div className="relative z-10 -mt-8 sm:-mt-10 max-w-xl mx-auto mb-8">
           <input
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
             placeholder="Buscar producto…"
-            className="w-full bg-white border border-stone-300 px-4 py-3 pr-9 focus:outline-none focus:border-amber-700 transition-colors"
+            className="w-full bg-white border border-stone-200 shadow-lg px-5 py-4 pr-10 focus:outline-none focus:border-amber-700 transition-colors"
           />
           {busqueda && (
             <button

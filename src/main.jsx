@@ -4,8 +4,15 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './theme/theme.css'
 import App from './App.jsx'
 
-// El panel de admin se carga aparte (lazy): la web pública no arrastra su código.
+// El panel de admin y la tienda se cargan aparte (lazy): la home no arrastra su código.
 const AdminComponent = lazy(() => import('./components/pages/Admin/AdminComponent.jsx'))
+const TiendaComponent = lazy(() => import('./components/pages/Tienda/TiendaComponent.jsx'))
+
+const Cargando = () => (
+  <div className="min-h-screen bg-stone-100 text-stone-500 font-serif flex items-center justify-center">
+    Cargando…
+  </div>
+)
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -13,18 +20,12 @@ createRoot(document.getElementById('root')).render(
       <Routes>
         <Route path="/" element={<App />} />
         <Route
+          path="/tienda"
+          element={<Suspense fallback={<Cargando />}><TiendaComponent /></Suspense>}
+        />
+        <Route
           path="/admin"
-          element={
-            <Suspense
-              fallback={
-                <div className="min-h-screen bg-stone-100 text-stone-500 font-serif flex items-center justify-center">
-                  Cargando…
-                </div>
-              }
-            >
-              <AdminComponent />
-            </Suspense>
-          }
+          element={<Suspense fallback={<Cargando />}><AdminComponent /></Suspense>}
         />
       </Routes>
     </BrowserRouter>

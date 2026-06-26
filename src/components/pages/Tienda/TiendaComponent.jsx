@@ -5,6 +5,7 @@ import { useCategorias } from '../../../hooks/useCategorias';
 import { useCarrito } from '../../../hooks/useCarrito';
 import { whatsappProducto } from '../../../data/contacto';
 import { formatoPrecio } from '../../../utils/formato';
+import Reveal from '../../ui/Reveal/RevealComponent';
 
 // Minúsculas + sin acentos, para buscar "atun" y que encuentre "atún".
 const normaliza = (s) => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
@@ -56,25 +57,31 @@ export default function TiendaComponent() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-        <h1 className="text-3xl sm:text-4xl font-bold mb-2">Tienda</h1>
-        <p className="text-stone-600 mb-6">
-          Nuestros productos. ¿No ves el precio de alguno? Pulsa <span className="font-semibold">Me interesa</span> y te informamos por WhatsApp.
-        </p>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+        {/* Cabecera de sección, al estilo de la home */}
+        <div className="text-center mb-10">
+          <div className="text-amber-700 text-sm uppercase tracking-[0.4em] mb-4">Tienda online</div>
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6">Nuestros productos</h1>
+          <div className="w-24 h-px bg-amber-700 mx-auto mb-6"></div>
+          <p className="text-lg text-stone-600 max-w-2xl mx-auto">
+            Lo mejor de Paco Vago, a un clic. ¿No ves el precio de alguno? Pulsa{' '}
+            <span className="font-semibold">Me interesa</span> y te informamos por WhatsApp.
+          </p>
+        </div>
 
         {/* Buscador */}
-        <div className="relative mb-4">
+        <div className="relative max-w-xl mx-auto mb-6">
           <input
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
             placeholder="Buscar producto…"
-            className="w-full border border-stone-300 px-3 py-2 pr-8 focus:outline-none focus:border-amber-700"
+            className="w-full bg-white border border-stone-300 px-4 py-3 pr-9 focus:outline-none focus:border-amber-700 transition-colors"
           />
           {busqueda && (
             <button
               onClick={() => setBusqueda('')}
               aria-label="Limpiar búsqueda"
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700"
             >
               ✕
             </button>
@@ -82,7 +89,7 @@ export default function TiendaComponent() {
         </div>
 
         {/* Filtro por categoría */}
-        <div className="flex gap-2 overflow-x-auto pb-2 mb-6 [scrollbar-width:thin]">
+        <div className="flex justify-start sm:justify-center gap-2 overflow-x-auto pb-2 mb-10 [scrollbar-width:thin]">
           <Chip activo={!categoriaSel} onClick={() => setCategoriaSel(null)}>Todas</Chip>
           {categorias.map(c => (
             <Chip key={c.titulo} activo={categoriaSel === c.titulo} onClick={() => setCategoriaSel(c.titulo)}>
@@ -93,11 +100,13 @@ export default function TiendaComponent() {
 
         {/* Rejilla de productos */}
         {visibles.length === 0 ? (
-          <p className="text-stone-500">No hay productos que coincidan.</p>
+          <p className="text-stone-500 text-center">No hay productos que coincidan.</p>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5 sm:gap-6">
             {visibles.map((p, i) => (
-              <ProductoCard key={`${p.categoria}-${p.nombre}-${i}`} producto={p} />
+              <Reveal key={`${p.categoria}-${p.nombre}-${i}`} delay={(i % 4) * 70} className="h-full">
+                <ProductoCard producto={p} />
+              </Reveal>
             ))}
           </div>
         )}
@@ -136,34 +145,39 @@ function ProductoCard({ producto: p }) {
   };
 
   return (
-    <div className="bg-white border border-stone-200 rounded-sm overflow-hidden flex flex-col">
-      <div className="aspect-square bg-stone-100">
+    <div className="group bg-white border border-stone-200 hover:border-amber-700 hover:shadow-xl transition-all overflow-hidden flex flex-col h-full">
+      <div className="aspect-square bg-stone-100 overflow-hidden">
         {p.src ? (
-          <img src={p.src} alt={p.nombre} loading="lazy" className="w-full h-full object-cover" />
+          <img
+            src={p.src}
+            alt={p.nombre}
+            loading="lazy"
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-stone-300 text-sm">Sin foto</div>
         )}
       </div>
-      <div className="p-3 flex flex-col flex-1">
-        <span className="text-[11px] uppercase tracking-wider text-amber-700">{p.categoria}</span>
-        <h3 className="font-semibold text-sm leading-tight mt-0.5">{p.nombre}</h3>
-        {p.desc && <p className="text-xs text-stone-500 line-clamp-2 mt-1">{p.desc}</p>}
+      <div className="p-4 flex flex-col flex-1">
+        <span className="text-[11px] uppercase tracking-[0.2em] text-amber-700">{p.categoria}</span>
+        <h3 className="font-bold text-base leading-tight mt-1">{p.nombre}</h3>
+        {p.desc && <p className="text-sm text-stone-500 line-clamp-2 mt-1.5 leading-relaxed">{p.desc}</p>}
 
-        <div className="mt-auto pt-3">
-          {precio && <p className="text-amber-700 font-bold mb-2">{precio}</p>}
+        <div className="mt-auto pt-4">
+          {precio && <p className="text-xl font-bold text-stone-900 mb-3">{precio}</p>}
           {comprable ? (
             <button
               onClick={añadirAlCarrito}
-              className="w-full inline-flex items-center justify-center gap-2 bg-stone-900 hover:bg-amber-700 text-stone-50 text-sm font-semibold py-2 rounded-full transition-colors"
+              className="w-full inline-flex items-center justify-center gap-2 bg-stone-900 hover:bg-amber-700 text-stone-50 text-sm font-semibold py-2.5 uppercase tracking-wider transition-colors"
             >
-              <ShoppingCart size={15} /> {añadido ? 'Añadido ✓' : 'Añadir al carrito'}
+              <ShoppingCart size={15} /> {añadido ? 'Añadido ✓' : 'Añadir'}
             </button>
           ) : (
             <a
               href={whatsappProducto(p.nombre, precio)}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold py-2 rounded-full transition-colors"
+              className="w-full inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold py-2.5 uppercase tracking-wider transition-colors"
             >
               <WhatsAppIcon size={15} /> Me interesa
             </a>

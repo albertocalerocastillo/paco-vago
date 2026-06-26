@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Menu, X } from '../../../theme/icons';
 import { useScrolled } from '../../../hooks/useScrolled';
 import { scrollToSection } from '../../../utils/scroll';
@@ -36,7 +37,7 @@ export default function NavComponent() {
         </button>
 
         {/* Links escritorio */}
-        <div className="hidden md:flex gap-8 text-sm uppercase tracking-widest">
+        <div className="hidden md:flex items-center gap-8 text-sm uppercase tracking-widest">
           {NAV_LINKS.map(link => (
             <button
               key={link}
@@ -46,6 +47,12 @@ export default function NavComponent() {
               {link}
             </button>
           ))}
+          <Link
+            to="/tienda"
+            className="bg-amber-700 hover:bg-amber-600 text-stone-50 px-5 py-2.5 transition-colors shadow-md"
+          >
+            Comprar online
+          </Link>
         </div>
 
         {/* Hamburguesa móvil */}
@@ -70,6 +77,13 @@ export default function NavComponent() {
               {link}
             </button>
           ))}
+          <Link
+            to="/tienda"
+            onClick={() => setMenuOpen(false)}
+            className="block w-full text-left px-6 py-4 uppercase text-sm tracking-widest bg-amber-700 text-stone-50"
+          >
+            Comprar online
+          </Link>
         </div>
       )}
     </nav>

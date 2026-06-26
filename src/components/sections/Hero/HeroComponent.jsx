@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { ChevronRight } from '../../../theme/icons';
 import { scrollToSection } from '../../../utils/scroll';
 
@@ -43,9 +44,15 @@ export default function HeroComponent() {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Link
+            to="/tienda"
+            className="bg-amber-700 hover:bg-amber-600 text-stone-50 px-8 py-4 uppercase text-sm tracking-widest transition-all hover:scale-105 shadow-xl"
+          >
+            Comprar online
+          </Link>
           <button
             onClick={() => scrollToSection('productos')}
-            className="bg-amber-700 hover:bg-amber-600 text-stone-50 px-8 py-4 uppercase text-sm tracking-widest transition-all hover:scale-105 shadow-xl"
+            className="border border-stone-200/80 text-stone-100 hover:bg-stone-50 hover:text-stone-900 px-8 py-4 uppercase text-sm tracking-widest transition-all backdrop-blur-sm"
           >
             Ver productos
           </button>

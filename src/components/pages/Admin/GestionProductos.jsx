@@ -20,7 +20,7 @@ export default function GestionProductos() {
     (async () => {
       const { data, error } = await supabase
         .from('categorias')
-        .select('id, titulo, descripcion, tags, orden, productos(id, nombre, descripcion, foto, disponible, orden)')
+        .select('id, titulo, descripcion, tags, orden, productos(id, nombre, descripcion, foto, disponible, precio, orden)')
         .order('orden', { ascending: true });
 
       if (error) setError(error.message);
@@ -368,21 +368,25 @@ function ProductoFila({ producto, mostrarOrden = true, esPrimero, esUltimo, onBo
   const [nombre, setNombre] = useState(producto.nombre || '');
   const [descripcion, setDescripcion] = useState(producto.descripcion || '');
   const [foto, setFoto] = useState(producto.foto || '');
+  const [precio, setPrecio] = useState(producto.precio != null ? String(producto.precio) : '');
   const [disponible, setDisponible] = useState(producto.disponible);
   const [estado, setEstado] = useState('idle'); // idle | guardando | guardado | error
   const [borrando, setBorrando] = useState(false);
+
+  const precioNum = precio.trim() === '' || Number.isNaN(Number(precio)) ? null : Number(precio);
 
   const modificado =
     nombre !== (producto.nombre || '') ||
     descripcion !== (producto.descripcion || '') ||
     foto !== (producto.foto || '') ||
+    precioNum !== (producto.precio ?? null) ||
     disponible !== producto.disponible;
 
   const guardar = async () => {
     setEstado('guardando');
     const { error } = await supabase
       .from('productos')
-      .update({ nombre, descripcion, foto: foto || null, disponible })
+      .update({ nombre, descripcion, foto: foto || null, precio: precioNum, disponible })
       .eq('id', producto.id);
 
     if (error) {
@@ -391,6 +395,7 @@ function ProductoFila({ producto, mostrarOrden = true, esPrimero, esUltimo, onBo
       producto.nombre = nombre;
       producto.descripcion = descripcion;
       producto.foto = foto;
+      producto.precio = precioNum;
       producto.disponible = disponible;
       setEstado('guardado');
       setTimeout(() => setEstado('idle'), 2000);
@@ -449,6 +454,21 @@ function ProductoFila({ producto, mostrarOrden = true, esPrimero, esUltimo, onBo
           className="w-full text-sm text-stone-600 border border-stone-300 px-2 py-1 resize-y focus:outline-none focus:border-amber-700"
         />
 
+        <div className="flex items-center gap-2 mt-2 text-sm text-stone-600">
+          <label htmlFor={`precio-${producto.id}`}>Precio (€):</label>
+          <input
+            id={`precio-${producto.id}`}
+            type="number"
+            step="0.01"
+            min="0"
+            value={precio}
+            onChange={(e) => setPrecio(e.target.value)}
+            placeholder="—"
+            className="w-24 border border-stone-300 px-2 py-1 focus:outline-none focus:border-amber-700"
+          />
+          <span className="text-stone-400 text-xs">opcional · vacío = sin precio</span>
+        </div>
+
         <div className="flex items-center justify-between mt-2 gap-3 flex-wrap">
           <label className="flex items-center gap-2 text-sm text-stone-600 cursor-pointer">
             <input
@@ -488,6 +508,7 @@ function NuevoProducto({ categoria, onCreado }) {
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [foto, setFoto] = useState('');
+  const [precio, setPrecio] = useState('');
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState(null);
 
@@ -506,6 +527,7 @@ function NuevoProducto({ categoria, onCreado }) {
         nombre,
         descripcion: descripcion || null,
         foto: foto || null,
+        precio: precio.trim() === '' || Number.isNaN(Number(precio)) ? null : Number(precio),
         disponible: true,
         orden,
       })
@@ -536,6 +558,19 @@ function NuevoProducto({ categoria, onCreado }) {
         placeholder="Descripción (opcional)"
         className="w-full text-sm text-stone-600 border border-stone-300 px-2 py-1 resize-y focus:outline-none focus:border-amber-700"
       />
+      <div className="flex items-center gap-2 text-sm text-stone-600">
+        <label>Precio (€):</label>
+        <input
+          type="number"
+          step="0.01"
+          min="0"
+          value={precio}
+          onChange={(e) => setPrecio(e.target.value)}
+          placeholder="—"
+          className="w-24 border border-stone-300 px-2 py-1 focus:outline-none focus:border-amber-700"
+        />
+        <span className="text-stone-400 text-xs">opcional</span>
+      </div>
       <div className="flex items-center gap-3">
         <SubirFoto foto={foto} onSubida={setFoto} />
         <span className="text-xs text-stone-400">Foto del producto (opcional)</span>

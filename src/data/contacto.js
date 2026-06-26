@@ -14,10 +14,12 @@ export const WHATSAPP_MENSAJE = 'Hola, os escribo desde la web de Paco Vago. Que
 export const WHATSAPP_HREF = `https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(WHATSAPP_MENSAJE)}`;
 
 // Enlace de WhatsApp preguntando por un producto concreto (mensaje ya escrito).
-export const whatsappProducto = (nombre) =>
-  `https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(
-    `Hola, me interesa este producto de Paco Vago: ${nombre}. ¿Me podéis informar?`
-  )}`;
+// Si se pasa un precio formateado, lo incluye en el mensaje.
+export const whatsappProducto = (nombre, precioTexto) => {
+  const ref = precioTexto ? `${nombre} (${precioTexto})` : nombre;
+  const mensaje = `Hola, me interesa este producto de Paco Vago: ${ref}. ¿Me podéis informar?`;
+  return `https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(mensaje)}`;
+};
 
 export const DIRECCION = {
   calle: 'Puerta de Sevilla',

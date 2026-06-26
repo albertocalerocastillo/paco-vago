@@ -14,7 +14,11 @@ export {
   X,
   Phone,
   MapPin,
-  Clock
+  Clock,
+  ShoppingCart,
+  Plus,
+  Minus,
+  Trash2
 } from 'lucide-react';
 
 // Iconos de categorías de producto (lucide-react)

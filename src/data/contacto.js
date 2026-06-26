@@ -13,12 +13,15 @@ export const WHATSAPP_NUM = '34615323072'; // formato internacional sin signos
 export const WHATSAPP_MENSAJE = 'Hola, os escribo desde la web de Paco Vago. Quería preguntaros por...';
 export const WHATSAPP_HREF = `https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(WHATSAPP_MENSAJE)}`;
 
+// Enlace de WhatsApp con un mensaje cualquiera ya escrito.
+export const whatsappLink = (mensaje) =>
+  `https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(mensaje)}`;
+
 // Enlace de WhatsApp preguntando por un producto concreto (mensaje ya escrito).
 // Si se pasa un precio formateado, lo incluye en el mensaje.
 export const whatsappProducto = (nombre, precioTexto) => {
   const ref = precioTexto ? `${nombre} (${precioTexto})` : nombre;
-  const mensaje = `Hola, me interesa este producto de Paco Vago: ${ref}. ¿Me podéis informar?`;
-  return `https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(mensaje)}`;
+  return whatsappLink(`Hola, me interesa este producto de Paco Vago: ${ref}. ¿Me podéis informar?`);
 };
 
 export const DIRECCION = {

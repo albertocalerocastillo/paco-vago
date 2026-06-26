@@ -17,6 +17,7 @@ export function CarritoProvider({ children }) {
       return [];
     }
   });
+  const [abierto, setAbierto] = useState(false); // panel lateral (mini-carrito)
 
   useEffect(() => {
     try {
@@ -37,6 +38,7 @@ export function CarritoProvider({ children }) {
       }
       return [...prev, { id, nombre: producto.nombre, precio: producto.precio, foto: producto.src, cantidad }];
     });
+    setAbierto(true); // al añadir, abre el mini-carrito
   }, []);
 
   const cambiarCantidad = useCallback((id, cantidad) => {
@@ -45,12 +47,16 @@ export function CarritoProvider({ children }) {
 
   const quitar = useCallback((id) => setItems(prev => prev.filter(x => x.id !== id)), []);
   const vaciar = useCallback(() => setItems([]), []);
+  const abrirCarrito = useCallback(() => setAbierto(true), []);
+  const cerrarCarrito = useCallback(() => setAbierto(false), []);
 
   const cantidadTotal = items.reduce((s, x) => s + x.cantidad, 0);
   const total = items.reduce((s, x) => s + (Number(x.precio) || 0) * x.cantidad, 0);
 
   return (
-    <CarritoContext.Provider value={{ items, añadir, cambiarCantidad, quitar, vaciar, cantidadTotal, total }}>
+    <CarritoContext.Provider
+      value={{ items, añadir, cambiarCantidad, quitar, vaciar, cantidadTotal, total, abierto, abrirCarrito, cerrarCarrito }}
+    >
       {children}
     </CarritoContext.Provider>
   );

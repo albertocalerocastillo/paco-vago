@@ -3,6 +3,7 @@ import { Plus, Minus, Trash2, WhatsAppIcon } from '../../../theme/icons';
 import { useCarrito } from '../../../hooks/useCarrito';
 import { whatsappLink } from '../../../data/contacto';
 import { formatoPrecio } from '../../../utils/formato';
+import TiendaHeader from '../Tienda/TiendaHeader';
 
 /**
  * Página del carrito (/tienda/carrito).
@@ -21,10 +22,7 @@ export default function CarritoComponent() {
 
   return (
     <div className="min-h-screen bg-stone-50 text-stone-900 font-serif">
-      <header className="sticky top-0 z-20 bg-stone-50/95 backdrop-blur border-b border-stone-200 px-4 sm:px-6 py-3 flex items-center justify-between">
-        <Link to="/" className="font-bold text-lg">Paco Vago</Link>
-        <Link to="/tienda" className="text-sm text-stone-600 hover:text-amber-700 transition-colors">← Seguir comprando</Link>
-      </header>
+      <TiendaHeader />
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
         <h1 className="text-3xl font-bold mb-6">Tu carrito</h1>

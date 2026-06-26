@@ -156,11 +156,21 @@ visitanos, **redes**.
    - Permisos de escritura en BD: `supabase/policies-admin.sql` (solo autenticados).
    - **Rendimiento**: panel cargado con lazy-load (chunk aparte); web pública más ligera.
    - **Móvil**: cabecera de categoría apilada y flechas grandes en móvil; escritorio igual.
-9. ⬜ (Fase 3) precios → carrito → checkout → pagos (Stripe/Redsys) + legal.
+8b. ✅ Botón **"Me interesa" por WhatsApp** en cada producto (carrusel + foto ampliada),
+   web pública. Helper `whatsappProducto(nombre)` en `data/contacto.js`. Es el puente
+   barato hacia la venta online mientras se monta el checkout.
+9. ⬜ (Fase 3) TIENDA ONLINE REAL — **confirmada**: el tío ya vende y hace envíos por toda
+   España y quiere venderlo online bien preparado. Orden previsto: precios+IVA → carrito →
+   checkout → pasarela de pago → envíos/portes → textos legales → gestión de pedidos en panel.
+   Decisiones pendientes (preguntar al tío antes de empezar):
+   - **Portes**: ¿precio fijo? ¿gratis desde X €? ¿Canarias/Baleares aparte?
+   - **IVA/factura**: ¿precios con IVA incluido? ¿emitir factura?
+   - **Pasarela**: Stripe (más fácil de arrancar, ~1,5%+0,25€) vs Redsys (vía su banco).
 
 **Pendientes (opcionales):** crear el usuario del tío (Authentication → Users → Add user +
-Auto Confirm) y pasarle `paco-vago.vercel.app/admin`; limpiar `public/fotos/` ya migradas;
-seguir puliendo el responsive de las tarjetas de producto si hace falta.
+Auto Confirm) y pasarle `paco-vago.vercel.app/admin`; limpiar `public/fotos/` ya migradas
+(OJO: el fallback estático `data/categorias.js` aún apunta a `/fotos/`; actualizarlo antes
+de borrar para no romper la red de seguridad); seguir puliendo el responsive si hace falta.
 
 **Cómo probar (local o producción):** abrir la sección "Tenemos de todo". Para confirmar
 que viene de la BD: edita un título en Supabase (Table Editor) y recarga; debe cambiar.

@@ -1,11 +1,28 @@
 # Estado del proyecto — Paco Vago (web)
 
 > Documento de continuación. Si abres un chat nuevo, léelo para ponerte al día.
-> Última actualización: junio 2026.
+> Última actualización: 26 junio 2026.
+
+## ⚡ RESUMEN ACTUAL (para retomar rápido)
+
+Web informativa **+ tienda online** de Paco Vago, en producción en
+https://paco-vago.vercel.app. Backend con **Supabase** (BD + auth + storage).
+- ✅ Catálogo en BD; la web lee de Supabase (con fallback al estático).
+- ✅ **Panel `/admin`** (login Supabase Auth): gestiona productos y categorías (crear,
+  editar, borrar, ocultar, reordenar, **precio**, subir fotos, buscador).
+- ✅ **Tienda online** (`/tienda`): listado + ficha con zoom + carrito + mini-carrito +
+  animación volar-al-carrito. Modelo HÍBRIDO: con precio → carrito; sin precio → WhatsApp.
+  Pedidos por WhatsApp ya funcionan.
+- ⬜ **Falta (Fase 3b): pago con tarjeta** + precios/fotos del tío + portes/IVA + legal.
+  Ver punto 10 más abajo. Decisiones del tío aún pendientes.
+
+**Flujo de trabajo (IMPORTANTE):** trabajar en rama (no en master); `npm run build` para
+verificar; **NO hacer `git push` sin OK del usuario**; ofrecer opciones marcando la
+(Recomendado) y tirar por ella; ir poco a poco.
 
 ## Qué es
 
-Web **informativa** (de momento) de **Paco Vago**, tienda centenaria (desde 1924) en la
+Web informativa **+ tienda online** de **Paco Vago**, tienda centenaria (desde 1924) en la
 **Puerta de Sevilla, Carmona (Sevilla)**. Lema: *"La tienda que tiene de todo, y si no lo
 tienen, se lo inventan o te lo consiguen"*. Es "la tienda que tiene de todo".
 
@@ -17,9 +34,10 @@ tienen, se lo inventan o te lo consiguen"*. Es "la tienda que tiene de todo".
 ## Stack
 
 - **React + Vite 8** (parser oxc, estricto con JSX) + **Tailwind CSS v4** (`@tailwindcss/vite`)
-- **lucide-react** para iconos
+- **lucide-react** para iconos · **react-router-dom** (rutas `/`, `/tienda`, `/tienda/producto/:id`, `/tienda/carrito`, `/admin`)
 - JavaScript (NO TypeScript)
-- Sin backend (web estática por ahora)
+- **Backend: Supabase** (PostgreSQL + Auth + Storage). Cliente en `src/lib/supabase.js`.
+  Credenciales en `.env` local (no se sube) y en Vercel (solo entorno Production).
 
 ### Cuidado con Vite 8 / oxc (parser estricto)
 - Cerrar etiquetas auto-cerradas con `/>`.

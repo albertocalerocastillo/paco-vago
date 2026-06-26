@@ -1,10 +1,11 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { X, Plus, Minus, ShoppingCart, WhatsAppIcon } from '../../../theme/icons';
 import { useCategorias } from '../../../hooks/useCategorias';
 import { useCarrito } from '../../../hooks/useCarrito';
 import { whatsappProducto } from '../../../data/contacto';
 import { formatoPrecio } from '../../../utils/formato';
+import { flyToCart } from '../../../utils/flyToCart';
 import TiendaHeader from './TiendaHeader';
 import ProductoCard from './ProductoCard';
 import FooterComponent from '../../layout/Footer/FooterComponent';
@@ -21,6 +22,7 @@ export default function ProductoDetalleComponent() {
   const [cantidad, setCantidad] = useState(1);
   const [zoom, setZoom] = useState(false);
   const [añadido, setAñadido] = useState(false);
+  const imgRef = useRef(null);
 
   // Busca el producto por id y su categoría
   const { producto, categoria, relacionados, catalogoCargado } = useMemo(() => {
@@ -75,6 +77,7 @@ export default function ProductoDetalleComponent() {
   const comprable = producto.precio != null;
 
   const añadirAlCarrito = () => {
+    flyToCart(imgRef.current);
     añadir(producto, cantidad);
     setAñadido(true);
     setTimeout(() => setAñadido(false), 1800);
@@ -101,7 +104,7 @@ export default function ProductoDetalleComponent() {
               aria-label="Ampliar foto"
             >
               {producto.src ? (
-                <img src={producto.src} alt={producto.nombre} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                <img ref={imgRef} src={producto.src} alt={producto.nombre} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-stone-300">Sin foto</div>
               )}

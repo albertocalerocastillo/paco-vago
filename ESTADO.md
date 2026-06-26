@@ -159,13 +159,26 @@ visitanos, **redes**.
 8b. ✅ Botón **"Me interesa" por WhatsApp** en cada producto (carrusel + foto ampliada),
    web pública. Helper `whatsappProducto(nombre)` en `data/contacto.js`. Es el puente
    barato hacia la venta online mientras se monta el checkout.
-9. ⬜ (Fase 3) TIENDA ONLINE REAL — **confirmada**: el tío ya vende y hace envíos por toda
-   España y quiere venderlo online bien preparado. Orden previsto: precios+IVA → carrito →
-   checkout → pasarela de pago → envíos/portes → textos legales → gestión de pedidos en panel.
-   Decisiones pendientes (preguntar al tío antes de empezar):
-   - **Portes**: ¿precio fijo? ¿gratis desde X €? ¿Canarias/Baleares aparte?
-   - **IVA/factura**: ¿precios con IVA incluido? ¿emitir factura?
-   - **Pasarela**: Stripe (más fácil de arrancar, ~1,5%+0,25€) vs Redsys (vía su banco).
+9. ✅ (Fase 3a) TIENDA ONLINE — front-end DESPLEGADO. Estructura con react-router:
+   - Entrada **"Comprar online"** en Nav y Hero de la home.
+   - `/tienda` (listado): hero con foto+sello (TiendaHeader, barra de marca, banda de
+     confianza), buscador flotante, filtros con iconos, rejilla. `TiendaComponent`.
+   - `/tienda/producto/:id` (ficha): foto ampliable con zoom, cantidad, relacionados.
+     `ProductoDetalleComponent`. Tarjeta reutilizable `ProductoCard`.
+   - **Carrito** (`/tienda/carrito`) + **mini-carrito** lateral (`MiniCarrito`, se abre al
+     pulsar el icono) + **animación volar-al-carrito** (`utils/flyToCart.js`).
+   - Estado de carrito en `hooks/useCarrito.jsx` (Context + localStorage).
+   - **Campo precio** por producto (panel + web). Modelo HÍBRIDO: con precio → "Añadir al
+     carrito"; sin precio → "Me interesa" (WhatsApp). El carrito permite "Hacer pedido por
+     WhatsApp" mientras no haya pago con tarjeta.
+   - Pie de página reutilizado en todas las páginas de tienda.
+10. ⬜ (Fase 3b) PAGO CON TARJETA + datos del tío. Pendiente:
+   - Productos estrella con **precio y foto** (el tío los va pasando; 1º lote recibido:
+     2 AOVE, licores 12€; pendientes por kilo: queso/salchichón/mojama → decidir pieza vs peso).
+   - **Pasarela**: Stripe (fácil, ~1,5%+0,25€) vs Redsys (banco). **Portes** (fijo/gratis
+     desde X/Canarias-Baleares). **IVA/factura**. **Checkout** + gestión de pedidos en panel.
+   - **Legal** (obligatorio al cobrar): aviso legal, privacidad RGPD, condiciones de venta,
+     devoluciones.
 
 **Pendientes (opcionales):** crear el usuario del tío (Authentication → Users → Add user +
 Auto Confirm) y pasarle `paco-vago.vercel.app/admin`; limpiar `public/fotos/` ya migradas

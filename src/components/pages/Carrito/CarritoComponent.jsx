@@ -4,6 +4,7 @@ import { useCarrito } from '../../../hooks/useCarrito';
 import { whatsappLink } from '../../../data/contacto';
 import { formatoPrecio } from '../../../utils/formato';
 import TiendaHeader from '../Tienda/TiendaHeader';
+import FooterComponent from '../../layout/Footer/FooterComponent';
 
 /**
  * Página del carrito (/tienda/carrito).
@@ -115,6 +116,8 @@ export default function CarritoComponent() {
           </>
         )}
       </div>
+
+      <FooterComponent />
     </div>
   );
 }

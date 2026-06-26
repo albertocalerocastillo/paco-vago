@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { WhatsAppIcon } from '../../../theme/icons';
+import { WhatsAppIcon, ShoppingCart } from '../../../theme/icons';
 import { useCategorias } from '../../../hooks/useCategorias';
+import { useCarrito } from '../../../hooks/useCarrito';
 import { whatsappProducto } from '../../../data/contacto';
 import { formatoPrecio } from '../../../utils/formato';
 
@@ -17,6 +18,7 @@ const normaliza = (s) => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLo
  */
 export default function TiendaComponent() {
   const categorias = useCategorias();
+  const { cantidadTotal } = useCarrito();
   const [busqueda, setBusqueda] = useState('');
   const [categoriaSel, setCategoriaSel] = useState(null); // null = todas
 
@@ -39,9 +41,19 @@ export default function TiendaComponent() {
   return (
     <div className="min-h-screen bg-stone-50 text-stone-900 font-serif">
       {/* Cabecera de la tienda */}
-      <header className="sticky top-0 z-20 bg-stone-50/95 backdrop-blur border-b border-stone-200 px-4 sm:px-6 py-3 flex items-center justify-between">
+      <header className="sticky top-0 z-20 bg-stone-50/95 backdrop-blur border-b border-stone-200 px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
         <Link to="/" className="font-bold text-lg">Paco Vago</Link>
-        <Link to="/" className="text-sm text-stone-600 hover:text-amber-700 transition-colors">← Volver a la web</Link>
+        <div className="flex items-center gap-4">
+          <Link to="/" className="text-sm text-stone-600 hover:text-amber-700 transition-colors hidden sm:inline">← Volver a la web</Link>
+          <Link to="/tienda/carrito" className="relative text-stone-700 hover:text-amber-700 transition-colors" aria-label="Ver carrito">
+            <ShoppingCart size={24} />
+            {cantidadTotal > 0 && (
+              <span className="absolute -top-2 -right-2 bg-amber-700 text-white text-[11px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                {cantidadTotal}
+              </span>
+            )}
+          </Link>
+        </div>
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
@@ -112,7 +124,17 @@ function Chip({ activo, onClick, children }) {
 
 /* ── Tarjeta de producto ──────────────────────────────────── */
 function ProductoCard({ producto: p }) {
+  const { añadir } = useCarrito();
+  const [añadido, setAñadido] = useState(false);
   const precio = formatoPrecio(p.precio);
+  const comprable = p.precio != null;
+
+  const añadirAlCarrito = () => {
+    añadir(p);
+    setAñadido(true);
+    setTimeout(() => setAñadido(false), 1500);
+  };
+
   return (
     <div className="bg-white border border-stone-200 rounded-sm overflow-hidden flex flex-col">
       <div className="aspect-square bg-stone-100">
@@ -129,14 +151,23 @@ function ProductoCard({ producto: p }) {
 
         <div className="mt-auto pt-3">
           {precio && <p className="text-amber-700 font-bold mb-2">{precio}</p>}
-          <a
-            href={whatsappProducto(p.nombre, precio)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold py-2 rounded-full transition-colors"
-          >
-            <WhatsAppIcon size={15} /> Me interesa
-          </a>
+          {comprable ? (
+            <button
+              onClick={añadirAlCarrito}
+              className="w-full inline-flex items-center justify-center gap-2 bg-stone-900 hover:bg-amber-700 text-stone-50 text-sm font-semibold py-2 rounded-full transition-colors"
+            >
+              <ShoppingCart size={15} /> {añadido ? 'Añadido ✓' : 'Añadir al carrito'}
+            </button>
+          ) : (
+            <a
+              href={whatsappProducto(p.nombre, precio)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold py-2 rounded-full transition-colors"
+            >
+              <WhatsAppIcon size={15} /> Me interesa
+            </a>
+          )}
         </div>
       </div>
     </div>

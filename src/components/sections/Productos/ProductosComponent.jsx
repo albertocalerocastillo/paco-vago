@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { Phone, X, ChevronRight } from '../../../theme/icons';
+import { Phone, X, ChevronRight, WhatsAppIcon } from '../../../theme/icons';
 import { useCategorias } from '../../../hooks/useCategorias';
-import { TELEFONO_HREF, TELEFONO } from '../../../data/contacto';
+import { TELEFONO_HREF, TELEFONO, whatsappProducto } from '../../../data/contacto';
 import Reveal from '../../ui/Reveal/RevealComponent';
 
 export default function ProductosComponent() {
@@ -151,10 +151,19 @@ export default function ProductosComponent() {
                       onClick={() => setAmpliada(p)}
                       className="w-full h-64 sm:h-80 object-cover cursor-zoom-in"
                     />
-                    {/* Nombre del producto sobre la foto */}
+                    {/* Nombre del producto sobre la foto + CTA de WhatsApp */}
                     <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 to-transparent p-4 pt-10 pointer-events-none">
                       <p className="text-white text-lg font-bold leading-tight">{p.nombre}</p>
                       {p.desc && <p className="text-stone-200 text-sm">{p.desc}</p>}
+                      <a
+                        href={whatsappProducto(p.nombre)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="pointer-events-auto mt-3 inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold px-4 py-2 rounded-full transition-colors"
+                      >
+                        <WhatsAppIcon size={16} /> Me interesa
+                      </a>
                     </div>
                   </div>
                 ))}
@@ -229,9 +238,17 @@ export default function ProductosComponent() {
               alt={ampliada.nombre}
               className="max-w-full max-h-[80vh] object-contain rounded-sm shadow-2xl"
             />
-            <figcaption className="text-stone-200 mt-4 text-center">
+            <figcaption className="text-stone-200 mt-4 text-center flex flex-col items-center">
               <span className="block text-lg font-semibold">{ampliada.nombre}</span>
               {ampliada.desc && <span className="text-sm text-stone-400">{ampliada.desc}</span>}
+              <a
+                href={whatsappProducto(ampliada.nombre)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold px-5 py-2.5 rounded-full transition-colors"
+              >
+                <WhatsAppIcon size={18} /> Me interesa este producto
+              </a>
             </figcaption>
           </figure>
         </div>

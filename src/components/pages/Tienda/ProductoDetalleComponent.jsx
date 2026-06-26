@@ -7,6 +7,7 @@ import { whatsappProducto } from '../../../data/contacto';
 import { formatoPrecio } from '../../../utils/formato';
 import TiendaHeader from './TiendaHeader';
 import ProductoCard from './ProductoCard';
+import FooterComponent from '../../layout/Footer/FooterComponent';
 
 /**
  * Ficha de producto (/tienda/producto/:id).
@@ -164,6 +165,8 @@ export default function ProductoDetalleComponent() {
           </div>
         )}
       </div>
+
+      <FooterComponent />
 
       {/* Lightbox / zoom */}
       {zoom && (

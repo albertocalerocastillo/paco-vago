@@ -18,7 +18,8 @@ export {
   ShoppingCart,
   Plus,
   Minus,
-  Trash2
+  Trash2,
+  Truck
 } from 'lucide-react';
 
 // Iconos de categorías de producto (lucide-react)

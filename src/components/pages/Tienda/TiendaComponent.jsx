@@ -1,8 +1,10 @@
 import { useState, useMemo } from 'react';
+import { Truck, MapPin, WhatsAppIcon } from '../../../theme/icons';
 import { useCategorias } from '../../../hooks/useCategorias';
 import Reveal from '../../ui/Reveal/RevealComponent';
 import TiendaHeader from './TiendaHeader';
 import ProductoCard from './ProductoCard';
+import FooterComponent from '../../layout/Footer/FooterComponent';
 
 // Minúsculas + sin acentos, para buscar "atun" y que encuentre "atún".
 const normaliza = (s) => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
@@ -77,6 +79,13 @@ export default function TiendaComponent() {
           )}
         </div>
 
+        {/* Banda de confianza */}
+        <div className="flex flex-wrap justify-center gap-x-8 gap-y-3 text-stone-600 text-sm border-y border-stone-200 py-4 mb-8">
+          <span className="inline-flex items-center gap-2"><Truck size={18} className="text-amber-700" /> Envíos a toda España</span>
+          <span className="inline-flex items-center gap-2"><MapPin size={18} className="text-amber-700" /> Productos de Carmona</span>
+          <span className="inline-flex items-center gap-2"><WhatsAppIcon size={17} /> Atención por WhatsApp</span>
+        </div>
+
         {/* Filtro por categoría */}
         <div className="flex justify-start sm:justify-center gap-2 overflow-x-auto pb-2 mb-10 [scrollbar-width:thin]">
           <Chip activo={!categoriaSel} onClick={() => setCategoriaSel(null)}>Todas</Chip>
@@ -104,6 +113,8 @@ export default function TiendaComponent() {
           </div>
         )}
       </div>
+
+      <FooterComponent />
     </div>
   );
 }

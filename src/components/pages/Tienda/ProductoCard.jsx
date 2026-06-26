@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { WhatsAppIcon, ShoppingCart } from '../../../theme/icons';
 import { useCarrito } from '../../../hooks/useCarrito';
 import { whatsappProducto } from '../../../data/contacto';
 import { formatoPrecio } from '../../../utils/formato';
+import { flyToCart } from '../../../utils/flyToCart';
 
 /**
  * Tarjeta de producto del listado. La foto y el nombre llevan a la ficha;
@@ -12,11 +13,13 @@ import { formatoPrecio } from '../../../utils/formato';
 export default function ProductoCard({ producto: p }) {
   const { añadir } = useCarrito();
   const [añadido, setAñadido] = useState(false);
+  const imgRef = useRef(null);
   const precio = formatoPrecio(p.precio);
   const comprable = p.precio != null;
   const ficha = p.id != null ? `/tienda/producto/${p.id}` : null;
 
   const añadirAlCarrito = () => {
+    flyToCart(imgRef.current);
     añadir(p);
     setAñadido(true);
     setTimeout(() => setAñadido(false), 1500);
@@ -26,6 +29,7 @@ export default function ProductoCard({ producto: p }) {
     <div className="aspect-square bg-stone-100 overflow-hidden">
       {p.src ? (
         <img
+          ref={imgRef}
           src={p.src}
           alt={p.nombre}
           loading="lazy"

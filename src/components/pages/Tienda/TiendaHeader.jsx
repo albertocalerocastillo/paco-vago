@@ -1,13 +1,27 @@
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart } from '../../../theme/icons';
 import { useCarrito } from '../../../hooks/useCarrito';
 
 /**
  * Cabecera común de todas las páginas de la tienda (listado, ficha, carrito).
- * Barra superior de marca + sello (logo) + carrito con contador.
+ * Barra superior de marca + sello (logo) + carrito (abre el mini-carrito).
  */
 export default function TiendaHeader() {
-  const { cantidadTotal } = useCarrito();
+  const { cantidadTotal, abrirCarrito } = useCarrito();
+  const [bump, setBump] = useState(false);
+  const prev = useRef(cantidadTotal);
+
+  // Saltito del icono cuando sube la cantidad
+  useEffect(() => {
+    if (cantidadTotal > prev.current) {
+      setBump(true);
+      const t = setTimeout(() => setBump(false), 400);
+      prev.current = cantidadTotal;
+      return () => clearTimeout(t);
+    }
+    prev.current = cantidadTotal;
+  }, [cantidadTotal]);
 
   return (
     <>
@@ -35,14 +49,19 @@ export default function TiendaHeader() {
             <span className="sm:hidden">← Web</span>
             <span className="hidden sm:inline">← Volver a la web</span>
           </Link>
-          <Link to="/tienda/carrito" className="relative text-stone-700 hover:text-amber-700 transition-colors" aria-label="Ver carrito">
+          <button
+            id="cart-icon"
+            onClick={abrirCarrito}
+            className={`relative text-stone-700 hover:text-amber-700 transition-colors ${bump ? 'cart-bump' : ''}`}
+            aria-label="Ver carrito"
+          >
             <ShoppingCart size={24} />
             {cantidadTotal > 0 && (
               <span className="absolute -top-2 -right-2 bg-amber-700 text-white text-[11px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
                 {cantidadTotal}
               </span>
             )}
-          </Link>
+          </button>
         </div>
       </header>
     </>

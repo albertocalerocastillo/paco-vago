@@ -38,7 +38,6 @@ export function CarritoProvider({ children }) {
       }
       return [...prev, { id, nombre: producto.nombre, precio: producto.precio, foto: producto.src, cantidad }];
     });
-    setAbierto(true); // al añadir, abre el mini-carrito
   }, []);
 
   const cambiarCantidad = useCallback((id, cantidad) => {

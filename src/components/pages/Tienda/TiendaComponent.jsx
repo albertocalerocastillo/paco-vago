@@ -80,11 +80,15 @@ export default function TiendaComponent() {
         {/* Filtro por categoría */}
         <div className="flex justify-start sm:justify-center gap-2 overflow-x-auto pb-2 mb-10 [scrollbar-width:thin]">
           <Chip activo={!categoriaSel} onClick={() => setCategoriaSel(null)}>Todas</Chip>
-          {categorias.map(c => (
-            <Chip key={c.titulo} activo={categoriaSel === c.titulo} onClick={() => setCategoriaSel(c.titulo)}>
-              {c.titulo}
-            </Chip>
-          ))}
+          {categorias.map(c => {
+            const Icon = c.icon;
+            return (
+              <Chip key={c.titulo} activo={categoriaSel === c.titulo} onClick={() => setCategoriaSel(c.titulo)}>
+                {Icon && <Icon size={14} strokeWidth={1.75} />}
+                {c.titulo}
+              </Chip>
+            );
+          })}
         </div>
 
         {/* Rejilla de productos */}
@@ -109,7 +113,7 @@ function Chip({ activo, onClick, children }) {
   return (
     <button
       onClick={onClick}
-      className={`shrink-0 text-sm px-3 py-1 rounded-full border whitespace-nowrap transition-colors ${
+      className={`shrink-0 inline-flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-full border whitespace-nowrap transition-colors ${
         activo
           ? 'bg-stone-900 text-stone-50 border-stone-900'
           : 'bg-white text-stone-700 border-stone-300 hover:border-amber-700 hover:text-amber-700'

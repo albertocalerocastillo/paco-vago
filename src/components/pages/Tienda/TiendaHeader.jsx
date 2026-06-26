@@ -31,8 +31,9 @@ export default function TiendaHeader() {
         </Link>
 
         <div className="flex items-center gap-5">
-          <Link to="/" className="text-sm text-stone-600 hover:text-amber-700 transition-colors hidden sm:inline">
-            ← Volver a la web
+          <Link to="/" className="text-sm text-stone-600 hover:text-amber-700 transition-colors">
+            <span className="sm:hidden">← Web</span>
+            <span className="hidden sm:inline">← Volver a la web</span>
           </Link>
           <Link to="/tienda/carrito" className="relative text-stone-700 hover:text-amber-700 transition-colors" aria-label="Ver carrito">
             <ShoppingCart size={24} />

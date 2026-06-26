@@ -13,6 +13,12 @@ export const WHATSAPP_NUM = '34615323072'; // formato internacional sin signos
 export const WHATSAPP_MENSAJE = 'Hola, os escribo desde la web de Paco Vago. Quería preguntaros por...';
 export const WHATSAPP_HREF = `https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(WHATSAPP_MENSAJE)}`;
 
+// Enlace de WhatsApp preguntando por un producto concreto (mensaje ya escrito).
+export const whatsappProducto = (nombre) =>
+  `https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(
+    `Hola, me interesa este producto de Paco Vago: ${nombre}. ¿Me podéis informar?`
+  )}`;
+
 export const DIRECCION = {
   calle: 'Puerta de Sevilla',
   ciudad: 'Carmona',

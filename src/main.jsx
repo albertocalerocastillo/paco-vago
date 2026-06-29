@@ -12,6 +12,12 @@ const TiendaComponent = lazy(() => import('./components/pages/Tienda/TiendaCompo
 const CarritoComponent = lazy(() => import('./components/pages/Carrito/CarritoComponent.jsx'))
 const ProductoDetalleComponent = lazy(() => import('./components/pages/Tienda/ProductoDetalleComponent.jsx'))
 
+// Páginas legales (lazy: no lastran la home).
+const AvisoLegal = lazy(() => import('./components/pages/Legal/AvisoLegal.jsx'))
+const Privacidad = lazy(() => import('./components/pages/Legal/Privacidad.jsx'))
+const Condiciones = lazy(() => import('./components/pages/Legal/Condiciones.jsx'))
+const Devoluciones = lazy(() => import('./components/pages/Legal/Devoluciones.jsx'))
+
 const Cargando = () => (
   <div className="min-h-screen bg-stone-100 text-stone-500 font-serif flex items-center justify-center">
     Cargando…
@@ -39,6 +45,22 @@ createRoot(document.getElementById('root')).render(
           <Route
             path="/admin"
             element={<Suspense fallback={<Cargando />}><AdminComponent /></Suspense>}
+          />
+          <Route
+            path="/legal/aviso-legal"
+            element={<Suspense fallback={<Cargando />}><AvisoLegal /></Suspense>}
+          />
+          <Route
+            path="/legal/privacidad"
+            element={<Suspense fallback={<Cargando />}><Privacidad /></Suspense>}
+          />
+          <Route
+            path="/legal/condiciones-de-venta"
+            element={<Suspense fallback={<Cargando />}><Condiciones /></Suspense>}
+          />
+          <Route
+            path="/legal/devoluciones"
+            element={<Suspense fallback={<Cargando />}><Devoluciones /></Suspense>}
           />
         </Routes>
         <MiniCarrito />

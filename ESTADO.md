@@ -1,11 +1,36 @@
 # Estado del proyecto — Paco Vago (web)
 
 > Documento de continuación. Si abres un chat nuevo, léelo para ponerte al día.
-> Última actualización: junio 2026.
+> Última actualización: 22 julio 2026.
+
+## ⚡ RESUMEN ACTUAL (para retomar rápido)
+
+Web informativa **+ tienda online** de Paco Vago, en producción en
+https://paco-vago.vercel.app. Backend con **Supabase** (BD + auth + storage).
+- ✅ Catálogo en BD; la web lee de Supabase (con fallback al estático).
+- ✅ **Panel `/admin`** (login Supabase Auth): gestiona productos y categorías (crear,
+  editar, borrar, ocultar, reordenar, **precio**, subir fotos, buscador).
+- ✅ **Tienda online** (`/tienda`): listado + ficha con zoom + carrito + mini-carrito +
+  animación volar-al-carrito. Modelo HÍBRIDO: con precio → carrito; sin precio → WhatsApp.
+  Pedidos por WhatsApp ya funcionan.
+- ✅ **"Cómpralo online" + colecciones** (Fase 3a-bis): sección en la home con una
+  "tarjeta de grupo" (foto general) que lleva a `/tienda` ya filtrada (deep-link
+  `/tienda?q=…`). En el panel de "Tenemos de todo" los productos de una colección
+  (p. ej. los 3 aceites) se muestran como UNA sola tarjeta en su sitio (no fotos
+  repetidas), y el botón es inteligente (con precio → **Comprar** a la ficha; sin
+  precio → **Me interesa** por WhatsApp). Todo config-driven en
+  [`data/colecciones.js`](src/data/colecciones.js): añadir miel/licores = copiar un bloque.
+  1er producto real con precio+foto: **AOVE de Carmona** 5 L (34,50€) / 2 L (16,50€) / 1 L (8,50€).
+- ⬜ **Falta (Fase 3b): pago con tarjeta** + precios/fotos del tío + portes/IVA + legal.
+  Ver punto 10 más abajo. Decisiones del tío aún pendientes.
+
+**Flujo de trabajo (IMPORTANTE):** trabajar en rama (no en master); `npm run build` para
+verificar; **NO hacer `git push` sin OK del usuario**; ofrecer opciones marcando la
+(Recomendado) y tirar por ella; ir poco a poco.
 
 ## Qué es
 
-Web **informativa** (de momento) de **Paco Vago**, tienda centenaria (desde 1924) en la
+Web informativa **+ tienda online** de **Paco Vago**, tienda centenaria (desde 1924) en la
 **Puerta de Sevilla, Carmona (Sevilla)**. Lema: *"La tienda que tiene de todo, y si no lo
 tienen, se lo inventan o te lo consiguen"*. Es "la tienda que tiene de todo".
 
@@ -17,9 +42,10 @@ tienen, se lo inventan o te lo consiguen"*. Es "la tienda que tiene de todo".
 ## Stack
 
 - **React + Vite 8** (parser oxc, estricto con JSX) + **Tailwind CSS v4** (`@tailwindcss/vite`)
-- **lucide-react** para iconos
+- **lucide-react** para iconos · **react-router-dom** (rutas `/`, `/tienda`, `/tienda/producto/:id`, `/tienda/carrito`, `/admin`)
 - JavaScript (NO TypeScript)
-- Sin backend (web estática por ahora)
+- **Backend: Supabase** (PostgreSQL + Auth + Storage). Cliente en `src/lib/supabase.js`.
+  Credenciales en `.env` local (no se sube) y en Vercel (solo entorno Production).
 
 ### Cuidado con Vite 8 / oxc (parser estricto)
 - Cerrar etiquetas auto-cerradas con `/>`.
@@ -178,7 +204,11 @@ visitanos, **redes**.
    - **Pasarela**: Stripe (fácil, ~1,5%+0,25€) vs Redsys (banco). **Portes** (fijo/gratis
      desde X/Canarias-Baleares). **IVA/factura**. **Checkout** + gestión de pedidos en panel.
    - **Legal** (obligatorio al cobrar): aviso legal, privacidad RGPD, condiciones de venta,
-     devoluciones.
+     devoluciones. ⚠️ **YA CODIFICADO pero NO desplegado**: las 4 páginas existen en
+     `src/components/pages/Legal/` + enlaces en el footer + rutas en `main.jsx` (rama
+     `feature/coleccion-tienda`). NO se han subido a master a propósito porque `data/empresa.js`
+     tiene los datos fiscales del tío SIN rellenar (placeholders `[NIF/CIF]`, etc.). Cuando el
+     tío mande sus datos: rellenar `empresa.js`, y desplegar legal + pago juntos.
 
 **Pendientes (opcionales):** crear el usuario del tío (Authentication → Users → Add user +
 Auto Confirm) y pasarle `paco-vago.vercel.app/admin`; limpiar `public/fotos/` ya migradas

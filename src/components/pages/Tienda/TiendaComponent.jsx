@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Truck, MapPin, WhatsAppIcon } from '../../../theme/icons';
 import { useCategorias } from '../../../hooks/useCategorias';
 import Reveal from '../../ui/Reveal/RevealComponent';
@@ -15,7 +16,10 @@ const normaliza = (s) => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLo
  */
 export default function TiendaComponent() {
   const categorias = useCategorias();
-  const [busqueda, setBusqueda] = useState('');
+  const [searchParams] = useSearchParams();
+  // Prerelleno del buscador desde la URL (?q=…), p. ej. al llegar desde una
+  // colección de la home ("Cómpralo online"). Solo al montar.
+  const [busqueda, setBusqueda] = useState(() => searchParams.get('q') || '');
   const [categoriaSel, setCategoriaSel] = useState(null); // null = todas
 
   // Aplana todos los productos añadiendo su categoría

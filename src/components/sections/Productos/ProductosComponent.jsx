@@ -1,12 +1,45 @@
-import { useState, useEffect, useRef } from 'react';
-import { Phone, X, ChevronRight, WhatsAppIcon } from '../../../theme/icons';
+import { useState, useEffect, useRef, useMemo } from 'react';
+import { Link } from 'react-router-dom';
+import { Phone, X, ChevronRight, WhatsAppIcon, ShoppingCart } from '../../../theme/icons';
 import { useCategorias } from '../../../hooks/useCategorias';
 import { TELEFONO_HREF, TELEFONO, whatsappProducto } from '../../../data/contacto';
+import { COLECCIONES, enColeccion, productoEnColeccion } from '../../../data/colecciones';
 import { formatoPrecio } from '../../../utils/formato';
 import Reveal from '../../ui/Reveal/RevealComponent';
 
 export default function ProductosComponent() {
-  const categorias = useCategorias();              // catálogo (Supabase con fallback al estático)
+  const catalogo = useCategorias();               // catálogo (Supabase con fallback al estático)
+  // En el panel, los productos de una colección (p. ej. los 3 aceites) NO se
+  // listan sueltos: se sustituyen por UNA tarjeta de grupo con la foto general,
+  // cuyo botón lleva a la tienda ya filtrada. Así se ve que hay aceite en
+  // Gourmet, pero sin repetir 3 fotos casi iguales.
+  const categorias = useMemo(
+    () =>
+      catalogo.map((c) => {
+        // Recorremos en orden: los productos sueltos se mantienen; el primer
+        // producto de una colección se sustituye por su tarjeta de grupo (foto
+        // general → tienda filtrada) EN SU SITIO, y los demás de esa colección
+        // se saltan. Así el aceite queda donde estaba, sin repetir fotos.
+        const puestas = new Set();
+        const productos = [];
+        for (const p of c.productos || []) {
+          const col = COLECCIONES.find((co) => productoEnColeccion(p.nombre, co));
+          if (!col) { productos.push(p); continue; }
+          if (puestas.has(col.id)) continue;         // ya hay tarjeta de grupo
+          puestas.add(col.id);
+          productos.push({
+            id: null,
+            src: col.foto,
+            nombre: col.titulo,
+            desc: col.subtitulo,
+            precio: null,
+            coleccion: col,   // marca: el botón enlaza a /tienda?q=… (no a una ficha)
+          });
+        }
+        return { ...c, productos };
+      }),
+    [catalogo]
+  );
   const [abierta, setAbierta] = useState(null);   // categoría seleccionada (panel)
   const [ampliada, setAmpliada] = useState(null); // foto ampliada (lightbox)
   const trackRef = useRef(null);
@@ -159,15 +192,33 @@ export default function ProductosComponent() {
                       {formatoPrecio(p.precio) && (
                         <p className="text-amber-300 text-lg font-bold mt-1">{formatoPrecio(p.precio)}</p>
                       )}
-                      <a
-                        href={whatsappProducto(p.nombre, formatoPrecio(p.precio))}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                        className="pointer-events-auto mt-3 inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold px-4 py-2 rounded-full transition-colors"
-                      >
-                        <WhatsAppIcon size={16} /> Me interesa
-                      </a>
+                      {p.coleccion ? (
+                        <Link
+                          to={`/tienda?q=${encodeURIComponent(p.coleccion.buscar)}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="pointer-events-auto mt-3 inline-flex items-center gap-2 bg-amber-700 hover:bg-amber-600 text-white text-sm font-semibold px-4 py-2 rounded-full transition-colors"
+                        >
+                          <ShoppingCart size={16} /> {p.coleccion.cta || 'Comprar'}
+                        </Link>
+                      ) : p.precio != null && p.id != null ? (
+                        <Link
+                          to={`/tienda/producto/${p.id}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="pointer-events-auto mt-3 inline-flex items-center gap-2 bg-amber-700 hover:bg-amber-600 text-white text-sm font-semibold px-4 py-2 rounded-full transition-colors"
+                        >
+                          <ShoppingCart size={16} /> Comprar
+                        </Link>
+                      ) : (
+                        <a
+                          href={whatsappProducto(p.nombre, formatoPrecio(p.precio))}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="pointer-events-auto mt-3 inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold px-4 py-2 rounded-full transition-colors"
+                        >
+                          <WhatsAppIcon size={16} /> Me interesa
+                        </a>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -248,14 +299,32 @@ export default function ProductosComponent() {
               {formatoPrecio(ampliada.precio) && (
                 <span className="block text-amber-300 text-xl font-bold mt-2">{formatoPrecio(ampliada.precio)}</span>
               )}
-              <a
-                href={whatsappProducto(ampliada.nombre, formatoPrecio(ampliada.precio))}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-4 inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold px-5 py-2.5 rounded-full transition-colors"
-              >
-                <WhatsAppIcon size={18} /> Me interesa este producto
-              </a>
+              {ampliada.coleccion ? (
+                <Link
+                  to={`/tienda?q=${encodeURIComponent(ampliada.coleccion.buscar)}`}
+                  onClick={(e) => e.stopPropagation()}
+                  className="mt-4 inline-flex items-center gap-2 bg-amber-700 hover:bg-amber-600 text-white text-sm font-semibold px-5 py-2.5 rounded-full transition-colors"
+                >
+                  <ShoppingCart size={18} /> {ampliada.coleccion.cta || 'Comprar en la tienda'}
+                </Link>
+              ) : ampliada.precio != null && ampliada.id != null ? (
+                <Link
+                  to={`/tienda/producto/${ampliada.id}`}
+                  onClick={(e) => e.stopPropagation()}
+                  className="mt-4 inline-flex items-center gap-2 bg-amber-700 hover:bg-amber-600 text-white text-sm font-semibold px-5 py-2.5 rounded-full transition-colors"
+                >
+                  <ShoppingCart size={18} /> Comprar en la tienda
+                </Link>
+              ) : (
+                <a
+                  href={whatsappProducto(ampliada.nombre, formatoPrecio(ampliada.precio))}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-4 inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold px-5 py-2.5 rounded-full transition-colors"
+                >
+                  <WhatsAppIcon size={18} /> Me interesa este producto
+                </a>
+              )}
             </figcaption>
           </figure>
         </div>

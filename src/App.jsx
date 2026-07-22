@@ -4,6 +4,7 @@ import HeroComponent from './components/sections/Hero/HeroComponent';
 import HistoriaComponent from './components/sections/Historia/HistoriaComponent';
 import LocalComponent from './components/sections/Local/LocalComponent';
 import ProductosComponent from './components/sections/Productos/ProductosComponent';
+import ComprarOnlineComponent from './components/sections/ComprarOnline/ComprarOnlineComponent';
 import GaleriaComponent from './components/sections/Galeria/GaleriaComponent';
 import VisitanosComponent from './components/sections/Visitanos/VisitanosComponent';
 import SiguenosComponent from './components/sections/Siguenos/SiguenosComponent';
@@ -17,6 +18,7 @@ export default function App() {
       <HistoriaComponent />
       <LocalComponent />
       <ProductosComponent />
+      <ComprarOnlineComponent />
       <GaleriaComponent />
       <VisitanosComponent />
       <SiguenosComponent />

@@ -19,8 +19,8 @@ export default defineConfig([
     },
   },
   {
-    // Las funciones serverless de /api corren en Node, no en el navegador.
-    files: ['api/**/*.js'],
+    // /api y /scripts corren en Node, no en el navegador.
+    files: ['api/**/*.js', 'scripts/**/*.js'],
     languageOptions: { globals: globals.node },
   },
 ])

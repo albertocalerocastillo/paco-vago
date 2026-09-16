@@ -14,9 +14,38 @@ export const TRAMOS = [
   { hasta: Infinity, precio: 25 },
 ];
 
-// Solo se vende online a península. El resto se presupuesta a mano porque el
-// transporte cuesta bastante más y depende del destino.
+// Fuera de península el transporte cuesta bastante más y depende del destino,
+// así que no se vende online: se presupuesta por WhatsApp. Se detecta por los
+// dos primeros dígitos del código postal.
+export const CP_FUERA_DE_PENINSULA = {
+  '07': 'Baleares',
+  '35': 'Canarias',
+  '38': 'Canarias',
+  '51': 'Ceuta',
+  '52': 'Melilla',
+};
+
+// Solo para mostrar al cliente. Va a mano porque JavaScript reordena las claves
+// numéricas del objeto de arriba y la lista salía en un orden raro.
 export const ZONAS_SIN_VENTA_ONLINE = ['Baleares', 'Canarias', 'Ceuta', 'Melilla'];
+
+/**
+ * Si el código postal cae fuera de península, devuelve el nombre de la zona
+ * ('Canarias', 'Baleares'...). Si es península o el CP no es valido, null.
+ */
+export function zonaFueraDePeninsula(cp) {
+  const limpio = String(cp ?? '').trim();
+  const cincoDigitos =
+    limpio.length === 5 && [...limpio].every(c => c >= '0' && c <= '9');
+  if (!cincoDigitos) return null;
+  return CP_FUERA_DE_PENINSULA[limpio.slice(0, 2)] || null;
+}
+
+/** true si el código postal tiene forma de CP español. */
+export function cpValido(cp) {
+  const limpio = String(cp ?? '').trim();
+  return limpio.length === 5 && [...limpio].every(c => c >= '0' && c <= '9');
+}
 
 /**
  * Porte que corresponde a un peso total, en euros.

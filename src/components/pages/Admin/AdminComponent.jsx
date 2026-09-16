@@ -2,11 +2,12 @@ import { useState } from 'react';
 import { supabase } from '../../../lib/supabase';
 import { useAuth } from '../../../hooks/useAuth';
 import GestionProductos from './GestionProductos';
+import GestionPedidos from './GestionPedidos';
 
 /**
  * Panel de administración (/admin).
- * Fase 2c.1: login con Supabase Auth + zona privada (de momento un placeholder).
- * La gestión de productos se añadirá en los siguientes pasos.
+ * Login con Supabase Auth y, dentro, dos pantallas: los pedidos que entran por
+ * la tienda online y el catálogo de productos.
  */
 export default function AdminComponent() {
   const { sesion, cargando } = useAuth();
@@ -91,29 +92,64 @@ function Login() {
   );
 }
 
-/* ── Zona privada (placeholder hasta 2c.2) ────────────────── */
+/* ── Zona privada ─────────────────────────────────────────── */
 function Panel({ sesion }) {
+  // Arranca en Pedidos: es lo que hay que mirar cada día. El catálogo se toca
+  // de vez en cuando, los pedidos entran solos.
+  const [pantalla, setPantalla] = useState('pedidos');
   const salir = () => supabase.auth.signOut();
+
+  const pestana = (id, texto) => (
+    <button
+      onClick={() => setPantalla(id)}
+      className={`px-4 py-3 uppercase text-sm tracking-widest transition-colors ${
+        pantalla === id
+          ? 'text-amber-400 border-b-2 border-amber-400'
+          : 'text-stone-300 hover:text-stone-50 border-b-2 border-transparent'
+      }`}
+    >
+      {texto}
+    </button>
+  );
 
   return (
     <div className="min-h-screen bg-stone-100 text-stone-900 font-serif">
-      <header className="bg-stone-900 text-stone-50 px-6 py-4 flex items-center justify-between">
-        <span className="font-bold">Paco Vago · Panel</span>
-        <div className="flex items-center gap-4 text-sm">
-          <span className="text-stone-300 hidden sm:inline">{sesion.user.email}</span>
-          <button onClick={salir} className="hover:text-amber-400 uppercase tracking-widest transition-colors">
-            Salir
-          </button>
+      <header className="bg-stone-900 text-stone-50">
+        <div className="px-6 py-4 flex items-center justify-between">
+          <span className="font-bold">Paco Vago · Panel</span>
+          <div className="flex items-center gap-4 text-sm">
+            <span className="text-stone-300 hidden sm:inline">{sesion.user.email}</span>
+            <button onClick={salir} className="hover:text-amber-400 uppercase tracking-widest transition-colors">
+              Salir
+            </button>
+          </div>
         </div>
+        <nav className="px-6 flex gap-2">
+          {pestana('pedidos', 'Pedidos')}
+          {pestana('productos', 'Productos')}
+        </nav>
       </header>
 
-      <main className="max-w-3xl mx-auto px-6 py-12">
-        <h1 className="text-3xl font-bold mb-2">Productos</h1>
-        <p className="text-stone-600 mb-8">
-          Edita el nombre, la descripción o si un producto se muestra en la web. Los cambios
-          se guardan al instante y aparecen en la tienda.
-        </p>
-        <GestionProductos />
+      <main className="max-w-4xl mx-auto px-6 py-12">
+        {pantalla === 'pedidos' ? (
+          <>
+            <h1 className="text-3xl font-bold mb-2">Pedidos</h1>
+            <p className="text-stone-600 mb-8">
+              Los pedidos que entran por la tienda online. Prepara los que están por preparar y
+              márcalos como enviados para no perderles la pista.
+            </p>
+            <GestionPedidos />
+          </>
+        ) : (
+          <>
+            <h1 className="text-3xl font-bold mb-2">Productos</h1>
+            <p className="text-stone-600 mb-8">
+              Edita el nombre, la descripción o si un producto se muestra en la web. Los cambios
+              se guardan al instante y aparecen en la tienda.
+            </p>
+            <GestionProductos />
+          </>
+        )}
       </main>
     </div>
   );

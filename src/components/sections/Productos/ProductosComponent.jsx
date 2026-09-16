@@ -6,6 +6,7 @@ import { TELEFONO_HREF, TELEFONO, whatsappProducto } from '../../../data/contact
 import { COLECCIONES, enColeccion, productoEnColeccion } from '../../../data/colecciones';
 import { formatoPrecio } from '../../../utils/formato';
 import Reveal from '../../ui/Reveal/RevealComponent';
+import { esComprable } from '../../../data/envios';
 
 export default function ProductosComponent() {
   const catalogo = useCategorias();               // catálogo (Supabase con fallback al estático)
@@ -200,7 +201,7 @@ export default function ProductosComponent() {
                         >
                           <ShoppingCart size={16} /> {p.coleccion.cta || 'Comprar'}
                         </Link>
-                      ) : p.precio != null && p.id != null ? (
+                      ) : esComprable(p) && p.id != null ? (
                         <Link
                           to={`/tienda/producto/${p.id}`}
                           onClick={(e) => e.stopPropagation()}
@@ -307,7 +308,7 @@ export default function ProductosComponent() {
                 >
                   <ShoppingCart size={18} /> {ampliada.coleccion.cta || 'Comprar en la tienda'}
                 </Link>
-              ) : ampliada.precio != null && ampliada.id != null ? (
+              ) : esComprable(ampliada) && ampliada.id != null ? (
                 <Link
                   to={`/tienda/producto/${ampliada.id}`}
                   onClick={(e) => e.stopPropagation()}

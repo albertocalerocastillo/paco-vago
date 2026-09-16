@@ -20,7 +20,7 @@ export default function GestionProductos() {
     (async () => {
       const { data, error } = await supabase
         .from('categorias')
-        .select('id, titulo, descripcion, tags, orden, productos(id, nombre, descripcion, foto, disponible, precio, orden)')
+        .select('id, titulo, descripcion, tags, orden, productos(id, nombre, descripcion, foto, disponible, precio, peso, orden)')
         .order('orden', { ascending: true });
 
       if (error) setError(error.message);
@@ -369,24 +369,27 @@ function ProductoFila({ producto, mostrarOrden = true, esPrimero, esUltimo, onBo
   const [descripcion, setDescripcion] = useState(producto.descripcion || '');
   const [foto, setFoto] = useState(producto.foto || '');
   const [precio, setPrecio] = useState(producto.precio != null ? String(producto.precio) : '');
+  const [peso, setPeso] = useState(producto.peso != null ? String(producto.peso) : '');
   const [disponible, setDisponible] = useState(producto.disponible);
   const [estado, setEstado] = useState('idle'); // idle | guardando | guardado | error
   const [borrando, setBorrando] = useState(false);
 
   const precioNum = precio.trim() === '' || Number.isNaN(Number(precio)) ? null : Number(precio);
+  const pesoNum = peso.trim() === '' || Number.isNaN(Number(peso)) ? null : Number(peso);
 
   const modificado =
     nombre !== (producto.nombre || '') ||
     descripcion !== (producto.descripcion || '') ||
     foto !== (producto.foto || '') ||
     precioNum !== (producto.precio ?? null) ||
+    pesoNum !== (producto.peso ?? null) ||
     disponible !== producto.disponible;
 
   const guardar = async () => {
     setEstado('guardando');
     const { error } = await supabase
       .from('productos')
-      .update({ nombre, descripcion, foto: foto || null, precio: precioNum, disponible })
+      .update({ nombre, descripcion, foto: foto || null, precio: precioNum, peso: pesoNum, disponible })
       .eq('id', producto.id);
 
     if (error) {
@@ -396,6 +399,7 @@ function ProductoFila({ producto, mostrarOrden = true, esPrimero, esUltimo, onBo
       producto.descripcion = descripcion;
       producto.foto = foto;
       producto.precio = precioNum;
+      producto.peso = pesoNum;
       producto.disponible = disponible;
       setEstado('guardado');
       setTimeout(() => setEstado('idle'), 2000);
@@ -454,7 +458,7 @@ function ProductoFila({ producto, mostrarOrden = true, esPrimero, esUltimo, onBo
           className="w-full text-sm text-stone-600 border border-stone-300 px-2 py-1 resize-y focus:outline-none focus:border-amber-700"
         />
 
-        <div className="flex items-center gap-2 mt-2 text-sm text-stone-600">
+        <div className="flex items-center gap-2 mt-2 text-sm text-stone-600 flex-wrap">
           <label htmlFor={`precio-${producto.id}`}>Precio (€):</label>
           <input
             id={`precio-${producto.id}`}
@@ -466,7 +470,21 @@ function ProductoFila({ producto, mostrarOrden = true, esPrimero, esUltimo, onBo
             placeholder="—"
             className="w-24 border border-stone-300 px-2 py-1 focus:outline-none focus:border-amber-700"
           />
-          <span className="text-stone-400 text-xs">opcional · vacío = sin precio</span>
+          <label htmlFor={`peso-${producto.id}`}>Peso (kg):</label>
+          <input
+            id={`peso-${producto.id}`}
+            type="number"
+            step="0.1"
+            min="0"
+            value={peso}
+            onChange={(e) => setPeso(e.target.value)}
+            placeholder="—"
+            className="w-24 border border-stone-300 px-2 py-1 focus:outline-none focus:border-amber-700"
+          />
+          <span className="text-stone-400 text-xs w-full">
+            Con precio Y peso se vende por la web. Si falta alguno, sale el botón de WhatsApp.
+            El peso es con la caja puesta, sirve aproximado.
+          </span>
         </div>
 
         <div className="flex items-center justify-between mt-2 gap-3 flex-wrap">
@@ -509,6 +527,7 @@ function NuevoProducto({ categoria, onCreado }) {
   const [descripcion, setDescripcion] = useState('');
   const [foto, setFoto] = useState('');
   const [precio, setPrecio] = useState('');
+  const [peso, setPeso] = useState('');
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState(null);
 
@@ -528,6 +547,7 @@ function NuevoProducto({ categoria, onCreado }) {
         descripcion: descripcion || null,
         foto: foto || null,
         precio: precio.trim() === '' || Number.isNaN(Number(precio)) ? null : Number(precio),
+        peso: peso.trim() === '' || Number.isNaN(Number(peso)) ? null : Number(peso),
         disponible: true,
         orden,
       })
@@ -558,7 +578,7 @@ function NuevoProducto({ categoria, onCreado }) {
         placeholder="Descripción (opcional)"
         className="w-full text-sm text-stone-600 border border-stone-300 px-2 py-1 resize-y focus:outline-none focus:border-amber-700"
       />
-      <div className="flex items-center gap-2 text-sm text-stone-600">
+      <div className="flex items-center gap-2 text-sm text-stone-600 flex-wrap">
         <label>Precio (€):</label>
         <input
           type="number"
@@ -569,7 +589,19 @@ function NuevoProducto({ categoria, onCreado }) {
           placeholder="—"
           className="w-24 border border-stone-300 px-2 py-1 focus:outline-none focus:border-amber-700"
         />
-        <span className="text-stone-400 text-xs">opcional</span>
+        <label>Peso (kg):</label>
+        <input
+          type="number"
+          step="0.1"
+          min="0"
+          value={peso}
+          onChange={(e) => setPeso(e.target.value)}
+          placeholder="—"
+          className="w-24 border border-stone-300 px-2 py-1 focus:outline-none focus:border-amber-700"
+        />
+        <span className="text-stone-400 text-xs w-full">
+          Los dos son opcionales, pero hacen falta ambos para poder venderlo por la web.
+        </span>
       </div>
       <div className="flex items-center gap-3">
         <SubirFoto foto={foto} onSubida={setFoto} />

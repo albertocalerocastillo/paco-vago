@@ -9,7 +9,7 @@ import { formatoPrecio } from '../../../utils/formato';
  * producto. Se monta una vez (en el provider) y está disponible en toda la web.
  */
 export default function MiniCarrito() {
-  const { items, total, abierto, cerrarCarrito, cambiarCantidad, quitar } = useCarrito();
+  const { items, subtotal, abierto, cerrarCarrito, cambiarCantidad, quitar } = useCarrito();
 
   // Cerrar con Escape + bloquear scroll de fondo mientras está abierto
   useEffect(() => {
@@ -84,10 +84,11 @@ export default function MiniCarrito() {
             </div>
 
             <footer className="border-t border-stone-200 px-5 py-4">
-              <div className="flex items-center justify-between mb-4">
-                <span>Total</span>
-                <span className="text-xl font-bold">{formatoPrecio(total)}</span>
+              <div className="flex items-center justify-between mb-1">
+                <span>Subtotal</span>
+                <span className="text-xl font-bold">{formatoPrecio(subtotal)}</span>
               </div>
+              <p className="text-xs text-stone-400 mb-4">Los gastos de envío se calculan en el carrito.</p>
               <Link
                 to="/tienda/carrito"
                 onClick={cerrarCarrito}

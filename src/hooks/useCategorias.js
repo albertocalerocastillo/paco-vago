@@ -18,6 +18,7 @@ function mapearCategoria(cat) {
       nombre: p.nombre,
       desc: p.descripcion || undefined,
       precio: p.precio ?? null,
+      peso: p.peso ?? null,
     }));
 
   return {
@@ -46,7 +47,7 @@ export function useCategorias() {
     (async () => {
       const { data, error } = await supabase
         .from('categorias')
-        .select('slug, titulo, icono, descripcion, tags, orden, productos(id, nombre, descripcion, foto, orden, disponible, precio)')
+        .select('slug, titulo, icono, descripcion, tags, orden, productos(id, nombre, descripcion, foto, orden, disponible, precio, peso)')
         .order('orden', { ascending: true });
 
       if (cancelado) return;

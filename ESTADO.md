@@ -1,7 +1,7 @@
 # Estado del proyecto — Paco Vago (web)
 
 > Documento de continuación. Si abres un chat nuevo, léelo para ponerte al día.
-> Última actualización: 26 junio 2026.
+> Última actualización: 16 septiembre 2026.
 
 ## ⚡ RESUMEN ACTUAL (para retomar rápido)
 
@@ -13,8 +13,18 @@ https://paco-vago.vercel.app. Backend con **Supabase** (BD + auth + storage).
 - ✅ **Tienda online** (`/tienda`): listado + ficha con zoom + carrito + mini-carrito +
   animación volar-al-carrito. Modelo HÍBRIDO: con precio → carrito; sin precio → WhatsApp.
   Pedidos por WhatsApp ya funcionan.
-- ⬜ **Falta (Fase 3b): pago con tarjeta** + precios/fotos del tío + portes/IVA + legal.
-  Ver punto 10 más abajo. Decisiones del tío aún pendientes.
+- ✅ **"Cómpralo online" + colecciones** (Fase 3a-bis): sección en la home con una
+  "tarjeta de grupo" (foto general) que lleva a `/tienda` ya filtrada (deep-link
+  `/tienda?q=…`). En el panel de "Tenemos de todo" los productos de una colección
+  (p. ej. los 3 aceites) se muestran como UNA sola tarjeta en su sitio (no fotos
+  repetidas), y el botón es inteligente (con precio → **Comprar** a la ficha; sin
+  precio → **Me interesa** por WhatsApp). Todo config-driven en
+  [`data/colecciones.js`](src/data/colecciones.js): añadir miel/licores = copiar un bloque.
+  1er producto real con precio+foto: **AOVE de Carmona** 5 L (34,50€) / 2 L (16,50€) / 1 L (8,50€).
+- 🔶 **Fase 3b (pago con tarjeta): TODAS las decisiones cerradas el 16/09/2026** con el
+  tío. Pasarela = **Stripe** (no tiene TPV virtual). Portes por tramos de peso, sin envío
+  gratis. Legal ✅ rellenado en la rama `feature/legal` (sin desplegar). **Solo queda
+  código**: campo peso, cálculo de portes, checkout y gestión de pedidos. Ver punto 10.
 
 **Flujo de trabajo (IMPORTANTE):** trabajar en rama (no en master); `npm run build` para
 verificar; **NO hacer `git push` sin OK del usuario**; ofrecer opciones marcando la
@@ -190,13 +200,69 @@ visitanos, **redes**.
      carrito"; sin precio → "Me interesa" (WhatsApp). El carrito permite "Hacer pedido por
      WhatsApp" mientras no haya pago con tarjeta.
    - Pie de página reutilizado en todas las páginas de tienda.
-10. ⬜ (Fase 3b) PAGO CON TARJETA + datos del tío. Pendiente:
-   - Productos estrella con **precio y foto** (el tío los va pasando; 1º lote recibido:
-     2 AOVE, licores 12€; pendientes por kilo: queso/salchichón/mojama → decidir pieza vs peso).
-   - **Pasarela**: Stripe (fácil, ~1,5%+0,25€) vs Redsys (banco). **Portes** (fijo/gratis
-     desde X/Canarias-Baleares). **IVA/factura**. **Checkout** + gestión de pedidos en panel.
-   - **Legal** (obligatorio al cobrar): aviso legal, privacidad RGPD, condiciones de venta,
-     devoluciones.
+10. 🔶 (Fase 3b) PAGO CON TARJETA — **decisiones cerradas el 16/09/2026** (WhatsApp con
+   el tío). Ya solo queda escribir código.
+
+   **Titular (CONFIRMADO, ya en `src/data/empresa.js`):** José Antonio López Ruiz ·
+   NIF 47336029M · C/ Puerta de Sevilla 5, 41410 Carmona (Sevilla) ·
+   pacovagopuertasevilla@gmail.com. Es **autónomo, no S.L.** → no hay datos registrales
+   (esa línea del aviso legal se oculta sola).
+
+   **Legal — ✅ RELLENADO** (rama `feature/legal`, commit `9a21abf`, SIN desplegar). Las 4
+   páginas + enlaces en el footer. Queda **1 hueco A PROPÓSITO**: la forma de pago en
+   Condiciones. Es lo que mantiene la página en modo borrador (aviso amarillo) e impide
+   publicar unas condiciones que anuncien cobro con tarjeta antes de que Stripe funcione.
+   Al activar el pago: rellenar ese `<Dato>` y quitar el prop `borrador` de
+   `Condiciones.jsx`. **Desplegar legal + pago JUNTOS.**
+
+   **Pasarela: STRIPE** (~1,5% + 0,25€, acepta tarjeta **y Bizum**). El tío **NO tiene TPV
+   virtual**: dijo "tengo TPV sí", pero se refería al **datáfono físico** del mostrador,
+   que no sirve para cobrar online. Nunca ha vendido por internet, así que el banco no se
+   lo ha dado. Con Stripe no hay que pedirle nada al BBVA. Su IBAN se configura DENTRO de
+   Stripe, **nunca en el repo**.
+
+   **Portes (tarifa suya, IVA incl.):** hasta 5 kg → 7,50 € · hasta 10 kg → 12 € ·
+   hasta 15 kg → 18 € · más de 15 kg → 25 €.
+   - **SIN envío gratis por importe mínimo.** Se valoró 60€ y 100€ y se descartó: el
+     aceite pesa mucho y deja poco margen ("si los portes son 15€ ahí ni gano nada").
+   - **Zona:** península en la web. **Canarias y Baleares → WhatsApp** (presupuesto).
+   - ⚠️ **OJO al lanzar:** el AOVE de 5 L pesa 5,5 kg → se sale del primer tramo y paga
+     **12 € de porte sobre 34,50 €**. El de 2 L paga 7,50 € sobre 16,50 €. Cuantos más
+     productos vendibles haya, mejor se reparte el porte → valorar packs.
+
+   **Pesos CONFIRMADOS (con caja):** AOVE 5 L = **5,5 kg** · 2 L = **2,3 kg** ·
+   1 L = **~1 kg**. Licores: pendientes.
+
+   **Regla de venta AMPLIADA** (extiende el modelo híbrido ya existente):
+   **con precio Y peso → carrito; si falta cualquiera de los dos → botón WhatsApp.**
+   Así el tío no se compromete con nada: nada se vende solo hasta que él dé precio y peso,
+   y el catálogo crece según vaya pasando datos. Esto salió porque al principio quiso que
+   **todos** los portes se consultaran por WhatsApp, lo que habría dejado el checkout
+   inservible; con esta regla se quedó tranquilo.
+
+   **Productos al peso (queso, salchichón, mojama): FUERA de la web por ahora.** Dijo
+   "3 salchichones 12,50€ / 3 mojamas 11€, igual pesan", pero no está claro si es por
+   pieza, por kilo o el lote entero → **no fiarse del dato**. Entran el día que confirme
+   precio por pieza: son 2 campos en el panel. Si un lote viene con pesos dispares, se
+   ocultan con la casilla `disponible` que ya existe.
+
+   **IVA:** los precios que pasa el tío llevan **IVA incluido**.
+   **Factura:** se emite a quien la pida (obligatorio como autónomo) → casilla "quiero
+   factura" con NIF en el checkout. **Plazo de entrega:** 2-5 días laborables (holgado a
+   propósito, confirmado por él).
+
+   **Gestión de pedidos** — lo preguntó él ("¿y cómo sé yo cuándo entra una compra?").
+   Tres capas: (1) **email a su Gmail** por cada pedido, con productos y dirección — es lo
+   que va a usar de verdad; (2) **app de Stripe en el móvil**, aviso al instante, gratis y
+   sin código (solo instalarla); (3) **apartado "Pedidos" en `/admin`** para verlos todos
+   y marcar los enviados.
+
+   **TRABAJO PENDIENTE, por orden:**
+   1. Columna `peso` en `productos` (Supabase) + campo en el panel + fallback estático.
+   2. Cálculo de portes por tramos en el carrito; bloquear Canarias/Baleares → WhatsApp.
+   3. Checkout con Stripe (tarjeta + Bizum) + casilla de factura con NIF.
+   4. Guardar pedidos en Supabase + email de aviso + pantalla "Pedidos" en `/admin`.
+   5. Rellenar la forma de pago en Condiciones, quitar `borrador`, y desplegar legal+pago.
 
 **Pendientes (opcionales):** crear el usuario del tío (Authentication → Users → Add user +
 Auto Confirm) y pasarle `paco-vago.vercel.app/admin`; limpiar `public/fotos/` ya migradas

@@ -11,6 +11,7 @@ const AdminComponent = lazy(() => import('./components/pages/Admin/AdminComponen
 const TiendaComponent = lazy(() => import('./components/pages/Tienda/TiendaComponent.jsx'))
 const CarritoComponent = lazy(() => import('./components/pages/Carrito/CarritoComponent.jsx'))
 const ProductoDetalleComponent = lazy(() => import('./components/pages/Tienda/ProductoDetalleComponent.jsx'))
+const GraciasComponent = lazy(() => import('./components/pages/Tienda/GraciasComponent.jsx'))
 
 const Cargando = () => (
   <div className="min-h-screen bg-stone-100 text-stone-500 font-serif flex items-center justify-center">
@@ -35,6 +36,10 @@ createRoot(document.getElementById('root')).render(
           <Route
             path="/tienda/carrito"
             element={<Suspense fallback={<Cargando />}><CarritoComponent /></Suspense>}
+          />
+          <Route
+            path="/tienda/gracias"
+            element={<Suspense fallback={<Cargando />}><GraciasComponent /></Suspense>}
           />
           <Route
             path="/admin"

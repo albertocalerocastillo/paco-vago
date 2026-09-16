@@ -4,6 +4,7 @@ import { useCarrito } from '../../../hooks/useCarrito';
 import { whatsappLink } from '../../../data/contacto';
 import { formatoPrecio } from '../../../utils/formato';
 import { formatoPeso, ZONAS_SIN_VENTA_ONLINE } from '../../../data/envios';
+import PagarConTarjeta from './PagarConTarjeta';
 import TiendaHeader from '../Tienda/TiendaHeader';
 import FooterComponent from '../../layout/Footer/FooterComponent';
 
@@ -124,7 +125,9 @@ export default function CarritoComponent() {
               Para {ZONAS_SIN_VENTA_ONLINE.join(', ')} escríbenos y te presupuestamos el envío.
             </p>
 
-            {/* Acciones */}
+            <PagarConTarjeta />
+
+            {/* Alternativa por WhatsApp */}
             <div className="mt-6 flex flex-col sm:flex-row gap-3">
               <a
                 href={whatsappLink(mensajePedido())}
@@ -143,8 +146,8 @@ export default function CarritoComponent() {
             </div>
 
             <p className="text-xs text-stone-400 mt-4">
-              El pago con tarjeta llegará pronto. De momento confirmas el pedido por WhatsApp y
-              acordáis el pago y el envío.
+              ¿Prefieres hablarlo antes? Mandándonos el pedido por WhatsApp acordáis el pago
+              y el envío directamente con la tienda.
             </p>
           </>
         )}

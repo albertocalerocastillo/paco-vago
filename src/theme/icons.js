@@ -19,6 +19,9 @@ export {
   Plus,
   Minus,
   Trash2,
+  CreditCard,
+  Lock,
+  Check,
   Truck
 } from 'lucide-react';
 

@@ -18,4 +18,9 @@ export default defineConfig([
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
   },
+  {
+    // Las funciones serverless de /api corren en Node, no en el navegador.
+    files: ['api/**/*.js'],
+    languageOptions: { globals: globals.node },
+  },
 ])

@@ -50,6 +50,15 @@ export default function DatosDeEnvio() {
     setErrores(err => (err[campo] ? { ...err, [campo]: undefined } : err));
   };
 
+  // Al salir de un campo se comprueba SOLO ese campo, y solo si tiene algo
+  // escrito: asi el NIF mal tecleado avisa al momento, pero pasar de largo por
+  // un campo vacio no te pinta la pagina de rojo antes de tiempo.
+  const comprobar = (campo) => () => {
+    if (!String(datos[campo] ?? '').trim()) return;
+    const { errores: fallos } = validarDireccion(datos);
+    setErrores(err => ({ ...err, [campo]: fallos[campo] }));
+  };
+
   const provincia = provinciaDeCP(datos.cp);
   const zona = zonaFueraDePeninsula(datos.cp);
 
@@ -109,7 +118,7 @@ export default function DatosDeEnvio() {
           <label htmlFor="nombre" className="block text-sm text-stone-600 mb-1">
             Nombre y apellidos de quien recibe
           </label>
-          <input id="nombre" value={datos.nombre} onChange={set('nombre')} autoComplete="name"
+          <input id="nombre" value={datos.nombre} onChange={set('nombre')} onBlur={comprobar('nombre')} autoComplete="name"
             placeholder="María García López"
             className={`${campo} ${errores.nombre ? malo : ''}`} />
           {aviso('nombre')}
@@ -117,7 +126,7 @@ export default function DatosDeEnvio() {
 
         <div>
           <label htmlFor="calle" className="block text-sm text-stone-600 mb-1">Calle y número</label>
-          <input id="calle" value={datos.calle} onChange={set('calle')} autoComplete="address-line1"
+          <input id="calle" value={datos.calle} onChange={set('calle')} onBlur={comprobar('calle')} autoComplete="address-line1"
             placeholder="Calle Prim 12"
             className={`${campo} ${errores.calle ? malo : ''}`} />
           {aviso('calle')}
@@ -141,11 +150,12 @@ export default function DatosDeEnvio() {
                 setErrores(err => (err.cp ? { ...err, cp: undefined } : err));
               }}
               placeholder="41410"
+              onBlur={comprobar('cp')}
               className={`${campo} tracking-widest ${errores.cp ? malo : ''}`} />
           </div>
           <div className="col-span-2">
             <label htmlFor="localidad" className="block text-sm text-stone-600 mb-1">Localidad</label>
-            <input id="localidad" value={datos.localidad} onChange={set('localidad')}
+            <input id="localidad" value={datos.localidad} onChange={set('localidad')} onBlur={comprobar('localidad')}
               autoComplete="address-level2" placeholder="Carmona"
               className={`${campo} ${errores.localidad ? malo : ''}`} />
           </div>
@@ -179,7 +189,7 @@ export default function DatosDeEnvio() {
               <label htmlFor="nif" className="block text-sm text-stone-600 mb-1">
                 NIF o CIF para la factura
               </label>
-              <input id="nif" value={datos.nif} onChange={set('nif')} maxLength={12}
+              <input id="nif" value={datos.nif} onChange={set('nif')} onBlur={comprobar('nif')} maxLength={12}
                 placeholder="12345678Z"
                 className={`${campo} sm:w-56 uppercase ${errores.nif ? malo : ''}`} />
               {aviso('nif')}

@@ -32,14 +32,14 @@ export default function TiendaHeader() {
         </Link>
 
         <div className="flex items-center gap-5">
-          <Link to="/" className="text-sm text-stone-600 hover:text-amber-700 transition-colors">
+          <Link to="/" className="text-sm text-stone-600 hover:text-amber-700 transition-colors py-3 -my-3 pr-2">
             <span className="sm:hidden">← Web</span>
             <span className="hidden sm:inline">← Volver a la web</span>
           </Link>
           <button
             id="cart-icon"
             onClick={abrirCarrito}
-            className="relative text-stone-700 hover:text-amber-700 transition-colors"
+            className="relative text-stone-700 hover:text-amber-700 transition-colors p-2.5 -m-2.5"
             aria-label="Ver carrito"
           >
             <ShoppingCart size={24} />

@@ -44,7 +44,7 @@ export default function MiniCarrito() {
           <span className="font-bold text-lg flex items-center gap-2">
             <ShoppingCart size={20} /> Tu carrito
           </span>
-          <button onClick={cerrarCarrito} aria-label="Cerrar" className="text-stone-500 hover:text-stone-800">
+          <button onClick={cerrarCarrito} aria-label="Cerrar" className="text-stone-500 hover:text-stone-800 p-2 -m-2">
             <X size={22} />
           </button>
         </header>

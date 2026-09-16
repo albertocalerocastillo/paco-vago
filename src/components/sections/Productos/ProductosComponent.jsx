@@ -169,7 +169,7 @@ export default function ProductosComponent() {
             <div className="relative shrink-0">
               <button
                 onClick={cerrarPanel}
-                className="absolute top-3 right-3 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-black/50 hover:bg-black/70 text-white transition-colors"
+                className="absolute top-3 right-3 z-10 w-11 h-11 flex items-center justify-center rounded-full bg-black/50 hover:bg-black/70 text-white transition-colors"
                 aria-label="Cerrar"
               >
                 <X size={22} />
@@ -283,7 +283,7 @@ export default function ProductosComponent() {
         >
           <button
             onClick={() => setAmpliada(null)}
-            className="absolute top-4 right-4 text-white/80 hover:text-white transition-colors"
+            className="absolute top-2 right-2 p-3 text-white/80 hover:text-white transition-colors"
             aria-label="Cerrar"
           >
             <X size={36} />

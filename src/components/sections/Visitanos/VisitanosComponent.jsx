@@ -45,7 +45,7 @@ export default function VisitanosComponent() {
                 <h3 className="text-sm font-bold uppercase tracking-wider mb-2">Teléfono</h3>
                 <a
                   href={TELEFONO_HREF}
-                  className="text-stone-300 hover:text-amber-400 transition-colors text-lg"
+                  className="inline-block py-2 -my-2 text-stone-300 hover:text-amber-400 transition-colors text-lg"
                 >
                   {TELEFONO}
                 </a>

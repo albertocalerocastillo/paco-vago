@@ -128,7 +128,7 @@ function Chip({ activo, onClick, children }) {
   return (
     <button
       onClick={onClick}
-      className={`shrink-0 inline-flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-full border whitespace-nowrap transition-colors ${
+      className={`shrink-0 inline-flex items-center gap-1.5 text-sm px-4 py-2.5 rounded-full border whitespace-nowrap transition-colors ${
         activo
           ? 'bg-stone-900 text-stone-50 border-stone-900'
           : 'bg-white text-stone-700 border-stone-300 hover:border-amber-700 hover:text-amber-700'

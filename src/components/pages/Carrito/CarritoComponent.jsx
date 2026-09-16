@@ -3,6 +3,7 @@ import { Plus, Minus, Trash2, WhatsAppIcon } from '../../../theme/icons';
 import { useCarrito } from '../../../hooks/useCarrito';
 import { whatsappLink } from '../../../data/contacto';
 import { formatoPrecio } from '../../../utils/formato';
+import { formatoPeso, ZONAS_SIN_VENTA_ONLINE } from '../../../data/envios';
 import TiendaHeader from '../Tienda/TiendaHeader';
 import FooterComponent from '../../layout/Footer/FooterComponent';
 
@@ -12,13 +13,19 @@ import FooterComponent from '../../layout/Footer/FooterComponent';
  * con tarjeta, se puede "Hacer el pedido por WhatsApp" (manda la lista entera).
  */
 export default function CarritoComponent() {
-  const { items, cambiarCantidad, quitar, vaciar, total } = useCarrito();
+  const { items, cambiarCantidad, quitar, vaciar, subtotal, pesoTotal, pesoDesconocido, porte, total } = useCarrito();
 
   const mensajePedido = () => {
     const lineas = items.map(
       x => `• ${x.cantidad} x ${x.nombre}${x.precio ? ` (${formatoPrecio(x.precio)})` : ''}`
     );
-    return `Hola, quiero hacer este pedido en Paco Vago:\n${lineas.join('\n')}\n\nTotal: ${formatoPrecio(total)}`;
+    const envio = porte != null
+      ? `Envío (${formatoPeso(pesoTotal)}): ${formatoPrecio(porte)}`
+      : 'Envío: a confirmar';
+    return (
+      `Hola, quiero hacer este pedido en Paco Vago:\n${lineas.join('\n')}\n\n` +
+      `Subtotal: ${formatoPrecio(subtotal)}\n${envio}\nTotal: ${formatoPrecio(total)}`
+    );
   };
 
   return (
@@ -85,11 +92,37 @@ export default function CarritoComponent() {
               ))}
             </div>
 
-            {/* Total */}
-            <div className="flex items-center justify-between mt-6 pt-4 border-t border-stone-300">
-              <span className="text-lg">Total</span>
-              <span className="text-2xl font-bold">{formatoPrecio(total)}</span>
+            {/* Totales */}
+            <div className="mt-6 pt-4 border-t border-stone-300 space-y-2">
+              <div className="flex items-center justify-between text-stone-600">
+                <span>Subtotal</span>
+                <span>{formatoPrecio(subtotal)}</span>
+              </div>
+
+              <div className="flex items-center justify-between text-stone-600">
+                <span>
+                  Envío
+                  {!pesoDesconocido && pesoTotal > 0 && (
+                    <span className="text-stone-400 text-sm"> · {formatoPeso(pesoTotal)}</span>
+                  )}
+                </span>
+                <span>
+                  {porte != null
+                    ? formatoPrecio(porte)
+                    : <span className="text-stone-400 text-sm">a confirmar</span>}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between pt-3 border-t border-stone-200">
+                <span className="text-lg">Total</span>
+                <span className="text-2xl font-bold">{formatoPrecio(total)}</span>
+              </div>
             </div>
+
+            <p className="text-xs text-stone-500 mt-3">
+              Gastos de envío a península, IVA incluido, calculados por el peso del pedido.
+              Para {ZONAS_SIN_VENTA_ONLINE.join(', ')} escríbenos y te presupuestamos el envío.
+            </p>
 
             {/* Acciones */}
             <div className="mt-6 flex flex-col sm:flex-row gap-3">

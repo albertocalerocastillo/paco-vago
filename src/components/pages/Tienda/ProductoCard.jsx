@@ -4,6 +4,7 @@ import { WhatsAppIcon, ShoppingCart } from '../../../theme/icons';
 import { useCarrito } from '../../../hooks/useCarrito';
 import { whatsappProducto } from '../../../data/contacto';
 import { formatoPrecio } from '../../../utils/formato';
+import { esComprable } from '../../../data/envios';
 import { flyToCart } from '../../../utils/flyToCart';
 
 /**
@@ -15,7 +16,7 @@ export default function ProductoCard({ producto: p }) {
   const [añadido, setAñadido] = useState(false);
   const imgRef = useRef(null);
   const precio = formatoPrecio(p.precio);
-  const comprable = p.precio != null;
+  const comprable = esComprable(p);
   const ficha = p.id != null ? `/tienda/producto/${p.id}` : null;
 
   const añadirAlCarrito = () => {

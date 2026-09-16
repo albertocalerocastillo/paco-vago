@@ -5,6 +5,7 @@ import { useCategorias } from '../../../hooks/useCategorias';
 import { useCarrito } from '../../../hooks/useCarrito';
 import { whatsappProducto } from '../../../data/contacto';
 import { formatoPrecio } from '../../../utils/formato';
+import { esComprable, formatoPeso } from '../../../data/envios';
 import { flyToCart } from '../../../utils/flyToCart';
 import TiendaHeader from './TiendaHeader';
 import ProductoCard from './ProductoCard';
@@ -74,7 +75,7 @@ export default function ProductoDetalleComponent() {
   }
 
   const precio = formatoPrecio(producto.precio);
-  const comprable = producto.precio != null;
+  const comprable = esComprable(producto);
 
   const añadirAlCarrito = () => {
     flyToCart(imgRef.current);
@@ -119,7 +120,19 @@ export default function ProductoDetalleComponent() {
             {producto.desc && <p className="text-stone-600 leading-relaxed mb-6">{producto.desc}</p>}
 
             {precio ? (
-              <p className="text-3xl font-bold text-stone-900 mb-6">{precio}</p>
+              <>
+                <p className="text-3xl font-bold text-stone-900 mb-1">{precio}</p>
+                {comprable ? (
+                  <p className="text-sm text-stone-500 mb-6">
+                    IVA incluido · pesa {formatoPeso(producto.peso)} con el embalaje, que es lo que
+                    cuenta para calcular el envío.
+                  </p>
+                ) : (
+                  <p className="text-sm text-stone-500 mb-6">
+                    Este todavía no se puede pedir por la web: escríbenos y te lo preparamos.
+                  </p>
+                )}
+              </>
             ) : (
               <p className="text-stone-500 mb-6">Pregúntanos el precio por WhatsApp.</p>
             )}

@@ -111,7 +111,7 @@ export default function ProductosComponent() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
                     <Icon className="absolute top-4 left-4 text-white drop-shadow" size={28} strokeWidth={1.5} />
                     <span className="absolute bottom-3 right-3 text-xs bg-black/55 text-white px-2.5 py-1 rounded-full backdrop-blur-sm">
-                      {cat.productos.length} productos · ver
+                      {cat.productos.length} {cat.productos.length === 1 ? 'producto' : 'productos'} · ver
                     </span>
                   </div>
                 ) : (
@@ -243,7 +243,7 @@ export default function ProductosComponent() {
                     <ChevronRight size={22} />
                   </button>
                   <span className="absolute top-3 left-3 text-xs bg-black/55 text-white px-3 py-1 rounded-full backdrop-blur-sm">
-                    {abierta.productos.length} productos
+                    {abierta.productos.length} {abierta.productos.length === 1 ? 'producto' : 'productos'}
                   </span>
                 </>
               )}

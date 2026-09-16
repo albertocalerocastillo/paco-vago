@@ -24,19 +24,18 @@ export function Dato({ valor }) {
  * Las clases [&_h2]/[&_p]… estilan el contenido (children) sin que cada
  * documento tenga que repetir clases en cada etiqueta.
  */
-export default function LegalLayout({ titulo, intro, children }) {
+export default function LegalLayout({ titulo, intro, borrador = false, children }) {
   return (
     <div className="min-h-screen bg-stone-50 text-stone-900 font-serif">
       <TiendaHeader />
 
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
-        {/* Aviso de borrador: solo visible mientras falten datos fiscales del tío */}
-        {datosPendientes && (
+        {/* Aviso de borrador: datos fiscales pendientes, o huecos propios de la página */}
+        {(datosPendientes || borrador) && (
           <div className="mb-8 border-l-4 border-amber-500 bg-amber-50 px-4 py-3 text-sm text-amber-900">
             <strong>Borrador.</strong> Esta página tiene datos pendientes de rellenar
             (resaltados en <mark className="bg-amber-200 px-1 rounded-sm">amarillo</mark>).
-            No publicar ni activar el cobro hasta completarlos en{' '}
-            <code className="text-xs">src/data/empresa.js</code>.
+            No publicar ni activar el cobro hasta completarlos.
           </div>
         )}
 

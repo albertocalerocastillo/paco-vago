@@ -1,7 +1,7 @@
 # Estado del proyecto — Paco Vago (web)
 
 > Documento de continuación. Si abres un chat nuevo, léelo para ponerte al día.
-> Última actualización: 22 julio 2026.
+> Última actualización: 16 septiembre 2026.
 
 ## ⚡ RESUMEN ACTUAL (para retomar rápido)
 
@@ -21,8 +21,13 @@ https://paco-vago.vercel.app. Backend con **Supabase** (BD + auth + storage).
   precio → **Me interesa** por WhatsApp). Todo config-driven en
   [`data/colecciones.js`](src/data/colecciones.js): añadir miel/licores = copiar un bloque.
   1er producto real con precio+foto: **AOVE de Carmona** 5 L (34,50€) / 2 L (16,50€) / 1 L (8,50€).
-- ⬜ **Falta (Fase 3b): pago con tarjeta** + precios/fotos del tío + portes/IVA + legal.
-  Ver punto 10 más abajo. Decisiones del tío aún pendientes.
+- 🔶 **Fase 3b (pago con tarjeta): FUNCIONANDO EN LOCAL**, sin desplegar. Checkout con
+  Stripe de punta a punta, portes por peso, pedidos guardados en Supabase y pantalla de
+  pedidos en `/admin`. Falta **solo el correo de aviso** al titular. Ver punto 10.
+- ⚠️ **DOS RAMAS SIN FUSIONAR**: `feature/legal` (páginas legales) y `feature/portes`
+  (todo el checkout). Las dos tocan `ESTADO.md`; al fusionar, cuidado de no perder nada.
+- 📋 **Revisión de diseño/SEO del 16/09/2026** con hallazgos medidos: ver el apartado
+  "REVISIÓN" al final. Lo gordo pendiente es el SEO por ruta.
 
 **Flujo de trabajo (IMPORTANTE):** trabajar en rama (no en master); `npm run build` para
 verificar; **NO hacer `git push` sin OK del usuario**; ofrecer opciones marcando la
@@ -198,17 +203,104 @@ visitanos, **redes**.
      carrito"; sin precio → "Me interesa" (WhatsApp). El carrito permite "Hacer pedido por
      WhatsApp" mientras no haya pago con tarjeta.
    - Pie de página reutilizado en todas las páginas de tienda.
-10. ⬜ (Fase 3b) PAGO CON TARJETA + datos del tío. Pendiente:
-   - Productos estrella con **precio y foto** (el tío los va pasando; 1º lote recibido:
-     2 AOVE, licores 12€; pendientes por kilo: queso/salchichón/mojama → decidir pieza vs peso).
-   - **Pasarela**: Stripe (fácil, ~1,5%+0,25€) vs Redsys (banco). **Portes** (fijo/gratis
-     desde X/Canarias-Baleares). **IVA/factura**. **Checkout** + gestión de pedidos en panel.
-   - **Legal** (obligatorio al cobrar): aviso legal, privacidad RGPD, condiciones de venta,
-     devoluciones. ⚠️ **YA CODIFICADO pero NO desplegado**: las 4 páginas existen en
-     `src/components/pages/Legal/` + enlaces en el footer + rutas en `main.jsx` (rama
-     `feature/coleccion-tienda`). NO se han subido a master a propósito porque `data/empresa.js`
-     tiene los datos fiscales del tío SIN rellenar (placeholders `[NIF/CIF]`, etc.). Cuando el
-     tío mande sus datos: rellenar `empresa.js`, y desplegar legal + pago juntos.
+10. 🔶 (Fase 3b) PAGO CON TARJETA — **decisiones cerradas el 16/09/2026** (WhatsApp con
+   el tío). Ya solo queda escribir código.
+
+   **Titular (CONFIRMADO, ya en `src/data/empresa.js`):** José Antonio López Ruiz ·
+   NIF 47336029M · C/ Puerta de Sevilla 5, 41410 Carmona (Sevilla) ·
+   pacovagopuertasevilla@gmail.com. Es **autónomo, no S.L.** → no hay datos registrales
+   (esa línea del aviso legal se oculta sola).
+
+   **Legal — ✅ RELLENADO** (rama `feature/legal`, commit `9a21abf`, SIN desplegar). Las 4
+   páginas + enlaces en el footer. Queda **1 hueco A PROPÓSITO**: la forma de pago en
+   Condiciones. Es lo que mantiene la página en modo borrador (aviso amarillo) e impide
+   publicar unas condiciones que anuncien cobro con tarjeta antes de que Stripe funcione.
+   Al activar el pago: rellenar ese `<Dato>` y quitar el prop `borrador` de
+   `Condiciones.jsx`. **Desplegar legal + pago JUNTOS.**
+
+   **Pasarela: STRIPE** (~1,5% + 0,25€, acepta tarjeta **y Bizum**). El tío **NO tiene TPV
+   virtual**: dijo "tengo TPV sí", pero se refería al **datáfono físico** del mostrador,
+   que no sirve para cobrar online. Nunca ha vendido por internet, así que el banco no se
+   lo ha dado. Con Stripe no hay que pedirle nada al BBVA. Su IBAN se configura DENTRO de
+   Stripe, **nunca en el repo**.
+
+   **Portes (tarifa suya, IVA incl.):** hasta 5 kg → 7,50 € · hasta 10 kg → 12 € ·
+   hasta 15 kg → 18 € · más de 15 kg → 25 €.
+   - **SIN envío gratis por importe mínimo.** Se valoró 60€ y 100€ y se descartó: el
+     aceite pesa mucho y deja poco margen ("si los portes son 15€ ahí ni gano nada").
+   - **Zona:** península en la web. **Canarias y Baleares → WhatsApp** (presupuesto).
+   - ⚠️ **OJO al lanzar:** el AOVE de 5 L pesa 5,5 kg → se sale del primer tramo y paga
+     **12 € de porte sobre 34,50 €**. El de 2 L paga 7,50 € sobre 16,50 €. Cuantos más
+     productos vendibles haya, mejor se reparte el porte → valorar packs.
+
+   **Pesos CONFIRMADOS (con caja):** AOVE 5 L = **5,5 kg** · 2 L = **2,3 kg** ·
+   1 L = **~1 kg**. Licores: pendientes.
+
+   **Regla de venta AMPLIADA** (extiende el modelo híbrido ya existente):
+   **con precio Y peso → carrito; si falta cualquiera de los dos → botón WhatsApp.**
+   Así el tío no se compromete con nada: nada se vende solo hasta que él dé precio y peso,
+   y el catálogo crece según vaya pasando datos. Esto salió porque al principio quiso que
+   **todos** los portes se consultaran por WhatsApp, lo que habría dejado el checkout
+   inservible; con esta regla se quedó tranquilo.
+
+   **Productos al peso (queso, salchichón, mojama): FUERA de la web por ahora.** Dijo
+   "3 salchichones 12,50€ / 3 mojamas 11€, igual pesan", pero no está claro si es por
+   pieza, por kilo o el lote entero → **no fiarse del dato**. Entran el día que confirme
+   precio por pieza: son 2 campos en el panel. Si un lote viene con pesos dispares, se
+   ocultan con la casilla `disponible` que ya existe.
+
+   **IVA:** los precios que pasa el tío llevan **IVA incluido**.
+   **Factura:** se emite a quien la pida (obligatorio como autónomo) → casilla "quiero
+   factura" con NIF en el checkout. **Plazo de entrega:** 2-5 días laborables (holgado a
+   propósito, confirmado por él).
+
+   **Gestión de pedidos** — lo preguntó él ("¿y cómo sé yo cuándo entra una compra?").
+   Tres capas: (1) **email a su Gmail** por cada pedido, con productos y dirección — es lo
+   que va a usar de verdad; (2) **app de Stripe en el móvil**, aviso al instante, gratis y
+   sin código (solo instalarla); (3) **apartado "Pedidos" en `/admin`** para verlos todos
+   y marcar los enviados.
+
+   **YA CONSTRUIDO** (rama `feature/portes`, probado en local, SIN desplegar):
+   1. ✅ Columna `peso` en `productos` (`supabase/peso.sql`, YA EJECUTADO) + campo en el
+      panel. Pesos metidos: AOVE 5 L = 5,5 kg · 2 L = 2,3 kg · 1 L = 1 kg.
+   2. ✅ Portes por tramos en el carrito (`src/data/envios.js`). Regla de venta ampliada:
+      `esComprable()` exige **precio Y peso**; si falta alguno → botón de WhatsApp.
+   3. ✅ Checkout con Stripe (`api/crear-sesion.js`). El servidor NO se fía del carrito:
+      lee precios y pesos de la BD y recalcula el porte. Verificado que 1 AOVE de 5 L
+      cobra 46,50 € y 2 de 2 L cobran 40,50 €.
+   4. ✅ **La dirección se pide en la web, no en Stripe** (`DatosDeEnvio.jsx`). Es un
+      agujero que detectó Alberto: Stripe solo filtra por país y Canarias es España, así
+      que se podía pasar el filtro con un CP de península y luego poner dirección canaria
+      al pagar. Con `shipping_address_collection` desactivado, no hay donde cambiarla.
+   5. ✅ Tabla `pedidos` (`supabase/pedidos.sql`, YA EJECUTADO) + webhook
+      (`api/stripe-webhook.js`). ⚠️ **El webhook corre en `runtime: 'edge'` a propósito**:
+      en el entorno normal Vercel se lee y trocea el cuerpo antes que nuestro código y
+      llegan 0 bytes, así que la firma NUNCA valida. Está comentado en el fichero.
+   6. ✅ Pantalla "Pedidos" en `/admin`, con pestañas. Arranca en "Por preparar".
+
+   **PENDIENTE:**
+   - ⬜ **Correo de aviso al titular** por cada pedido. Hace falta un servicio de envío
+     (Resend, gratis hasta 3.000/mes). Para mandar desde una dirección propia hace falta
+     **dominio**, que aún no hay: con la cuenta gratis el correo saldría desde una
+     dirección tipo `onboarding@resend.dev`, con pinta rara y riesgo de spam. Decisión
+     abierta: montarlo provisional o esperar al dominio.
+   - ⬜ Rellenar la forma de pago en Condiciones, quitar el prop `borrador` y desplegar
+     legal + pago JUNTOS.
+   - ⬜ **Métodos de pago en Stripe**: activar **Bizum** (NO viene de serie) y quitar
+     Klarna, Bancontact y MB WAY, que no pintan nada aquí. Es configuración del panel de
+     Stripe, sin código.
+   - ⬜ **Activar la cuenta de Stripe a nombre del tío** (NIF 47336029M + su IBAN). Ahora
+     está en modo prueba con el email de Alberto. El titular verificado tiene que ser él:
+     es quien cobra y quien declara. Requiere que mande foto del DNI.
+   - ⬜ **Vaciar la tabla `pedidos`** antes de abrir: tiene pedidos de prueba.
+   - ⬜ Variables de entorno en Vercel para producción: `STRIPE_SECRET_KEY`,
+     `STRIPE_WEBHOOK_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`, `SITIO_URL`.
+
+   **CÓMO PROBARLO EN LOCAL:** `npx vercel dev` (NO `npm run dev`: ese no ejecuta `/api`).
+   Tarjeta de prueba `4242 4242 4242 4242`, `12/30`, `123`. Para el webhook, sin instalar
+   nada: `node scripts/probar-webhook.js`, que coge un pago real de la cuenta de pruebas,
+   lo firma como lo firma Stripe y se lo manda al servidor. Comprueba además que un aviso
+   repetido no duplica el pedido y que una firma falsa se rechaza.
 
 **Pendientes (opcionales):** crear el usuario del tío (Authentication → Users → Add user +
 Auto Confirm) y pasarle `paco-vago.vercel.app/admin`; limpiar `public/fotos/` ya migradas
@@ -251,3 +343,79 @@ puede pasar a Supabase Storage.
 - Meta tags, Open Graph (imagen `tienda.jpg`), datos estructurados (Store) en `index.html`.
 - `sitemap.xml` y `robots.txt` en `public/`. Verificado en Google Search Console.
 - Aparece 2º en Google buscando "paco vago". Favicon "PV"/logo ya se muestra en resultados.
+
+## 🔍 REVISIÓN DE DISEÑO, MÓVIL Y SEO — 16 septiembre 2026
+
+Hecha **midiendo la web en marcha**, no a ojo: peticiones reales por ruta y medidas
+tomadas en el navegador a 1440 px y a 375 px. Lo que aquí pone un número, está medido.
+
+### Ya arreglado ese mismo día
+
+- ✅ **El cartel mentía.** La cabecera de la tienda y la banda de confianza decían "Envíos
+  a toda España", pero el checkout rechaza Canarias, Baleares, Ceuta y Melilla, y las
+  condiciones de venta dicen "solo península". Ahora dice "a toda la península" y la banda
+  lo convierte en servicio: "Canarias y Baleares, por WhatsApp".
+- ✅ **"1 productos"** → "1 producto". Era la categoría de Artesanía, que tiene una sola foto.
+- ✅ **"Cómpralo online" sube justo debajo del hero.** La portada se escribió cuando la web
+  solo informaba; ahora que cobra con tarjeta, el que entra buscando el aceite no tiene que
+  bajar por historia, el local y los rodajes. Es cambio de ORDEN en `App.jsx`, no de diseño.
+- ✅ **Áreas pulsables en móvil** (mínimo recomendado 44×44): menú 24→44, carrito 24→44,
+  teléfono 21→44 de alto, chips de filtro 34→42, botones de cerrar 22→38..48. Crece el
+  relleno, NO el icono: visualmente no cambia nada.
+
+### ⬜ PENDIENTE — SEO por ruta (lo más grave)
+
+Comprobado pidiendo cada página como la pide Google: **todas devuelven el mismo `<title>`,
+la misma descripción y un `canonical` que apunta a la home**.
+
+```
+/                    → "Paco Vago | Tienda Centenaria en Carmona…"
+/tienda              → (idéntico)
+/tienda/producto/3   → (idéntico)
+```
+
+Consecuencia: la ficha del AOVE no existe como página para Google. Nadie la va a encontrar
+buscando "aceite de oliva de Carmona". En una tienda online eso es dejarse medio negocio.
+
+Además, `public/sitemap.xml` solo tiene la home y está fechado en **mayo de 2025**, de antes
+de que existiera la tienda.
+
+Qué hay que hacer:
+1. Título, descripción y `canonical` propios por ruta (la ficha, con el nombre del producto).
+2. `sitemap.xml` con `/tienda` y una entrada por producto.
+3. `noindex` en `/tienda/carrito` y `/admin`.
+4. Datos estructurados `Product` en la ficha (precio y disponibilidad) → Google enseña el
+   precio bajo el enlace.
+
+⚠️ Como la web se dibuja en el navegador, esto se hará con JavaScript. Google lo lee, pero
+más lento y con menos garantías que servirlo ya hecho. **Plan:** hacer lo barato primero y
+mirar Search Console a las pocas semanas; si no indexa bien, el paso siguiente es
+prerenderizar las rutas, que es bastante más trabajo.
+
+### ⬜ PENDIENTE — Imágenes
+
+- **54 imágenes sin `width` ni `height`.** El navegador no reserva sitio y la página da
+  saltos al cargar. Google lo mide (CLS) y en móvil hace que pulses donde no querías.
+- **Se descargan mucho más grandes de lo que se ven:** fotos de 1080 px mostrándose a
+  411 px, el logo de 400 px puesto a 56 px. En móvil con datos, eso es tirar megas.
+- Todo en JPG/PNG, nada en WebP.
+
+### Lo que NO está mal (también medido)
+
+Sin desbordamiento horizontal ni en escritorio ni en móvil · todas las imágenes con texto
+alternativo · jerarquía de títulos correcta · ningún enlace sin texto accesible · carga
+diferida de imágenes funcionando.
+
+### Sobre el diseño
+
+**No rediseñar.** La identidad (serifas, fondo crema, marrón de acento, el sello) es
+coherente y le da un aire de tienda antigua que le pega al negocio; la mayoría de webs de
+comercios pequeños no tienen ni la mitad de carácter. Lo que hacía falta era de estructura
+(el orden de las secciones) y de usabilidad (los dedos en móvil), y eso ya está hecho.
+
+### Deuda técnica menor
+
+El proyecto tiene 12 avisos de ESLint, casi todos de una regla de React que se queja de
+cargar datos dentro de un efecto (`GestionProductos`, `GestionPedidos`, `useAuth`). Son
+falsos positivos: el cambio de estado ocurre después de esperar a la base de datos. Conviene
+una pasada de limpieza algún día, pero no rompen nada.

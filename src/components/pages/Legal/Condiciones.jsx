@@ -11,7 +11,11 @@ import { EMPRESA } from '../../../data/empresa';
  */
 export default function Condiciones() {
   return (
+    // borrador: queda pendiente la forma de pago A PROPÓSITO. No se puede
+    // publicar esta página anunciando cobro con tarjeta antes de que Stripe
+    // esté funcionando. Al activarlo: rellenar el dato y quitar `borrador`.
     <LegalLayout
+      borrador
       titulo="Condiciones generales de venta"
       intro="Estas condiciones regulan la compra de productos a través de la tienda online y se aplican junto con la legislación de defensa de consumidores y usuarios (RDL 1/2007)."
     >
@@ -28,10 +32,10 @@ export default function Condiciones() {
         descripción y precio. Los precios están expresados en euros (€).
       </p>
       <ul>
-        <li><strong>IVA:</strong> <Dato valor="[Indicar si los precios incluyen IVA y el tipo aplicable]" />.</li>
+        <li><strong>IVA:</strong> <Dato valor="Todos los precios mostrados incluyen el IVA aplicable a cada producto" />.</li>
         <li>
           <strong>Productos por peso</strong> (queso, salchichón, mojama y similares):{' '}
-          <Dato valor="[Indicar cómo se venden: por pieza aproximada o por peso, y posible ajuste de precio según el peso final]" />.
+          <Dato valor="En la tienda online solo se ofrecen piezas con precio cerrado, el que figura en cada producto, sin ajustes posteriores por el peso final. Los productos cuyo precio dependa del peso exacto no se venden por la web: puedes pedirlos por WhatsApp y te preparamos el pedido a medida" />.
         </li>
       </ul>
       <p>
@@ -58,9 +62,9 @@ export default function Condiciones() {
 
       <h2>5. Envíos y plazos</h2>
       <ul>
-        <li><strong>Zona de envío:</strong> <Dato valor="[Indicar zonas: península, Baleares, Canarias, Ceuta/Melilla, extranjero…]" />.</li>
-        <li><strong>Gastos de envío:</strong> <Dato valor="[Indicar coste de portes: importe fijo, gratis a partir de X €, tarifa especial Canarias/Baleares…]" />.</li>
-        <li><strong>Plazo de entrega estimado:</strong> <Dato valor="[Indicar plazo, p. ej. 24-72 h laborables]" />.</li>
+        <li><strong>Zona de envío:</strong> <Dato valor="Península. Los envíos a Baleares y Canarias se preparan bajo presupuesto: consúltanos antes por WhatsApp o email y te confirmamos el coste del transporte" />.</li>
+        <li><strong>Gastos de envío:</strong> <Dato valor="Según el peso del pedido: hasta 5 kg, 7,50 €; hasta 10 kg, 12 €; hasta 15 kg, 18 €; más de 15 kg, 25 €. IVA incluido. Baleares y Canarias, bajo presupuesto" />.</li>
+        <li><strong>Plazo de entrega estimado:</strong> <Dato valor="Entre 2 y 5 días laborables en península desde la confirmación del pedido. Si algún producto tarda más, te avisamos" />.</li>
       </ul>
       <p>
         Los productos frescos o perecederos pueden tener condiciones de envío específicas para garantizar su
@@ -82,7 +86,7 @@ export default function Condiciones() {
 
       <h2>8. Facturación</h2>
       <p>
-        <Dato valor="[Indicar si se emite factura y cómo solicitarla; los tiques/recibos se entregan conforme a la normativa]" />.
+        <Dato valor="Se emite factura a quien la solicite. Puedes pedirla escribiendo a nuestro email de contacto e indicando el número de pedido y tus datos fiscales (nombre o razón social, NIF y dirección)" />.
       </p>
 
       <h2>9. Atención al cliente y reclamaciones</h2>

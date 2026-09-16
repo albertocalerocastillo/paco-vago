@@ -19,7 +19,9 @@ export default function AvisoLegal() {
         <li><strong>Email:</strong> <Dato valor={EMPRESA.email} /></li>
         <li><strong>Nombre comercial:</strong> {EMPRESA.rotulo}</li>
         <li><strong>Sitio web:</strong> {EMPRESA.web}</li>
-        <li><strong>Datos registrales:</strong> <Dato valor={EMPRESA.registroMercantil} /> <em>(solo si es sociedad mercantil; si el titular es autónomo, este apartado no aplica)</em></li>
+        {EMPRESA.registroMercantil && (
+          <li><strong>Datos registrales:</strong> <Dato valor={EMPRESA.registroMercantil} /></li>
+        )}
       </ul>
 
       <h2>2. Objeto</h2>

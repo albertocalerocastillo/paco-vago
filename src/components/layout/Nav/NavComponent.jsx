@@ -58,7 +58,7 @@ export default function NavComponent() {
         {/* Hamburguesa móvil */}
         <button
           onClick={() => setMenuOpen(prev => !prev)}
-          className={`md:hidden ${scrolled ? 'text-stone-900' : 'text-stone-50'}`}
+          className={`md:hidden p-2.5 -m-2.5 ${scrolled ? 'text-stone-900' : 'text-stone-50'}`}
           aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
         >
           {menuOpen ? <X size={24} /> : <Menu size={24} />}

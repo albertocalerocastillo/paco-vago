@@ -26,7 +26,7 @@ export default function LightboxComponent({ src, alt, titulo, desc, onClose }) {
     >
       <button
         onClick={onClose}
-        className="absolute top-4 right-4 text-white/80 hover:text-white transition-colors"
+        className="absolute top-2 right-2 p-3 text-white/80 hover:text-white transition-colors"
         aria-label="Cerrar"
       >
         <X size={36} />

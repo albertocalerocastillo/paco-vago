@@ -15,10 +15,12 @@ export default function App() {
     <div className="min-h-screen bg-stone-50 text-stone-900 font-serif">
       <NavComponent />
       <HeroComponent />
+      {/* Comprar va antes que la historia: quien entra buscando el aceite lo
+          encuentra sin bajar, y quien viene a conocer la tienda sigue leyendo. */}
+      <ComprarOnlineComponent />
       <HistoriaComponent />
       <LocalComponent />
       <ProductosComponent />
-      <ComprarOnlineComponent />
       <GaleriaComponent />
       <VisitanosComponent />
       <SiguenosComponent />

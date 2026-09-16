@@ -1,6 +1,8 @@
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
-import { calcularPorte, zonaFueraDePeninsula, cpValido } from '../src/data/envios.js';
+import { calcularPorte } from '../src/data/envios.js';
+import { provinciaDeCP } from '../src/data/provincias.js';
+import { validarDireccion } from '../src/data/direccion.js';
 
 /**
  * Crea la sesión de pago de Stripe y devuelve el enlace al que mandar al cliente.
@@ -35,21 +37,18 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'El pago no está configurado todavía.' });
   }
 
-  const { items, cp } = req.body || {};
+  const { items, direccion } = req.body || {};
 
-  // ── Zona de envío ───────────────────────────────────────────
-  // Se comprueba ANTES de cobrar: si el cliente es de Canarias no puede llegar
-  // a pagar y descubrir después que no le mandamos el pedido.
-  if (!cpValido(cp)) {
-    return res.status(400).json({ error: 'Necesitamos un código postal válido de 5 cifras.' });
+  // ── Direccion de envio ──────────────────────────────────────
+  // Se valida ENTERA aqui, con las mismas reglas que en el formulario. Lo del
+  // navegador es una cortesia para el cliente; esto es lo que decide, porque
+  // es lo unico que nadie puede saltarse editando la pagina.
+  const revision = validarDireccion(direccion);
+  if (!revision.ok) {
+    const primero = Object.values(revision.errores)[0];
+    return res.status(400).json({ error: primero, errores: revision.errores });
   }
-  const zona = zonaFueraDePeninsula(cp);
-  if (zona) {
-    return res.status(400).json({
-      zona,
-      error: `Todavía no podemos enviar a ${zona} desde la web, porque el transporte se presupuesta aparte. Escríbenos por WhatsApp y te decimos el precio del envío.`,
-    });
-  }
+  const envio = revision.direccion;
 
   // ── Lo que pide el navegador ────────────────────────────────
   if (!Array.isArray(items) || items.length === 0) {
@@ -138,7 +137,9 @@ export default async function handler(req, res) {
       mode: 'payment',
       locale: 'es',
       line_items: lineasStripe,
-      shipping_address_collection: { allowed_countries: ['ES'] },
+      // A proposito NO se pide la direccion aqui: ya la tenemos validada. Si la
+      // pidiera Stripe, el cliente podria cambiarla por una de Canarias despues
+      // de haber pasado nuestra comprobacion, y Stripe solo filtra por pais.
       phone_number_collection: { enabled: true },
       shipping_options: [{
         shipping_rate_data: {
@@ -158,11 +159,19 @@ export default async function handler(req, res) {
       // los lee de Stripe, que es el registro de lo que se cobró de verdad.
       metadata: {
         referencia,
-        cp,
         productos: idsResumen.join(','),
         subtotal: subtotal.toFixed(2),
         porte: porte.toFixed(2),
         peso_total: pesoTotal.toFixed(3),
+        env_nombre: envio.nombre,
+        env_calle: envio.calle,
+        env_piso: envio.piso,
+        env_cp: envio.cp,
+        env_localidad: envio.localidad,
+        env_provincia: provinciaDeCP(envio.cp) || '',
+        nota: envio.nota,
+        factura: envio.quiereFactura ? 'si' : 'no',
+        nif: envio.quiereFactura ? envio.nif : '',
       },
     });
 

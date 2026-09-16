@@ -4,7 +4,7 @@ import { useCarrito } from '../../../hooks/useCarrito';
 import { whatsappLink } from '../../../data/contacto';
 import { formatoPrecio } from '../../../utils/formato';
 import { formatoPeso, ZONAS_SIN_VENTA_ONLINE } from '../../../data/envios';
-import PagarConTarjeta from './PagarConTarjeta';
+import DatosDeEnvio from './DatosDeEnvio';
 import TiendaHeader from '../Tienda/TiendaHeader';
 import FooterComponent from '../../layout/Footer/FooterComponent';
 
@@ -125,7 +125,7 @@ export default function CarritoComponent() {
               Para {ZONAS_SIN_VENTA_ONLINE.join(', ')} escríbenos y te presupuestamos el envío.
             </p>
 
-            <PagarConTarjeta />
+            <DatosDeEnvio />
 
             {/* Alternativa por WhatsApp */}
             <div className="mt-6 flex flex-col sm:flex-row gap-3">

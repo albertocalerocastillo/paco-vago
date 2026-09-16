@@ -1,3 +1,10 @@
+// Con extensión .js a propósito: este fichero lo importa también la función
+// serverless, y Node exige la extensión aunque Vite la perdone.
+import { cpValido, provinciaDeCP } from './provincias.js';
+
+// Se reexporta para que quien ya importaba cpValido desde aquí siga funcionando.
+export { cpValido, provinciaDeCP };
+
 /**
  * Gastos de envío. Tarifa del titular (confirmada el 16/09/2026), por tramos
  * de peso y con el IVA ya incluido.
@@ -15,36 +22,21 @@ export const TRAMOS = [
 ];
 
 // Fuera de península el transporte cuesta bastante más y depende del destino,
-// así que no se vende online: se presupuesta por WhatsApp. Se detecta por los
-// dos primeros dígitos del código postal.
-export const CP_FUERA_DE_PENINSULA = {
-  '07': 'Baleares',
-  '35': 'Canarias',
-  '38': 'Canarias',
-  '51': 'Ceuta',
-  '52': 'Melilla',
-};
+// así que no se vende online: se presupuesta por WhatsApp. Se reconoce por los
+// dos primeros dígitos del código postal, los mismos que dan la provincia.
+const PREFIJOS_FUERA_DE_PENINSULA = ['07', '35', '38', '51', '52'];
 
-// Solo para mostrar al cliente. Va a mano porque JavaScript reordena las claves
-// numéricas del objeto de arriba y la lista salía en un orden raro.
+// Solo para mostrar al cliente.
 export const ZONAS_SIN_VENTA_ONLINE = ['Baleares', 'Canarias', 'Ceuta', 'Melilla'];
 
 /**
- * Si el código postal cae fuera de península, devuelve el nombre de la zona
- * ('Canarias', 'Baleares'...). Si es península o el CP no es valido, null.
+ * Si el código postal cae fuera de península, devuelve el nombre de su
+ * provincia ('Las Palmas', 'Baleares'...). Si es península o el CP no vale, null.
  */
 export function zonaFueraDePeninsula(cp) {
-  const limpio = String(cp ?? '').trim();
-  const cincoDigitos =
-    limpio.length === 5 && [...limpio].every(c => c >= '0' && c <= '9');
-  if (!cincoDigitos) return null;
-  return CP_FUERA_DE_PENINSULA[limpio.slice(0, 2)] || null;
-}
-
-/** true si el código postal tiene forma de CP español. */
-export function cpValido(cp) {
-  const limpio = String(cp ?? '').trim();
-  return limpio.length === 5 && [...limpio].every(c => c >= '0' && c <= '9');
+  if (!cpValido(cp)) return null;
+  const prefijo = String(cp).trim().slice(0, 2);
+  return PREFIJOS_FUERA_DE_PENINSULA.includes(prefijo) ? provinciaDeCP(cp) : null;
 }
 
 /**

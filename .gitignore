@@ -36,3 +36,4 @@ logo-paco-vago.png
 *.njsproj
 *.sln
 *.sw?
+.vercel

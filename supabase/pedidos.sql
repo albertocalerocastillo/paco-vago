@@ -20,8 +20,11 @@ create table if not exists pedidos (
   -- webhook llega dos veces (Stripe reintenta), el unique lo impide.
   stripe_session_id text unique,
 
+  -- 'revisar' es la red de seguridad: un pedido cobrado cuyo código postal
+  -- cae fuera de península. No debería llegar ninguno, porque la dirección se
+  -- valida antes de cobrar, pero si alguno se cuela NO se prepara sin mirarlo.
   estado            text not null default 'pendiente'
-                    check (estado in ('pendiente','pagado','enviado','cancelado')),
+                    check (estado in ('pendiente','pagado','revisar','enviado','cancelado')),
 
   -- Datos del comprador (los rellena Stripe al completarse el pago).
   email             text,

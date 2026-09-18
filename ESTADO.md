@@ -449,3 +449,47 @@ El proyecto tiene 12 avisos de ESLint, casi todos de una regla de React que se q
 cargar datos dentro de un efecto (`GestionProductos`, `GestionPedidos`, `useAuth`). Son
 falsos positivos: el cambio de estado ocurre después de esperar a la base de datos. Conviene
 una pasada de limpieza algún día, pero no rompen nada.
+
+## 📌 PARA EL FINAL — lo que queda cuando el código esté listo
+
+Ordenado por lo que más va a aportar. Nada de esto es programar.
+
+### Depende del tío (pedírselo con tiempo, tarda días)
+
+1. 🔑 **Google My Business.** Cambiar el enlace "Sitio web" de su ficha de Google, la que
+   tiene ⭐4,5 y 122 reseñas. **De todo lo que queda, es lo que más tráfico va a traer**,
+   más que el SEO que hicimos: esa ficha ya la ve muchísima gente buscando la tienda.
+   Hace falta que dé acceso a la cuenta.
+2. 🌐 **Dominio propio** (~10-12 €/año). Desbloquea el correo de pedidos (sin dominio
+   verificado, Resend solo deja mandar a tu propia dirección) y quita el
+   `paco-vago.vercel.app`, que a la hora de meter una tarjeta resta confianza.
+3. 🪪 **Activar la cuenta de Stripe a su nombre**: NIF 47336029M, su IBAN y foto del DNI.
+   Es quien cobra y quien declara, así que el titular verificado tiene que ser él.
+4. 🔗 **La URL en las bios de Instagram y TikTok.** Dos minutos, pero las cuentas son suyas.
+
+### Depende solo de Alberto
+
+5. 💳 **Métodos de pago en Stripe**: activar **Bizum** (NO viene de serie) y quitar Klarna,
+   Bancontact y MB WAY, que no pintan nada en una tienda de Carmona. Es configuración del
+   panel, sin tocar código.
+6. 🧹 **Vaciar la tabla `pedidos`**: tiene pedidos de prueba.
+7. ⚙️ **Variables de entorno en Vercel** (entorno Production): `STRIPE_SECRET_KEY`,
+   `STRIPE_WEBHOOK_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`, `SITIO_URL`.
+8. 🔔 **Crear el webhook en el panel de Stripe** apuntando a
+   `https://<dominio>/api/stripe-webhook`, evento `checkout.session.completed`. La clave de
+   firma que dé va en `STRIPE_WEBHOOK_SECRET` de Vercel.
+9. 🚀 **Fusionar `feature/portes` a master y hacer push.** Vercel despliega solo. Hacerlo
+   DESPUÉS de los puntos 5 a 8, o el botón de pagar fallará en producción.
+10. 📄 Antes de desplegar: rellenar la forma de pago en Condiciones y quitar el prop
+    `borrador` de `Condiciones.jsx`.
+
+### Cuando ya esté abierto
+
+11. 🔍 **Mirar Search Console a las pocas semanas.** Si las fichas de producto no aparecen
+    indexadas, tocará prerenderizar (ver el apartado de SEO).
+12. ✍️ Repasar los textos comerciales de las descripciones de categoría. Cuestión de gusto,
+    pero las descripciones venden.
+13. 🧪 Usar la web como un cliente: en el móvil, con el carrito lleno, cambiando cantidades.
+    Los fallos que queden salen usándola, no leyendo código.
+14. 🧹 Limpieza de los 17 avisos de ESLint (casi todos falsos positivos de una regla de
+    React sobre cargar datos en efectos). No rompen nada.

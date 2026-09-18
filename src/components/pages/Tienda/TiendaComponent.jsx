@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Truck, MapPin, WhatsAppIcon } from '../../../theme/icons';
 import { useCategorias } from '../../../hooks/useCategorias';
@@ -24,6 +24,37 @@ export default function TiendaComponent() {
   });
 
   const categorias = useCategorias();
+
+  // Degradados en los bordes de los filtros: son la unica pista de que la fila
+  // sigue. Sin ellos, en movil se ven 3 categorias de 9 y nada indica que haya
+  // mas. Se repartieron en varias lineas como alternativa y ocupaban 200 px,
+  // una cuarta parte de la pantalla del movil: descartado.
+  const filtrosRef = useRef(null);
+  const [masIzquierda, setMasIzquierda] = useState(false);
+  const [masDerecha, setMasDerecha] = useState(false);
+
+  useEffect(() => {
+    const el = filtrosRef.current;
+    if (!el) return undefined;
+    // El estado se cambia SOLO desde estos avisos, no en el cuerpo del efecto.
+    const revisar = () => {
+      setMasIzquierda(el.scrollLeft > 4);
+      setMasDerecha(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+    };
+    // ResizeObserver avisa tambien al montar y al girar el movil.
+    const observador = new ResizeObserver(revisar);
+    observador.observe(el);
+    el.addEventListener('scroll', revisar, { passive: true });
+    // Primera comprobacion, por si el observador no llega a dispararse: el
+    // ancho del contenedor NO cambia cuando entran los chips, solo cambia lo
+    // que hay dentro. Va en microtarea y no aqui mismo para no cambiar estado
+    // dentro del cuerpo del efecto.
+    queueMicrotask(revisar);
+    return () => {
+      observador.disconnect();
+      el.removeEventListener('scroll', revisar);
+    };
+  }, [categorias]);
   const [searchParams] = useSearchParams();
   // Prerelleno del buscador desde la URL (?q=…), p. ej. al llegar desde una
   // colección de la home ("Cómpralo online"). Solo al montar.
@@ -106,19 +137,28 @@ export default function TiendaComponent() {
             "Todas" quedaba cortado 99 px y no habia forma de llegar a el, ni
             desplazando. Con `mx-auto` se centra cuando cabe y empieza pegado a
             la izquierda cuando no, que es lo que hace falta. */}
-        <div className="overflow-x-auto pb-2 mb-10 [scrollbar-width:thin]">
-          <div className="flex gap-2 w-max mx-auto">
-            <Chip activo={!categoriaSel} onClick={() => setCategoriaSel(null)}>Todas</Chip>
-            {categorias.map(c => {
-              const Icon = c.icon;
-              return (
-                <Chip key={c.titulo} activo={categoriaSel === c.titulo} onClick={() => setCategoriaSel(c.titulo)}>
-                  {Icon && <Icon size={14} strokeWidth={1.75} />}
-                  {c.titulo}
-                </Chip>
-              );
-            })}
+        <div className="relative mb-10">
+          <div ref={filtrosRef} className="overflow-x-auto pb-2 [scrollbar-width:thin]">
+            <div className="flex gap-2 w-max mx-auto">
+              <Chip activo={!categoriaSel} onClick={() => setCategoriaSel(null)}>Todas</Chip>
+              {categorias.map(c => {
+                const Icon = c.icon;
+                return (
+                  <Chip key={c.titulo} activo={categoriaSel === c.titulo} onClick={() => setCategoriaSel(c.titulo)}>
+                    {Icon && <Icon size={14} strokeWidth={1.75} />}
+                    {c.titulo}
+                  </Chip>
+                );
+              })}
+            </div>
           </div>
+
+          {masIzquierda && (
+            <div className="pointer-events-none absolute left-0 top-0 bottom-2 w-12 bg-gradient-to-r from-stone-50 to-transparent" />
+          )}
+          {masDerecha && (
+            <div className="pointer-events-none absolute right-0 top-0 bottom-2 w-12 bg-gradient-to-l from-stone-50 to-transparent" />
+          )}
         </div>
 
         {/* Rejilla de productos */}

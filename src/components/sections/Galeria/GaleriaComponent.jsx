@@ -46,7 +46,7 @@ export default function GaleriaComponent() {
           {/* Flecha izquierda (solo ordenador) */}
           <button
             onClick={() => desplazar(-1)}
-            className="hidden md:flex items-center justify-center absolute left-0 top-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-full bg-white/90 hover:bg-white shadow-lg text-stone-800 hover:text-amber-700 transition-colors -ml-2"
+            className="flex items-center justify-center absolute left-0 md:-ml-2 top-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-full bg-white/90 hover:bg-white shadow-lg text-stone-800 hover:text-amber-700 transition-colors"
             aria-label="Ver fotos anteriores"
           >
             <ChevronRight className="rotate-180" size={24} />
@@ -78,7 +78,7 @@ export default function GaleriaComponent() {
           {/* Flecha derecha (solo ordenador) */}
           <button
             onClick={() => desplazar(1)}
-            className="hidden md:flex items-center justify-center absolute right-0 top-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-full bg-white/90 hover:bg-white shadow-lg text-stone-800 hover:text-amber-700 transition-colors -mr-2"
+            className="flex items-center justify-center absolute right-0 md:-mr-2 top-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-full bg-white/90 hover:bg-white shadow-lg text-stone-800 hover:text-amber-700 transition-colors"
             aria-label="Ver más fotos"
           >
             <ChevronRight size={24} />

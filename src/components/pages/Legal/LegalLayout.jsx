@@ -1,7 +1,8 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import TiendaHeader from '../Tienda/TiendaHeader';
 import FooterComponent from '../../layout/Footer/FooterComponent';
 import { datosPendientes, LEGAL_ACTUALIZADO } from '../../../data/empresa';
+import { useSeo } from '../../../hooks/useSeo';
 
 /**
  * Muestra un dato de la empresa. Si todavía es un placeholder (empieza por "["),
@@ -25,6 +26,15 @@ export function Dato({ valor }) {
  * documento tenga que repetir clases en cada etiqueta.
  */
 export default function LegalLayout({ titulo, intro, borrador = false, children }) {
+  // Las cuatro paginas legales comparten esta maqueta, asi que el SEO se pone
+  // aqui una vez y no en cada una. La ruta sale del propio navegador.
+  const { pathname } = useLocation();
+  useSeo({
+    ruta: pathname,
+    titulo: `${titulo} | Paco Vago`,
+    descripcion: intro,
+  });
+
   return (
     <div className="min-h-screen bg-stone-50 text-stone-900 font-serif">
       <TiendaHeader />

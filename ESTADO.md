@@ -493,3 +493,40 @@ Ordenado por lo que más va a aportar. Nada de esto es programar.
     Los fallos que queden salen usándola, no leyendo código.
 14. 🧹 Limpieza de los 17 avisos de ESLint (casi todos falsos positivos de una regla de
     React sobre cargar datos en efectos). No rompen nada.
+
+## 🖐️ RONDA DE USABILIDAD — 18 septiembre 2026
+
+Todo esto salió **usando la web**, no leyendo código. La mayoría lo detectó Alberto.
+
+- ✅ **Al cambiar de página no subía al principio.** Estando al final de la portada y
+  pulsando "Comprar online", aterrizabas en mitad de la tienda. `IrArribaComponent`.
+  Con el botón de ATRÁS no se toca nada: el navegador ya devuelve donde estabas.
+- ✅ **Página 404.** Una dirección inventada no encajaba con ninguna ruta y quedaba el
+  mini-carrito flotando sobre el vacío, con un "Tu carrito está vacío" sin contexto.
+- ✅ **Flechas del carrusel en móvil** (productos, galería y vídeos). Estaban ocultas por
+  debajo de 768 px: en la galería solo se asomaban 23 px de la segunda foto de 36, así que
+  parecía una foto suelta.
+- ✅ **Pasar fotos en el visor**: flechas, contador "3 / 15", deslizar con el dedo (umbral
+  50 px para no confundirlo con un toque) y flechas del teclado. Antes había que cerrar y
+  abrir otra.
+- ✅ **El chip "Todas" era inalcanzable.** Centrar con `justify-center` la MISMA fila que se
+  desplaza deja el principio fuera de alcance cuando no cabe: a 1100 px estaba cortado
+  99 px y no había forma de verlo, ni desplazando. Y es el botón que quita el filtro.
+  Ahora la fila que se desplaza y la que se centra son distintas (`w-max mx-auto`).
+- ✅ **Degradados en los bordes de los filtros**, para que se vea que la fila sigue.
+
+### ⚠️ Una trampa del entorno de pruebas, para no volver a caer
+
+El panel de vista previa a veces **no pinta la página** (`visibilityState: 'hidden'`).
+Cuando eso pasa NO se disparan `requestAnimationFrame`, `ResizeObserver` ni los eventos de
+scroll, y las mediciones dan **falsos negativos**: el degradado parecía no funcionar y el
+código estaba bien. Antes de "arreglar" algo que no reacciona, comprobar si la página se
+está pintando:
+
+```js
+document.visibilityState              // 'hidden' => las medidas no valen
+await new Promise(r => { requestAnimationFrame(() => r(true)); })
+```
+
+Se puede sortear lanzando los eventos a mano (`el.dispatchEvent(new Event('scroll'))`),
+que sí invoca a los oyentes aunque la página no se pinte.

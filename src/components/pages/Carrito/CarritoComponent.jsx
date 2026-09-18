@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Plus, Minus, Trash2, WhatsAppIcon } from '../../../theme/icons';
 import { useCarrito } from '../../../hooks/useCarrito';
+import { useSeo } from '../../../hooks/useSeo';
 import { whatsappLink } from '../../../data/contacto';
 import { formatoPrecio } from '../../../utils/formato';
 import { formatoPeso, ZONAS_SIN_VENTA_ONLINE } from '../../../data/envios';
@@ -14,6 +15,10 @@ import FooterComponent from '../../layout/Footer/FooterComponent';
  * con tarjeta, se puede "Hacer el pedido por WhatsApp" (manda la lista entera).
  */
 export default function CarritoComponent() {
+  // Fuera de Google: es una pagina distinta para cada visitante y no aporta
+  // nada como resultado de busqueda.
+  useSeo({ ruta: '/tienda/carrito', titulo: 'Tu carrito | Paco Vago', noindex: true });
+
   const { items, cambiarCantidad, quitar, vaciar, subtotal, pesoTotal, pesoDesconocido, porte, total } = useCarrito();
 
   const mensajePedido = () => {

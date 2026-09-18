@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { X, Plus, Minus, ShoppingCart, WhatsAppIcon } from '../../../theme/icons';
 import { useCategorias } from '../../../hooks/useCategorias';
+import { useSeo } from '../../../hooks/useSeo';
 import { useCarrito } from '../../../hooks/useCarrito';
 import { whatsappProducto } from '../../../data/contacto';
 import { formatoPrecio } from '../../../utils/formato';
@@ -55,6 +56,22 @@ export default function ProductoDetalleComponent() {
       document.body.style.overflow = '';
     };
   }, [zoom]);
+
+  // Antes del return temprano de abajo: los hooks no se pueden saltar.
+  // Mientras el catalogo carga, `producto` es null y useSeo deja los textos por
+  // defecto; en cuanto llega, el titulo pasa a ser el del producto.
+  useSeo({
+    ruta: `/tienda/producto/${id}`,
+    titulo: producto ? `${producto.nombre} | Paco Vago · Carmona` : undefined,
+    descripcion: producto
+      ? [
+          producto.desc,
+          producto.precio != null ? `${formatoPrecio(producto.precio)}.` : null,
+          'Envío a toda la península desde la tienda Paco Vago, en la Puerta de Sevilla de Carmona.',
+        ].filter(Boolean).join(' ')
+      : undefined,
+    imagen: producto?.src && producto.src.startsWith('http') ? producto.src : undefined,
+  });
 
   if (!producto) {
     return (

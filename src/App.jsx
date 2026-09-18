@@ -1,3 +1,4 @@
+import { useSeo } from './hooks/useSeo';
 import NavComponent from './components/layout/Nav/NavComponent';
 import FooterComponent from './components/layout/Footer/FooterComponent';
 import HeroComponent from './components/sections/Hero/HeroComponent';
@@ -11,6 +12,10 @@ import SiguenosComponent from './components/sections/Siguenos/SiguenosComponent'
 import FloatingActionsComponent from './components/ui/FloatingActions/FloatingActionsComponent';
 
 export default function App() {
+  // Sin argumentos: usa el titulo y la descripcion por defecto, que son los de
+  // la portada. El canonical apunta a la raiz.
+  useSeo({ ruta: '/' });
+
   return (
     <div className="min-h-screen bg-stone-50 text-stone-900 font-serif">
       <NavComponent />

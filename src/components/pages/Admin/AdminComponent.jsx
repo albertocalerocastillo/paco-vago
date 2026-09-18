@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '../../../lib/supabase';
 import { useAuth } from '../../../hooks/useAuth';
+import { useSeo } from '../../../hooks/useSeo';
 import GestionProductos from './GestionProductos';
 import GestionPedidos from './GestionPedidos';
 
@@ -10,6 +11,8 @@ import GestionPedidos from './GestionPedidos';
  * la tienda online y el catálogo de productos.
  */
 export default function AdminComponent() {
+  useSeo({ ruta: '/admin', titulo: 'Panel | Paco Vago', noindex: true });
+
   const { sesion, cargando } = useAuth();
 
   if (cargando) {

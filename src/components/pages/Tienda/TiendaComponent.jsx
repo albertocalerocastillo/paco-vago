@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Truck, MapPin, WhatsAppIcon } from '../../../theme/icons';
 import { useCategorias } from '../../../hooks/useCategorias';
+import { useSeo } from '../../../hooks/useSeo';
 import Reveal from '../../ui/Reveal/RevealComponent';
 import TiendaHeader from './TiendaHeader';
 import ProductoCard from './ProductoCard';
@@ -15,6 +16,13 @@ const normaliza = (s) => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLo
  * por categoría y buscador. Cada tarjeta lleva a su ficha.
  */
 export default function TiendaComponent() {
+  useSeo({
+    ruta: '/tienda',
+    titulo: 'Tienda online | Paco Vago · Carmona, Sevilla',
+    descripcion:
+      'Compra online los productos de Paco Vago: aceite de oliva virgen extra de Carmona, conservas, licores artesanos y gourmet. Envíos a toda la península desde la Puerta de Sevilla.',
+  });
+
   const categorias = useCategorias();
   const [searchParams] = useSearchParams();
   // Prerelleno del buscador desde la URL (?q=…), p. ej. al llegar desde una

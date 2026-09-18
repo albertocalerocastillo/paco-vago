@@ -5,6 +5,7 @@ import './theme/theme.css'
 import App from './App.jsx'
 import { CarritoProvider } from './hooks/useCarrito.jsx'
 import MiniCarrito from './components/pages/Tienda/MiniCarrito.jsx'
+import IrArriba from './components/layout/IrArriba/IrArribaComponent.jsx'
 
 // El panel de admin y la tienda se cargan aparte (lazy): la home no arrastra su código.
 const AdminComponent = lazy(() => import('./components/pages/Admin/AdminComponent.jsx'))
@@ -29,6 +30,8 @@ const Cargando = () => (
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
+      {/* Sube al principio al cambiar de pagina. Debe ir DENTRO del router. */}
+      <IrArriba />
       <CarritoProvider>
         <Routes>
           <Route path="/" element={<App />} />

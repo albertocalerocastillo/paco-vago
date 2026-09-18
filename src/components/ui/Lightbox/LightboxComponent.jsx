@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { X } from '../../../theme/icons';
-import { imagen, ANCHOS } from '../../../utils/imagenes';
+import { imagenOriginal } from '../../../utils/imagenes';
 
 /**
  * Visor de foto a pantalla completa (lightbox) reutilizable.
@@ -34,7 +34,7 @@ export default function LightboxComponent({ src, alt, titulo, desc, onClose }) {
       </button>
       <figure onClick={(e) => e.stopPropagation()} className="flex flex-col items-center">
         <img
-          src={imagen(src, ANCHOS.ampliada)}
+          src={imagenOriginal(src)}
           alt={alt}
           className="max-w-full max-h-[85vh] object-contain rounded-sm shadow-2xl"
         />

@@ -7,7 +7,7 @@ import { COLECCIONES, enColeccion, productoEnColeccion } from '../../../data/col
 import { formatoPrecio } from '../../../utils/formato';
 import Reveal from '../../ui/Reveal/RevealComponent';
 import { esComprable } from '../../../data/envios';
-import { imagen, ANCHOS } from '../../../utils/imagenes';
+import { imagen, imagenOriginal, ANCHOS } from '../../../utils/imagenes';
 
 export default function ProductosComponent() {
   const catalogo = useCategorias();               // catálogo (Supabase con fallback al estático)
@@ -291,7 +291,7 @@ export default function ProductosComponent() {
           </button>
           <figure onClick={(e) => e.stopPropagation()} className="flex flex-col items-center">
             <img
-              src={imagen(ampliada.src, ANCHOS.ampliada)}
+              src={imagenOriginal(ampliada.src)}
               alt={ampliada.nombre}
               className="max-w-full max-h-[80vh] object-contain rounded-sm shadow-2xl"
             />

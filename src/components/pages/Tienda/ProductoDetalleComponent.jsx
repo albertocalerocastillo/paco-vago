@@ -8,7 +8,7 @@ import { whatsappProducto } from '../../../data/contacto';
 import { formatoPrecio } from '../../../utils/formato';
 import { esComprable, formatoPeso } from '../../../data/envios';
 import { flyToCart } from '../../../utils/flyToCart';
-import { imagen, ANCHOS } from '../../../utils/imagenes';
+import { imagen, imagenOriginal, ANCHOS } from '../../../utils/imagenes';
 import TiendaHeader from './TiendaHeader';
 import ProductoCard from './ProductoCard';
 import FooterComponent from '../../layout/Footer/FooterComponent';
@@ -246,7 +246,7 @@ export default function ProductoDetalleComponent() {
             <X size={36} />
           </button>
           <img
-            src={imagen(producto.src, ANCHOS.ampliada)}
+            src={imagenOriginal(producto.src)}
             alt={producto.nombre}
             onClick={(e) => e.stopPropagation()}
             className="max-w-full max-h-[88vh] object-contain shadow-2xl"

@@ -8,6 +8,7 @@ import { whatsappProducto } from '../../../data/contacto';
 import { formatoPrecio } from '../../../utils/formato';
 import { esComprable, formatoPeso } from '../../../data/envios';
 import { flyToCart } from '../../../utils/flyToCart';
+import { imagen, ANCHOS } from '../../../utils/imagenes';
 import TiendaHeader from './TiendaHeader';
 import ProductoCard from './ProductoCard';
 import FooterComponent from '../../layout/Footer/FooterComponent';
@@ -153,7 +154,7 @@ export default function ProductoDetalleComponent() {
               aria-label="Ampliar foto"
             >
               {producto.src ? (
-                <img ref={imgRef} src={producto.src} alt={producto.nombre} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                <img ref={imgRef} src={imagen(producto.src, ANCHOS.ficha)} alt={producto.nombre} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-stone-300">Sin foto</div>
               )}
@@ -245,7 +246,7 @@ export default function ProductoDetalleComponent() {
             <X size={36} />
           </button>
           <img
-            src={producto.src}
+            src={imagen(producto.src, ANCHOS.ampliada)}
             alt={producto.nombre}
             onClick={(e) => e.stopPropagation()}
             className="max-w-full max-h-[88vh] object-contain shadow-2xl"

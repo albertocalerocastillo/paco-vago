@@ -2,7 +2,7 @@ import { useRef, useState, useEffect } from 'react';
 import { ChevronRight, X } from '../../../theme/icons';
 import { useGaleria } from '../../../hooks/useGaleria';
 import Reveal from '../../ui/Reveal/RevealComponent';
-import { imagen, ANCHOS } from '../../../utils/imagenes';
+import { imagen, imagenOriginal, ANCHOS } from '../../../utils/imagenes';
 
 export default function GaleriaComponent() {
   const galeria = useGaleria();   // fotos derivadas del catálogo (Supabase con fallback)
@@ -108,7 +108,7 @@ export default function GaleriaComponent() {
             <X size={36} />
           </button>
           <img
-            src={imagen(seleccionada.src, ANCHOS.ampliada)}
+            src={imagenOriginal(seleccionada.src)}
             alt={seleccionada.alt}
             onClick={(e) => e.stopPropagation()}
             className="max-w-full max-h-[85vh] object-contain rounded-sm shadow-2xl"

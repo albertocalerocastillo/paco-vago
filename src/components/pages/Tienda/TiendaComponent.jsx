@@ -98,18 +98,27 @@ export default function TiendaComponent() {
           <span className="inline-flex items-center gap-2"><WhatsAppIcon size={17} /> Canarias y Baleares, por WhatsApp</span>
         </div>
 
-        {/* Filtro por categoría */}
-        <div className="flex justify-start sm:justify-center gap-2 overflow-x-auto pb-2 mb-10 [scrollbar-width:thin]">
-          <Chip activo={!categoriaSel} onClick={() => setCategoriaSel(null)}>Todas</Chip>
-          {categorias.map(c => {
-            const Icon = c.icon;
-            return (
-              <Chip key={c.titulo} activo={categoriaSel === c.titulo} onClick={() => setCategoriaSel(c.titulo)}>
-                {Icon && <Icon size={14} strokeWidth={1.75} />}
-                {c.titulo}
-              </Chip>
-            );
-          })}
+        {/* Filtro por categoría.
+            La fila que se desplaza es la de FUERA y los chips van en una de
+            DENTRO con `w-max mx-auto`. Centrar directamente la fila que se
+            desplaza (justify-center) parece funcionar, pero cuando los chips no
+            caben deja el principio FUERA DE ALCANCE: a 1100 px de ancho el chip
+            "Todas" quedaba cortado 99 px y no habia forma de llegar a el, ni
+            desplazando. Con `mx-auto` se centra cuando cabe y empieza pegado a
+            la izquierda cuando no, que es lo que hace falta. */}
+        <div className="overflow-x-auto pb-2 mb-10 [scrollbar-width:thin]">
+          <div className="flex gap-2 w-max mx-auto">
+            <Chip activo={!categoriaSel} onClick={() => setCategoriaSel(null)}>Todas</Chip>
+            {categorias.map(c => {
+              const Icon = c.icon;
+              return (
+                <Chip key={c.titulo} activo={categoriaSel === c.titulo} onClick={() => setCategoriaSel(c.titulo)}>
+                  {Icon && <Icon size={14} strokeWidth={1.75} />}
+                  {c.titulo}
+                </Chip>
+              );
+            })}
+          </div>
         </div>
 
         {/* Rejilla de productos */}
@@ -136,7 +145,7 @@ function Chip({ activo, onClick, children }) {
   return (
     <button
       onClick={onClick}
-      className={`shrink-0 inline-flex items-center gap-1.5 text-sm px-4 py-2.5 rounded-full border whitespace-nowrap transition-colors ${
+      className={`shrink-0 inline-flex items-center gap-1.5 text-sm px-3.5 py-2.5 rounded-full border whitespace-nowrap transition-colors ${
         activo
           ? 'bg-stone-900 text-stone-50 border-stone-900'
           : 'bg-white text-stone-700 border-stone-300 hover:border-amber-700 hover:text-amber-700'

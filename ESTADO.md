@@ -26,8 +26,9 @@ https://paco-vago.vercel.app. Backend con **Supabase** (BD + auth + storage).
   pedidos en `/admin`. Falta **solo el correo de aviso** al titular. Ver punto 10.
 - ⚠️ **DOS RAMAS SIN FUSIONAR**: `feature/legal` (páginas legales) y `feature/portes`
   (todo el checkout). Las dos tocan `ESTADO.md`; al fusionar, cuidado de no perder nada.
-- 📋 **Revisión de diseño/SEO del 16/09/2026** con hallazgos medidos: ver el apartado
-  "REVISIÓN" al final. Lo gordo pendiente es el SEO por ruta.
+- ✅ **SEO por ruta HECHO el 18/09/2026**: título, descripción y canonical propios, datos
+  estructurados de producto y sitemap de 37 páginas. Ver el apartado "REVISIÓN" al final.
+  Lo que queda de ahí es el **peso de las imágenes**.
 
 **Flujo de trabajo (IMPORTANTE):** trabajar en rama (no en master); `npm run build` para
 verificar; **NO hacer `git push` sin OK del usuario**; ofrecer opciones marcando la
@@ -363,34 +364,36 @@ tomadas en el navegador a 1440 px y a 375 px. Lo que aquí pone un número, est�
   teléfono 21→44 de alto, chips de filtro 34→42, botones de cerrar 22→38..48. Crece el
   relleno, NO el icono: visualmente no cambia nada.
 
-### ⬜ PENDIENTE — SEO por ruta (lo más grave)
+### ✅ HECHO — SEO por ruta (18/09/2026)
 
-Comprobado pidiendo cada página como la pide Google: **todas devuelven el mismo `<title>`,
-la misma descripción y un `canonical` que apunta a la home**.
+Antes, **todas** las rutas devolvían el mismo `<title>`, la misma descripción y un
+`canonical` apuntando a la portada: la ficha del aceite no existía como resultado de
+búsqueda. Ya está resuelto:
 
-```
-/                    → "Paco Vago | Tienda Centenaria en Carmona…"
-/tienda              → (idéntico)
-/tienda/producto/3   → (idéntico)
-```
+- **`src/hooks/useSeo.js`** pone título, descripción, canonical, Open Graph y robots
+  propios de cada página. ⚠️ **MODIFICA** las etiquetas que ya están en `index.html`, no
+  añade otras: si añadiera, habría dos `<title>` y Google se queda con el primero, que es
+  justo el que queremos cambiar. Verificado que sigue habiendo una sola de cada.
+- La **ficha de producto** compone su descripción con el texto del producto y su precio, y
+  usa su propia foto al compartir por WhatsApp.
+- **Carrito, gracias y panel** con `noindex, nofollow`.
+- **Datos estructurados `Product`** en la ficha (`useDatosEstructurados`). La **oferta solo
+  se declara si el producto se puede comprar de verdad** (precio Y peso): anunciar un
+  precio en algo sin botón de comprar engaña al que pincha y Google lo sanciona. El bloque
+  se borra al salir de la página para que no se acumulen al navegar entre fichas.
+- **`sitemap.xml` generado con `npm run sitemap`** (`scripts/generar-sitemap.js`), leyendo
+  el catálogo de Supabase: pasó de 1 página a 37. Solo entran los productos
+  `disponible = true`, y cada ficha lleva su fecha de alta real.
+  ⚠️ **Hay que relanzarlo y desplegar cuando se añadan o quiten productos.**
 
-Consecuencia: la ficha del AOVE no existe como página para Google. Nadie la va a encontrar
-buscando "aceite de oliva de Carmona". En una tienda online eso es dejarse medio negocio.
+⬜ **Lo que queda por ver:** esto ocurre con JavaScript, o sea después de cargar la página.
+Google lo ejecuta y lo lee, pero más tarde y con menos garantías que si viniera ya escrito
+del servidor. **A las pocas semanas de desplegar, mirar Search Console**: si las fichas no
+aparecen indexadas, el paso siguiente es prerenderizar las rutas, que es bastante más
+trabajo. No adelantarlo sin comprobar antes que hace falta.
 
-Además, `public/sitemap.xml` solo tiene la home y está fechado en **mayo de 2025**, de antes
-de que existiera la tienda.
-
-Qué hay que hacer:
-1. Título, descripción y `canonical` propios por ruta (la ficha, con el nombre del producto).
-2. `sitemap.xml` con `/tienda` y una entrada por producto.
-3. `noindex` en `/tienda/carrito` y `/admin`.
-4. Datos estructurados `Product` en la ficha (precio y disponibilidad) → Google enseña el
-   precio bajo el enlace.
-
-⚠️ Como la web se dibuja en el navegador, esto se hará con JavaScript. Google lo lee, pero
-más lento y con menos garantías que servirlo ya hecho. **Plan:** hacer lo barato primero y
-mirar Search Console a las pocas semanas; si no indexa bien, el paso siguiente es
-prerenderizar las rutas, que es bastante más trabajo.
+⬜ Las **páginas legales** (rama `feature/legal`) todavía no usan `useSeo` ni entran en el
+sitemap. Añadirlas al fusionar.
 
 ### ⬜ PENDIENTE — Imágenes
 

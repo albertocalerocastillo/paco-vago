@@ -7,14 +7,20 @@
  * portada llegaba a pedir 11 MB de imágenes.
  *
  * Supabase sabe redimensionarlas al vuelo: basta cambiar `/object/public/` por
- * `/render/image/public/` y añadir el ancho. Medido en una foto real:
- * 312 KB el original, 117 KB pedida a 400 px.
+ * `/render/image/public/` y pedir el tamaño. Medido en una foto real de
+ * 1500x2000: 311 KB el original, 24 KB pedida a 400.
+ *
+ * ⚠️ HAY QUE PEDIR LAS DOS MEDIDAS Y `resize=contain`. Pidiendo solo el ancho,
+ * Supabase estrecha la foto pero le deja el alto original: una de 1500x2000
+ * devolvía 400x2000, o sea una tira deformada. Con `contain` y las dos medidas
+ * la foto cabe dentro del cuadro respetando su proporción.
  *
  * Las imágenes que NO son de Supabase (el logo, las fotos de `public/fotos`)
  * se devuelven tal cual: no hay nada que las transforme.
  */
 
-// Anchos en píxeles REALES de descarga. Van al doble de lo que ocupan en
+// Lado mayor en píxeles REALES de descarga. La foto cabrá dentro de un cuadro
+// de este tamaño respetando su proporción. Van al doble de lo que ocupan en
 // pantalla para que no se vean borrosas en móviles de pantalla fina.
 export const ANCHOS = {
   miniatura: 200,   // carrito y mini-carrito (se ven a ~64 px)
@@ -25,11 +31,11 @@ export const ANCHOS = {
 
 /**
  * @param {string} url    Dirección original de la imagen.
- * @param {number} ancho  Ancho de descarga deseado, de ANCHOS.
+ * @param {number} lado   Lado mayor de descarga, de ANCHOS.
  * @param {number} calidad 1-100. 75 es el punto donde deja de notarse a simple vista.
  * @returns {string} La dirección a usar en el `src`.
  */
-export function imagen(url, ancho = ANCHOS.tarjeta, calidad = 75) {
+export function imagen(url, lado = ANCHOS.tarjeta, calidad = 75) {
   if (typeof url !== 'string' || !url) return url;
 
   // Solo Supabase Storage sabe hacer esto.
@@ -37,5 +43,7 @@ export function imagen(url, ancho = ANCHOS.tarjeta, calidad = 75) {
 
   const transformada = url.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/');
   const separador = transformada.includes('?') ? '&' : '?';
-  return `${transformada}${separador}width=${ancho}&quality=${calidad}`;
+  // `contain` = cabe dentro del cuadro sin deformarse ni recortarse. El recorte
+  // para rellenar la tarjeta ya lo hace el CSS con object-cover, como siempre.
+  return `${transformada}${separador}width=${lado}&height=${lado}&resize=contain&quality=${calidad}`;
 }

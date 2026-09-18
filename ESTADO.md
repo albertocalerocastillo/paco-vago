@@ -28,7 +28,7 @@ https://paco-vago.vercel.app. Backend con **Supabase** (BD + auth + storage).
   (todo el checkout). Las dos tocan `ESTADO.md`; al fusionar, cuidado de no perder nada.
 - ✅ **SEO por ruta HECHO el 18/09/2026**: título, descripción y canonical propios, datos
   estructurados de producto y sitemap de 37 páginas. Ver el apartado "REVISIÓN" al final.
-  Lo que queda de ahí es el **peso de las imágenes**.
+  Las **imágenes** también: 11 MB → 4 MB. De la revisión no queda nada pendiente.
 
 **Flujo de trabajo (IMPORTANTE):** trabajar en rama (no en master); `npm run build` para
 verificar; **NO hacer `git push` sin OK del usuario**; ofrecer opciones marcando la
@@ -395,13 +395,39 @@ trabajo. No adelantarlo sin comprobar antes que hace falta.
 ⬜ Las **páginas legales** (rama `feature/legal`) todavía no usan `useSeo` ni entran en el
 sitemap. Añadirlas al fusionar.
 
-### ⬜ PENDIENTE — Imágenes
+### ✅ HECHO — Imágenes (18/09/2026)
 
-- **54 imágenes sin `width` ni `height`.** El navegador no reserva sitio y la página da
-  saltos al cargar. Google lo mide (CLS) y en móvil hace que pulses donde no querías.
-- **Se descargan mucho más grandes de lo que se ven:** fotos de 1080 px mostrándose a
-  411 px, el logo de 400 px puesto a 56 px. En móvil con datos, eso es tirar megas.
-- Todo en JPG/PNG, nada en WebP.
+La portada descargaba **11 MB** de fotos. Ahora ~4 MB, y sin perder calidad visible.
+
+- **`src/utils/imagenes.js`** pide cada foto del tamaño en que se ve. Supabase las
+  redimensiona al vuelo: basta cambiar `/object/public/` por `/render/image/public/`. No
+  hubo que volver a subir nada ni tocar la base de datos.
+- **El logo pesaba 336 KB y se ve a 44 px**, en la cabecera de TODAS las páginas. Pasa a
+  200x200 y 76 KB. La foto de ambiente de la galería, de 1920 a 1200 px.
+- Al **ampliar una foto a pantalla completa se sirve el original** sin tocar.
+
+⚠️ **DOS TRAMPAS QUE COSTARON UN ARREGLO CADA UNA** (están comentadas en el fichero):
+
+1. **Hay que pedir SIEMPRE las dos medidas.** Con solo `width`, Supabase estrecha la foto
+   pero le deja el alto original: una de 1500x2000 volvía como 400x2000, una tira
+   deformada que la tarjeta recortaba dejando un zoom brutal.
+2. **En un hueco cuadrado manda el LADO CORTO.** Con `contain` a 400, una foto apaisada
+   volvía 400x267 para un hueco de 289: el alto se quedaba corto y el navegador estiraba.
+   Por eso los huecos cuadrados piden el recorte ya hecho (`cover`), no `contain`.
+
+**Lección de método:** las dos veces se validó por peso y no mirando la pantalla, y las dos
+veces se coló. Los bytes bajaban mientras la web se veía fatal. En cambios que afectan a lo
+que se ve, el número NO vale como prueba: hay que mirarlo.
+
+### ❌ DESCARTADO — poner ancho y alto a las imágenes
+
+Se midió el salto de maquetación (CLS) antes de tocar nada y daba **CERO** en portada y
+tienda. Es verdad que las 54 imágenes no declaran medidas, pero todas van dentro de
+contenedores ya dimensionados por CSS. Era un problema teórico que aquí no existe: tocarlas
+habría sido riesgo de romper maquetación a cambio de nada.
+
+Por lo mismo se descartó reencodar las fotos locales de Historia y El Local: se simuló
+primero y **cuatro de ellas salían MÁS GRANDES**. Ya estaban bien comprimidas.
 
 ### Lo que NO está mal (también medido)
 

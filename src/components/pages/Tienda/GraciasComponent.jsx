@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Check, WhatsAppIcon } from '../../../theme/icons';
 import { useCarrito } from '../../../hooks/useCarrito';
+import { useSeo } from '../../../hooks/useSeo';
 import { whatsappLink } from '../../../data/contacto';
 import TiendaHeader from './TiendaHeader';
 import FooterComponent from '../../layout/Footer/FooterComponent';
@@ -14,6 +15,8 @@ import FooterComponent from '../../layout/Footer/FooterComponent';
  * porque quien lo confirma de verdad es el aviso que Stripe manda al servidor.
  */
 export default function GraciasComponent() {
+  useSeo({ ruta: '/tienda/gracias', titulo: 'Pedido recibido | Paco Vago', noindex: true });
+
   const [params] = useSearchParams();
   const referencia = params.get('ref');
   const { vaciar } = useCarrito();

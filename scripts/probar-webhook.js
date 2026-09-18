@@ -15,28 +15,8 @@
  */
 
 import { createHmac } from 'node:crypto';
-import { readFileSync } from 'node:fs';
 import Stripe from 'stripe';
-
-// Lee el .env a mano: este script se lanza con node pelado, sin Vercel delante.
-function cargarEnv() {
-  for (const fichero of ['.env.local', '.env']) {
-    let texto;
-    try {
-      texto = readFileSync(fichero, 'utf8');
-    } catch {
-      continue;
-    }
-    for (const linea of texto.split('\n')) {
-      const limpia = linea.trim();
-      if (!limpia || limpia.startsWith('#')) continue;
-      const corte = limpia.indexOf('=');
-      if (corte < 1) continue;
-      const clave = limpia.slice(0, corte).trim();
-      if (!process.env[clave]) process.env[clave] = limpia.slice(corte + 1).trim();
-    }
-  }
-}
+import { cargarEnv } from './cargar-env.js';
 
 cargarEnv();
 

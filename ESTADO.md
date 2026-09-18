@@ -331,7 +331,8 @@ puede pasar a Supabase Storage.
 - 🔑 **Google My Business** — cambiar el botón "Sitio web" de la ficha (con ⭐4,5/122 reseñas)
   a la URL. Es lo que MÁS posiciona. Pendiente de que el tío dé acceso a la cuenta.
 - 🔗 Poner la URL en las bios de Instagram y TikTok (ayuda a que Google rastree más).
-- 📸 Fotos de **Artesanía** y **Perfumería** (las 2 categorías sin foto).
+- ~~Fotos de Artesanía y Perfumería~~ ✅ HECHO: comprobado el 18/09/2026 contra la base
+  de datos, **las 9 categorías tienen foto**. La nota anterior estaba desfasada.
 - ✍️ Posible repaso de marketing de todas las descripciones de categoría.
 - 🌐 **Dominio propio** (~10€/año, lo paga el tío) — opcional, para más adelante.
 - 🛒 **Tienda online (futuro, por fases)**: Fase 2 = catálogo con base de datos

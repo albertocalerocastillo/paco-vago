@@ -12,6 +12,7 @@ const TiendaComponent = lazy(() => import('./components/pages/Tienda/TiendaCompo
 const CarritoComponent = lazy(() => import('./components/pages/Carrito/CarritoComponent.jsx'))
 const ProductoDetalleComponent = lazy(() => import('./components/pages/Tienda/ProductoDetalleComponent.jsx'))
 const GraciasComponent = lazy(() => import('./components/pages/Tienda/GraciasComponent.jsx'))
+const NoEncontradaComponent = lazy(() => import('./components/pages/NoEncontrada/NoEncontradaComponent.jsx'))
 
 // Páginas legales (lazy: no lastran la home).
 const AvisoLegal = lazy(() => import('./components/pages/Legal/AvisoLegal.jsx'))
@@ -66,6 +67,12 @@ createRoot(document.getElementById('root')).render(
           <Route
             path="/legal/devoluciones"
             element={<Suspense fallback={<Cargando />}><Devoluciones /></Suspense>}
+          />
+          {/* La ultima: cualquier direccion que no encaje arriba. Sin esto, React
+              no pintaba nada y quedaba el mini-carrito flotando en el vacio. */}
+          <Route
+            path="*"
+            element={<Suspense fallback={<Cargando />}><NoEncontradaComponent /></Suspense>}
           />
         </Routes>
         <MiniCarrito />

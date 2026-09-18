@@ -72,6 +72,9 @@ export default function ProductoDetalleComponent() {
         ].filter(Boolean).join(' ')
       : undefined,
     imagen: producto?.src && producto.src.startsWith('http') ? producto.src : undefined,
+    // Si el producto no existe, la pagina no debe salir en Google: seria un
+    // resultado que lleva a "no hemos encontrado este producto".
+    noindex: catalogoCargado && !producto,
   });
 
   // Datos estructurados: lo que hace que Google enseñe el precio bajo el enlace.

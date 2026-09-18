@@ -456,10 +456,29 @@ Ordenado por lo que más va a aportar. Nada de esto es programar.
 
 ### Depende del tío (pedírselo con tiempo, tarda días)
 
-1. 🔑 **Google My Business.** Cambiar el enlace "Sitio web" de su ficha de Google, la que
-   tiene ⭐4,5 y 122 reseñas. **De todo lo que queda, es lo que más tráfico va a traer**,
-   más que el SEO que hicimos: esa ficha ya la ve muchísima gente buscando la tienda.
-   Hace falta que dé acceso a la cuenta.
+1. 🔑 **Google: HAY DOS FICHAS DUPLICADAS.** Comprobado el 18/09/2026 buscando
+   "paco vago":
+
+   | | Ficha 1 | Ficha 2 |
+   |---|---|---|
+   | Nombre | Paco Vago | **Paco Vago Puerta Sevilla** |
+   | Reseñas | 4,5★ (**124**) | 5,0★ (23) |
+   | Categoría | Juguetería ❌ | Tienda de alimentación ✅ |
+   | Teléfono | 954 14 08 **45** | 954 14 08 **71** ✅ |
+
+   La **ficha 2 es la buena** (el teléfono coincide con el de la web), pero **las reseñas
+   están en la mala**. Google enseña las dos y la que parece más sólida dice que venden
+   juguetes.
+
+   ⚠️ **ANTES DE TOCAR NADA: preguntar al tío si la ficha 1 es suya.** Puede ser un
+   duplicado antiguo de la misma tienda (lo más probable: la foto parece la misma fachada)
+   o un negocio distinto de la familia. Si es duplicado, se pide a Google que las FUSIONE y
+   las reseñas de las dos se juntan: pasaría de 23 a ~147. Las respuestas del dueño a las
+   reseñas se suelen perder al fusionar, así que conviene copiarlas antes si las hay.
+
+   Además, en la ficha buena el botón "Sitio web" lleva a su Instagram; hay que ponerle la
+   web. **De todo lo que queda, esto es lo que más tráfico va a traer.** Hace falta que dé
+   acceso a la cuenta.
 2. 🌐 **Dominio propio** (~10-12 €/año). Desbloquea el correo de pedidos (sin dominio
    verificado, Resend solo deja mandar a tu propia dirección) y quita el
    `paco-vago.vercel.app`, que a la hora de meter una tarjeta resta confianza.

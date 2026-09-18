@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { X, Plus, Minus, Trash2, ShoppingCart } from '../../../theme/icons';
 import { useCarrito } from '../../../hooks/useCarrito';
+import { imagen, ANCHOS } from '../../../utils/imagenes';
 import { formatoPrecio } from '../../../utils/formato';
 
 /**
@@ -58,7 +59,7 @@ export default function MiniCarrito() {
             <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
               {items.map(x => (
                 <div key={x.id} className="flex gap-3 items-center">
-                  {x.foto && <img src={x.foto} alt={x.nombre} className="w-14 h-14 object-cover shrink-0 rounded-sm" />}
+                  {x.foto && <img src={imagen(x.foto, ANCHOS.miniatura)} alt={x.nombre} className="w-14 h-14 object-cover shrink-0 rounded-sm" />}
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold leading-tight truncate">{x.nombre}</p>
                     <div className="flex items-center gap-2 mt-1">

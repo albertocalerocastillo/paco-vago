@@ -5,6 +5,7 @@ import { useSeo } from '../../../hooks/useSeo';
 import { whatsappLink } from '../../../data/contacto';
 import { formatoPrecio } from '../../../utils/formato';
 import { formatoPeso, ZONAS_SIN_VENTA_ONLINE } from '../../../data/envios';
+import { imagen, ANCHOS } from '../../../utils/imagenes';
 import DatosDeEnvio from './DatosDeEnvio';
 import TiendaHeader from '../Tienda/TiendaHeader';
 import FooterComponent from '../../layout/Footer/FooterComponent';
@@ -56,7 +57,7 @@ export default function CarritoComponent() {
             <div className="space-y-3">
               {items.map(x => (
                 <div key={x.id} className="bg-white border border-stone-200 p-3 flex gap-3 items-center">
-                  {x.foto && <img src={x.foto} alt={x.nombre} className="w-16 h-16 object-cover shrink-0 rounded-sm" />}
+                  {x.foto && <img src={imagen(x.foto, ANCHOS.miniatura)} alt={x.nombre} className="w-16 h-16 object-cover shrink-0 rounded-sm" />}
 
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold leading-tight">{x.nombre}</p>

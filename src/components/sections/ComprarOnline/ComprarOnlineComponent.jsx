@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { ShoppingBag, ChevronRight } from '../../../theme/icons';
 import { COLECCIONES } from '../../../data/colecciones';
 import Reveal from '../../ui/Reveal/RevealComponent';
+import { imagen, ANCHOS } from '../../../utils/imagenes';
 
 /**
  * Sección "Cómpralo online": tarjetas-colección con foto de grupo que llevan
@@ -35,7 +36,7 @@ export default function ComprarOnlineComponent() {
                 className="group relative block h-72 overflow-hidden border border-stone-200 hover:border-amber-700 hover:shadow-xl transition-all"
               >
                 <img
-                  src={c.foto}
+                  src={imagen(c.foto, ANCHOS.tarjeta)}
                   alt={c.titulo}
                   loading="lazy"
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"

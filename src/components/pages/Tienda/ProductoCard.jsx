@@ -6,6 +6,7 @@ import { whatsappProducto } from '../../../data/contacto';
 import { formatoPrecio } from '../../../utils/formato';
 import { esComprable } from '../../../data/envios';
 import { flyToCart } from '../../../utils/flyToCart';
+import { imagen, ANCHOS } from '../../../utils/imagenes';
 
 /**
  * Tarjeta de producto del listado. La foto y el nombre llevan a la ficha;
@@ -31,7 +32,7 @@ export default function ProductoCard({ producto: p }) {
       {p.src ? (
         <img
           ref={imgRef}
-          src={p.src}
+          src={imagen(p.src, ANCHOS.tarjeta)}
           alt={p.nombre}
           loading="lazy"
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"

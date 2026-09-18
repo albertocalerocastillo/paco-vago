@@ -7,6 +7,7 @@ import { COLECCIONES, enColeccion, productoEnColeccion } from '../../../data/col
 import { formatoPrecio } from '../../../utils/formato';
 import Reveal from '../../ui/Reveal/RevealComponent';
 import { esComprable } from '../../../data/envios';
+import { imagen, ANCHOS } from '../../../utils/imagenes';
 
 export default function ProductosComponent() {
   const catalogo = useCategorias();               // catálogo (Supabase con fallback al estático)
@@ -103,7 +104,7 @@ export default function ProductosComponent() {
                 {tieneProductos ? (
                   <div className="relative h-48 overflow-hidden">
                     <img
-                      src={cat.productos[0].src}
+                      src={imagen(cat.productos[0].src, ANCHOS.tarjeta)}
                       alt={cat.titulo}
                       loading="lazy"
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
@@ -181,7 +182,7 @@ export default function ProductosComponent() {
                 {abierta.productos.map((p, idx) => (
                   <div key={idx} className="relative snap-center shrink-0 w-full">
                     <img
-                      src={p.src}
+                      src={imagen(p.src, ANCHOS.tarjeta)}
                       alt={p.nombre}
                       onClick={() => setAmpliada(p)}
                       className="w-full h-64 sm:h-80 object-cover cursor-zoom-in"
@@ -290,7 +291,7 @@ export default function ProductosComponent() {
           </button>
           <figure onClick={(e) => e.stopPropagation()} className="flex flex-col items-center">
             <img
-              src={ampliada.src}
+              src={imagen(ampliada.src, ANCHOS.ampliada)}
               alt={ampliada.nombre}
               className="max-w-full max-h-[80vh] object-contain rounded-sm shadow-2xl"
             />

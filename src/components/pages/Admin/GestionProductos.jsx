@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../../lib/supabase';
+import { imagen, ANCHOS } from '../../../utils/imagenes';
 
 // Minúsculas + sin acentos, para buscar "atun" y que encuentre "atún".
 const normaliza = (s) => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
@@ -662,7 +663,7 @@ function SubirFoto({ foto, onSubida }) {
   return (
     <div className="shrink-0 w-20">
       {foto ? (
-        <img src={foto} alt="" className="w-20 h-20 object-cover rounded-sm border border-stone-200" />
+        <img src={imagen(foto, ANCHOS.miniatura)} alt="" className="w-20 h-20 object-cover rounded-sm border border-stone-200" />
       ) : (
         <div className="w-20 h-20 bg-stone-100 border border-stone-200 rounded-sm flex items-center justify-center text-stone-400 text-xs">
           Sin foto

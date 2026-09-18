@@ -51,6 +51,12 @@ if (error) {
 const paginas = [
   { ruta: '/', prioridad: '1.0', frecuencia: 'monthly', fecha: hoy },
   { ruta: '/tienda', prioridad: '0.9', frecuencia: 'weekly', fecha: hoy },
+  // Las legales importan poco para posicionar, pero Google valora que una
+  // tienda las tenga y sean accesibles.
+  { ruta: '/legal/aviso-legal', prioridad: '0.3', frecuencia: 'yearly', fecha: hoy },
+  { ruta: '/legal/privacidad', prioridad: '0.3', frecuencia: 'yearly', fecha: hoy },
+  { ruta: '/legal/condiciones-de-venta', prioridad: '0.3', frecuencia: 'yearly', fecha: hoy },
+  { ruta: '/legal/devoluciones', prioridad: '0.3', frecuencia: 'yearly', fecha: hoy },
   ...productos.map(p => ({
     ruta: `/tienda/producto/${p.id}`,
     prioridad: '0.8',

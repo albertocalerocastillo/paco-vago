@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Phone, X, ChevronRight, WhatsAppIcon, ShoppingCart } from '../../../theme/icons';
 import { useCategorias } from '../../../hooks/useCategorias';
 import { TELEFONO_HREF, TELEFONO, whatsappProducto } from '../../../data/contacto';
-import { COLECCIONES, enColeccion, productoEnColeccion } from '../../../data/colecciones';
+import { COLECCIONES, productoEnColeccion } from '../../../data/colecciones';
 import { formatoPrecio } from '../../../utils/formato';
 import Reveal from '../../ui/Reveal/RevealComponent';
 import { esComprable } from '../../../data/envios';
@@ -43,23 +43,41 @@ export default function ProductosComponent() {
     [catalogo]
   );
   const [abierta, setAbierta] = useState(null);   // categoría seleccionada (panel)
-  const [ampliada, setAmpliada] = useState(null); // foto ampliada (lightbox)
+  // Guardamos la POSICION, no la foto: asi el visor sabe cual es la siguiente
+  // y la anterior. `ampliada` se deriva de ella.
+  const [ampliadaIdx, setAmpliadaIdx] = useState(null);
   const trackRef = useRef(null);
+  const inicioDelGesto = useRef(null);   // donde empezo el dedo, para deslizar el visor
+  const fotos = abierta?.productos || [];
+  const ampliada = ampliadaIdx != null ? fotos[ampliadaIdx] : null;
+
+  // Pasar foto en el visor. Da la vuelta al llegar al final: en un carrusel de
+  // fotos es lo que espera todo el mundo.
+  const pasarFoto = useCallback((dir) => {
+    setAmpliadaIdx((i) => (i == null ? null : (i + dir + fotos.length) % fotos.length));
+  }, [fotos.length]);
 
   const desplazar = (dir) => {
     const el = trackRef.current;
     if (el) el.scrollBy({ left: dir * el.clientWidth, behavior: 'smooth' });
   };
 
-  const cerrarPanel = () => { setAmpliada(null); setAbierta(null); };
+  const cerrarPanel = () => { setAmpliadaIdx(null); setAbierta(null); };
 
   // Cerrar con Escape (primero la foto ampliada, luego el panel) + bloquear scroll
   useEffect(() => {
     if (!abierta) return;
     const onKey = (e) => {
-      if (e.key !== 'Escape') return;
-      if (ampliada) setAmpliada(null);
-      else setAbierta(null);
+      if (e.key === 'Escape') {
+        if (ampliada) setAmpliadaIdx(null);
+        else setAbierta(null);
+        return;
+      }
+      // Las flechas solo mandan cuando hay una foto abierta; si no, se dejan
+      // para que el visitante pueda desplazar la pagina con normalidad.
+      if (!ampliada) return;
+      if (e.key === 'ArrowRight') pasarFoto(1);
+      if (e.key === 'ArrowLeft') pasarFoto(-1);
     };
     window.addEventListener('keydown', onKey);
     document.body.style.overflow = 'hidden';
@@ -67,7 +85,7 @@ export default function ProductosComponent() {
       window.removeEventListener('keydown', onKey);
       document.body.style.overflow = '';
     };
-  }, [abierta, ampliada]);
+  }, [abierta, ampliada, pasarFoto]);
 
   return (
     <section id="productos" className="py-24 px-6 bg-stone-50">
@@ -184,7 +202,7 @@ export default function ProductosComponent() {
                     <img
                       src={imagen(p.src, ANCHOS.tarjeta)}
                       alt={p.nombre}
-                      onClick={() => setAmpliada(p)}
+                      onClick={() => setAmpliadaIdx(idx)}
                       className="w-full h-64 sm:h-80 object-cover cursor-zoom-in"
                     />
                     {/* Nombre del producto sobre la foto + precio + CTA de WhatsApp */}
@@ -231,14 +249,14 @@ export default function ProductosComponent() {
                 <>
                   <button
                     onClick={() => desplazar(-1)}
-                    className="hidden md:flex items-center justify-center absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 hover:bg-white shadow-lg text-stone-800 hover:text-amber-700 transition-colors"
+                    className="flex items-center justify-center absolute left-2 md:left-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/90 hover:bg-white shadow-lg text-stone-800 hover:text-amber-700 transition-colors"
                     aria-label="Producto anterior"
                   >
                     <ChevronRight className="rotate-180" size={22} />
                   </button>
                   <button
                     onClick={() => desplazar(1)}
-                    className="hidden md:flex items-center justify-center absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 hover:bg-white shadow-lg text-stone-800 hover:text-amber-700 transition-colors"
+                    className="flex items-center justify-center absolute right-2 md:right-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/90 hover:bg-white shadow-lg text-stone-800 hover:text-amber-700 transition-colors"
                     aria-label="Producto siguiente"
                   >
                     <ChevronRight size={22} />
@@ -276,20 +294,57 @@ export default function ProductosComponent() {
       {/* LIGHTBOX: foto de producto a pantalla completa (encima del panel) */}
       {ampliada && (
         <div
-          onClick={() => setAmpliada(null)}
+          onClick={() => setAmpliadaIdx(null)}
           className="fixed inset-0 z-[60] bg-black/90 flex items-center justify-center p-4"
           role="dialog"
           aria-modal="true"
           aria-label={`Foto ampliada: ${ampliada.nombre}`}
         >
           <button
-            onClick={() => setAmpliada(null)}
+            onClick={() => setAmpliadaIdx(null)}
             className="absolute top-2 right-2 p-3 text-white/80 hover:text-white transition-colors"
             aria-label="Cerrar"
           >
             <X size={36} />
           </button>
-          <figure onClick={(e) => e.stopPropagation()} className="flex flex-col items-center">
+
+          {/* Pasar de foto. Salen tambien en movil: sin ellas no hay forma de
+              saber que se puede deslizar. */}
+          {fotos.length > 1 && (
+            <>
+              <button
+                onClick={(e) => { e.stopPropagation(); pasarFoto(-1); }}
+                className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 flex items-center justify-center w-12 h-12 rounded-full bg-white/15 hover:bg-white/30 text-white transition-colors"
+                aria-label="Foto anterior"
+              >
+                <ChevronRight className="rotate-180" size={26} />
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); pasarFoto(1); }}
+                className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 flex items-center justify-center w-12 h-12 rounded-full bg-white/15 hover:bg-white/30 text-white transition-colors"
+                aria-label="Foto siguiente"
+              >
+                <ChevronRight size={26} />
+              </button>
+              <span className="absolute top-4 left-1/2 -translate-x-1/2 text-sm text-white/80 bg-black/40 px-3 py-1 rounded-full">
+                {ampliadaIdx + 1} / {fotos.length}
+              </span>
+            </>
+          )}
+
+          <figure
+            onClick={(e) => e.stopPropagation()}
+            onTouchStart={(e) => { inicioDelGesto.current = e.touches[0].clientX; }}
+            onTouchEnd={(e) => {
+              const inicio = inicioDelGesto.current;
+              inicioDelGesto.current = null;
+              if (inicio == null || fotos.length < 2) return;
+              const recorrido = e.changedTouches[0].clientX - inicio;
+              // 50 px: por debajo de eso suele ser un toque, no un deslizamiento.
+              if (Math.abs(recorrido) > 50) pasarFoto(recorrido < 0 ? 1 : -1);
+            }}
+            className="flex flex-col items-center"
+          >
             <img
               src={imagenOriginal(ampliada.src)}
               alt={ampliada.nombre}

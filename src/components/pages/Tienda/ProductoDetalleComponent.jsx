@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { X, Plus, Minus, ShoppingCart, WhatsAppIcon } from '../../../theme/icons';
 import { useCategorias } from '../../../hooks/useCategorias';
-import { useSeo } from '../../../hooks/useSeo';
+import { useSeo, useDatosEstructurados, SITIO } from '../../../hooks/useSeo';
 import { useCarrito } from '../../../hooks/useCarrito';
 import { whatsappProducto } from '../../../data/contacto';
 import { formatoPrecio } from '../../../utils/formato';
@@ -72,6 +72,37 @@ export default function ProductoDetalleComponent() {
       : undefined,
     imagen: producto?.src && producto.src.startsWith('http') ? producto.src : undefined,
   });
+
+  // Datos estructurados: lo que hace que Google enseñe el precio bajo el enlace.
+  // La oferta SOLO se declara si el producto se puede comprar de verdad por la
+  // web (precio Y peso). Anunciar un precio de algo que no tiene boton de
+  // comprar seria engañar a Google y al que pincha.
+  useDatosEstructurados(
+    producto
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'Product',
+          name: producto.nombre,
+          description: producto.desc || undefined,
+          image: producto.src ? [producto.src] : undefined,
+          category: categoria?.titulo,
+          brand: { '@type': 'Brand', name: 'Paco Vago' },
+          ...(esComprable(producto)
+            ? {
+                offers: {
+                  '@type': 'Offer',
+                  url: `${SITIO}/tienda/producto/${producto.id}`,
+                  priceCurrency: 'EUR',
+                  price: Number(producto.precio).toFixed(2),
+                  availability: 'https://schema.org/InStock',
+                  itemCondition: 'https://schema.org/NewCondition',
+                  seller: { '@type': 'Store', name: 'Paco Vago Puerta Sevilla' },
+                },
+              }
+            : {}),
+        }
+      : null
+  );
 
   if (!producto) {
     return (

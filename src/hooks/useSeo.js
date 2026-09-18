@@ -87,3 +87,30 @@ export function useSeo({ titulo, descripcion, ruta, imagen, noindex = false } = 
     ponerMeta('twitter:image', img);
   }, [titulo, descripcion, ruta, imagen, noindex]);
 }
+
+/**
+ * Añade al head un bloque de datos estructurados (JSON-LD).
+ *
+ * Es información invisible para el visitante que le dice a Google qué es esta
+ * página. En una ficha de producto, es lo que hace que en los resultados de
+ * búsqueda salga el precio debajo del enlace en vez de solo texto.
+ *
+ * Se borra al salir de la página: si no, al navegar de una ficha a otra se
+ * irían acumulando y Google vería varios productos en la misma página.
+ *
+ * @param {object|null} datos  El objeto schema.org, o null para no poner nada.
+ */
+export function useDatosEstructurados(datos) {
+  // El JSON se calcula fuera del efecto para que sirva de dependencia: así el
+  // bloque solo se rehace cuando cambia el contenido de verdad.
+  const json = datos ? JSON.stringify(datos) : null;
+
+  useEffect(() => {
+    if (!json) return undefined;
+    const el = document.createElement('script');
+    el.type = 'application/ld+json';
+    el.textContent = json;
+    document.head.appendChild(el);
+    return () => el.remove();
+  }, [json]);
+}

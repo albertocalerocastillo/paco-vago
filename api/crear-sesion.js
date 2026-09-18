@@ -15,7 +15,26 @@ import { validarDireccion } from '../src/data/direccion.js';
 
 const MAX_LINEAS = 30;      // productos distintos en un pedido
 const MAX_UNIDADES = 20;    // unidades de un mismo producto
-const SITIO = process.env.SITIO_URL || 'https://paco-vago.vercel.app';
+const SITIO_PUBLICO = process.env.SITIO_URL || 'https://paco-vago.vercel.app';
+
+/**
+ * A donde devolver al cliente despues de pagar.
+ *
+ * En local se usa el puerto por el que ha entrado de verdad: si no, arrancando
+ * `vercel dev` en otro puerto, Stripe devuelve al de la variable de entorno y
+ * el cliente aterriza en una pagina que no existe. Ya paso una vez.
+ *
+ * La cabecera Host SOLO se cree cuando dice localhost. En produccion se usa
+ * siempre SITIO_URL, que es fijo: fiarse del Host ahi permitiria que alguien
+ * mandara al cliente a otro sitio tras pagar.
+ */
+function baseDelSitio(req) {
+  const host = String(req.headers['x-forwarded-host'] || req.headers.host || '');
+  const esLocal = host === 'localhost' || host.startsWith('localhost:') || host.startsWith('127.0.0.1:');
+  if (!esLocal) return SITIO_PUBLICO;
+  const protocolo = req.headers['x-forwarded-proto'] || 'http';
+  return `${protocolo}://${host}`;
+}
 
 /** Referencia corta y legible para el cliente y para buscar el pedido. Ej: PV-K3F9A2B */
 function nuevaReferencia() {
@@ -152,8 +171,8 @@ export default async function handler(req, res) {
           },
         },
       }],
-      success_url: `${SITIO}/tienda/gracias?ref=${referencia}`,
-      cancel_url: `${SITIO}/tienda/carrito`,
+      success_url: `${baseDelSitio(req)}/tienda/gracias?ref=${referencia}`,
+      cancel_url: `${baseDelSitio(req)}/tienda/carrito`,
       client_reference_id: referencia,
       // El webhook reconstruye el pedido con esto. Los nombres y precios cobrados
       // los lee de Stripe, que es el registro de lo que se cobró de verdad.

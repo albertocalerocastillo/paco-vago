@@ -625,3 +625,41 @@ Plan acordado (19/10/2026): **Alberto lo gestiona todo de momento con los datos 
 (sin videollamadas ni quedadas, todo por WhatsApp) y más adelante le pasa parte de la
 gestión o le cobra un mantenimiento mensual. Si cobra: contrato sencillo + contrato de
 encargado del tratamiento (RGPD art. 28), porque accede a los datos de los clientes.
+
+## ☁️ MUDANZA A CLOUDFLARE (en curso, 19/10/2026)
+
+Decidido: **Cloudflare Workers, plan gratuito** (permite uso comercial; al pasarse del
+límite falla, NO cobra). Sustituye a Vercel, cuyo gratuito prohíbe tiendas.
+
+**Hecho (rama `feature/portes`, probado en local con el simulador de Cloudflare):**
+- La lógica de las 3 funciones vive en **`servidor/`** en formato web estándar
+  (Request → Response; las variables llegan en `env`, no en `process.env`).
+- **`worker/index.js`** reparte `/api/*`; el resto lo sirve Cloudflare desde `dist/` con
+  la portada como respaldo para las rutas de React. Configuración en **`wrangler.jsonc`**.
+  Cabeceras de seguridad en **`public/_headers`** (comprobadas en local).
+- **`api/`** queda como 3 envoltorios de una línea: plan B si hubiera que volver a
+  Vercel Pro. No tienen lógica propia.
+- Probado de punta a punta en local: cobro de prueba (AOVE 5 L = 46,50 €), vuelta a
+  `/tienda/gracias`, aviso firmado → pedido guardado como pagado, aviso repetido sin
+  duplicar, firma falsa rechazada, desistimiento guardado y sin duplicar.
+
+**Cómo probar en local ahora:** `npm run cf` (compila y arranca el simulador en
+http://localhost:8787 con las variables del `.env`). Para el webhook:
+`DESTINO_WEBHOOK=http://localhost:8787/api/stripe-webhook node scripts/probar-webhook.js`.
+(`vercel dev` ya no hace falta.)
+
+**Pendiente:**
+1. Alberto: cuenta gratis en cloudflare.com y `npx wrangler login`.
+2. Primer despliegue en la dirección de prueba `*.workers.dev` y secretos con
+   `npx wrangler secret put`: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`,
+   `SUPABASE_SERVICE_ROLE_KEY`, `VITE_SUPABASE_ANON_KEY`, `SITIO_URL`.
+   ⚠️ **Las variables `VITE_*` del navegador se meten al COMPILAR** (`npm run build` con
+   el `.env`), no en Cloudflare: comprobar que el bundle desplegado lleva la URL de Supabase.
+3. ⚠️ **Límite de 10 ms de CPU por petición** en el gratuito. Esperar a Stripe/Supabase
+   no cuenta, pero hay que mirarlo en el panel de Cloudflare (Workers → Observability)
+   tras las primeras peticiones reales. Si alguna se pasa: Workers de pago (5 $/mes)
+   o volver a Vercel Pro con los envoltorios de `api/`.
+4. Comprar `pacovago.es`, ponerlo en Cloudflare y apuntarlo al Worker. Hasta entonces
+   `paco-vago.vercel.app` sigue sirviendo la web actual (master) sin cambios.
+5. Cambiar a `pacovago.es` lo que apunta a vercel.app (`data/empresa.js`, `index.html`,
+   `useSeo`, sitemap, robots) y el webhook de Stripe.

@@ -631,6 +631,14 @@ function SubirFoto({ foto, onSubida }) {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Lo mismo que acepta el almacén (ver supabase/storage.sql). Se comprueba
+    // aquí para dar el aviso en cristiano en vez del error en inglés de Supabase.
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      setError('Solo se pueden subir fotos JPG, PNG o WebP. Si es una foto de iPhone (HEIC), guárdala antes como JPG.');
+      e.target.value = '';
+      return;
+    }
+
     // Límite razonable para no llenar el almacenamiento gratis
     if (file.size > 5 * 1024 * 1024) {
       setError('La imagen supera 5 MB.');
@@ -673,7 +681,7 @@ function SubirFoto({ foto, onSubida }) {
         {subiendo ? 'Subiendo…' : foto ? 'Cambiar' : 'Subir foto'}
         <input
           type="file"
-          accept="image/*"
+          accept="image/jpeg,image/png,image/webp"
           className="hidden"
           onChange={subir}
           disabled={subiendo}

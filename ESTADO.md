@@ -588,6 +588,9 @@ Arreglado:
   otro sitio (protege `/admin` de clickjacking), `nosniff`, `Referrer-Policy` y
   `Permissions-Policy`. Producción solo tenía HSTS. ⚠️ No se puede ver en local sin
   `vercel dev`: comprobar con `curl -sI` tras desplegar.
+- **Almacén de fotos limitado** a JPG/PNG/WebP de hasta 10 MB (antes aceptaba cualquier
+  archivo). Aplicado en Supabase y apuntado en `supabase/storage.sql`. Probado: un HTML se
+  rechaza incluso con la service_role.
 - `npm audit fix`: Vite 8.3.4. Dependencias de producción, **0 vulnerabilidades**. Las
   que quedan son del CLI de Vercel, que no se despliega.
 

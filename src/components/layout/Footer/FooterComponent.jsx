@@ -19,6 +19,7 @@ export default function FooterComponent() {
           <Link to="/legal/privacidad" className="hover:text-amber-500 transition-colors">Privacidad</Link>
           <Link to="/legal/condiciones-de-venta" className="hover:text-amber-500 transition-colors">Condiciones de venta</Link>
           <Link to="/legal/devoluciones" className="hover:text-amber-500 transition-colors">Devoluciones</Link>
+          <Link to="/legal/desistir" className="hover:text-amber-500 transition-colors">Desistir del contrato</Link>
         </nav>
 
         <p className="text-xs text-stone-500 mt-6">

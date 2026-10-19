@@ -20,6 +20,7 @@ const AvisoLegal = lazy(() => import('./components/pages/Legal/AvisoLegal.jsx'))
 const Privacidad = lazy(() => import('./components/pages/Legal/Privacidad.jsx'))
 const Condiciones = lazy(() => import('./components/pages/Legal/Condiciones.jsx'))
 const Devoluciones = lazy(() => import('./components/pages/Legal/Devoluciones.jsx'))
+const Desistir = lazy(() => import('./components/pages/Legal/Desistir.jsx'))
 
 const Cargando = () => (
   <div className="min-h-screen bg-stone-100 text-stone-500 font-serif flex items-center justify-center">
@@ -70,6 +71,10 @@ createRoot(document.getElementById('root')).render(
           <Route
             path="/legal/devoluciones"
             element={<Suspense fallback={<Cargando />}><Devoluciones /></Suspense>}
+          />
+          <Route
+            path="/legal/desistir"
+            element={<Suspense fallback={<Cargando />}><Desistir /></Suspense>}
           />
           {/* La ultima: cualquier direccion que no encaje arriba. Sin esto, React
               no pintaba nada y quedaba el mini-carrito flotando en el vacio. */}

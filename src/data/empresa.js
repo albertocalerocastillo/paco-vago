@@ -36,4 +36,4 @@ export const datosPendientes = Object.values(EMPRESA).some(
 
 // Fecha de última revisión de los textos legales (se muestra en cada página).
 // Actualízala cuando cambie el contenido legal.
-export const LEGAL_ACTUALIZADO = '16 de septiembre de 2026';
+export const LEGAL_ACTUALIZADO = '19 de octubre de 2026';

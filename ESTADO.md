@@ -574,3 +574,27 @@ Rama `feature/portes`, sin desplegar. Lo que faltaba o había cambiado en la ley
 **Para el día de abrir** (añadir a "PARA EL FINAL"): en Stripe, activar los **recibos por
 email** de pagos correctos (Settings → Emails): Condiciones dice que el cliente recibe el
 justificante en su email.
+
+## 🔒 REVISIÓN DE SEGURIDAD — 19 octubre 2026
+
+Comprobado **contra el Supabase real** con la clave pública (la que lleva la web):
+registros públicos **desactivados**; `pedidos` no se puede leer (devuelve vacío) ni
+escribir (RLS lo rechaza); subir fotos sin login, rechazado. Ninguna clave secreta en el
+historial de git ni en el bundle. Los `/api` no se fían del navegador (precios, pesos y
+porte se recalculan; la firma del webhook se valida).
+
+Arreglado:
+- **Cabeceras de seguridad** en `vercel.json`: la web no se puede meter en un iframe de
+  otro sitio (protege `/admin` de clickjacking), `nosniff`, `Referrer-Policy` y
+  `Permissions-Policy`. Producción solo tenía HSTS. ⚠️ No se puede ver en local sin
+  `vercel dev`: comprobar con `curl -sI` tras desplegar.
+- `npm audit fix`: Vite 8.3.4. Dependencias de producción, **0 vulnerabilidades**. Las
+  que quedan son del CLI de Vercel, que no se despliega.
+
+A tener en cuenta (sin código):
+- **Cualquier usuario con login es administrador** total. Es seguro porque los registros
+  están cerrados: **no activarlos nunca**. Contraseñas largas para Alberto y el tío.
+- Al pasar Stripe a real: claves `sk_live` y el `whsec_` del webhook de producción
+  **solo en Vercel**, nunca en `.env` ni en el repo.
+- `/api/crear-sesion` y `/api/desistimiento` no tienen límite de peticiones. Para el
+  volumen de esta tienda no compensa montarlo; si algún día llega spam, es lo primero.

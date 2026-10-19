@@ -648,8 +648,14 @@ http://localhost:8787 con las variables del `.env`). Para el webhook:
 `DESTINO_WEBHOOK=http://localhost:8787/api/stripe-webhook node scripts/probar-webhook.js`.
 (`vercel dev` ya no hace falta.)
 
+**DESPLEGADO DE PRUEBA (19/10/2026): https://paco-vago.paco-vago.workers.dev**, con las
+claves de PRUEBA de Stripe. Cuenta de Cloudflare de Alberto (login con Google). Comprobado
+ahí: páginas, cabeceras, catálogo desde Supabase, cobro de prueba con el precio recalculado
+en el servidor y Canarias rechazado. Para volver a desplegar: `npm run build` y
+`npx wrangler deploy`. Una dirección workers.dev nueva tarda unos minutos en tener HTTPS.
+
 **Pendiente:**
-1. Alberto: cuenta gratis en cloudflare.com y `npx wrangler login`.
+1. ~~Cuenta de Cloudflare y `wrangler login`~~ ✅ hecho.
 2. Primer despliegue en la dirección de prueba `*.workers.dev` y secretos con
    `npx wrangler secret put`: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`,
    `SUPABASE_SERVICE_ROLE_KEY`, `VITE_SUPABASE_ANON_KEY`, `SITIO_URL`.

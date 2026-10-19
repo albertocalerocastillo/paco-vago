@@ -37,3 +37,7 @@ logo-paco-vago.png
 *.sln
 *.sw?
 .vercel
+
+# Cloudflare (local)
+.dev.vars*
+.wrangler

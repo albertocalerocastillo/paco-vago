@@ -456,30 +456,18 @@ Ordenado por lo que más va a aportar. Nada de esto es programar.
 
 ### Depende del tío (pedírselo con tiempo, tarda días)
 
-1. 🔑 **Google: HAY DOS FICHAS DUPLICADAS.** Comprobado el 18/09/2026 buscando
-   "paco vago":
-
-   | | Ficha 1 | Ficha 2 |
-   |---|---|---|
-   | Nombre | Paco Vago | **Paco Vago Puerta Sevilla** |
-   | Reseñas | 4,5★ (**124**) | 5,0★ (23) |
-   | Categoría | Juguetería ❌ | Tienda de alimentación ✅ |
-   | Teléfono | 954 14 08 **45** | 954 14 08 **71** ✅ |
-
-   La **ficha 2 es la buena** (el teléfono coincide con el de la web), pero **las reseñas
-   están en la mala**. Google enseña las dos y la que parece más sólida dice que venden
-   juguetes.
-
-   ⚠️ **ANTES DE TOCAR NADA: preguntar al tío si la ficha 1 es suya.** Puede ser un
-   duplicado antiguo de la misma tienda (lo más probable: la foto parece la misma fachada)
-   o un negocio distinto de la familia. Si es duplicado, se pide a Google que las FUSIONE y
-   las reseñas de las dos se juntan: pasaría de 23 a ~147. Las respuestas del dueño a las
-   reseñas se suelen perder al fusionar, así que conviene copiarlas antes si las hay.
-
-   Además, en la ficha buena el botón "Sitio web" lleva a su Instagram; hay que ponerle la
-   web. **De todo lo que queda, esto es lo que más tráfico va a traer.** Hace falta que dé
-   acceso a la cuenta.
-2. 🌐 **Dominio propio** (~10-12 €/año). Desbloquea el correo de pedidos (sin dominio
+1. 🔑 **Google: la ficha buena es "Paco Vago Puerta Sevilla"** (5,0★, 39 reseñas el
+   18/10/2026, tel. 954 14 08 71). **La otra ficha, "Paco Vago" (Juguetería, 4,5★/124,
+   C. González Girón 1), es OTRO NEGOCIO: la juguetería de enfrente, de familiares.**
+   Confirmado por el tío el 18/10/2026. ⛔ **NO pedir fusión nunca**: serían las reseñas
+   de otro negocio y Google lo prohíbe. La nota anterior de "duplicadas" estaba mal.
+   Queda: que dé acceso a su cuenta para cambiar el botón "Sitio web" (ahora lleva a su
+   Instagram) a la web. El tío ha puesto un soporte NFC en el mostrador que lleva a dejar
+   reseña. Si se añade un "déjanos tu reseña" en la web: enlace normal, **sin regalos a
+   cambio y sin pedírsela solo a los contentos** (Google lo penaliza y en la UE las
+   reseñas incentivadas sin avisarlo son práctica desleal).
+2. 🌐 **Dominio propio: ELEGIDO `pacovago.es`** (18/10/2026, lo paga el tío; registrarlo
+   a SU nombre y NIF, es el titular del negocio). ~10-12 €/año. Desbloquea el correo de pedidos (sin dominio
    verificado, Resend solo deja mandar a tu propia dirección) y quita el
    `paco-vago.vercel.app`, que a la hora de meter una tarjeta resta confianza.
 3. 🪪 **Activar la cuenta de Stripe a su nombre**: NIF 47336029M, su IBAN y foto del DNI.
@@ -608,3 +596,18 @@ A tener en cuenta (sin código):
   Google Maps; hasta que no se pulsa, no se carga nada de Google. Así la web sigue **sin
   banner de cookies**. Privacidad lo explica. ⚠️ Si algún día se añade Analytics, un
   píxel o vídeos incrustados, entonces SÍ hará falta banner.
+
+## 💬 WHATSAPP CON EL TÍO — 18 octubre 2026
+
+- Dominio: **pacovago.es**. Google: ver punto 1 de "PARA EL FINAL" (la otra ficha es otro negocio).
+- Ya está **vendiendo por WhatsApp** a gente que le llega desde la web, cobrando por
+  Bizum. Primera venta: gildas, 6,50 € de envío.
+- ⚠️ **PORTES SIN CERRAR, CHOCAN CON LO DECIDIDO.** En WhatsApp cobró **6,50 €** de envío y
+  propuso **envío gratis desde 100 €**. Lo cerrado el 16/09 es 7,50 / 12 / 18 / 25 € por
+  tramos de peso y SIN envío gratis (lo descartó él: "con el aceite no gano nada"). **No
+  tocar `data/envios.js` hasta que lo confirme.** Preguntarle: ¿6,50 € era una tarifa nueva
+  o un precio para ese pedido ligero?, ¿y los 100 € con el aceite de 5 L?
+- Productos nuevos para la web: **gildas** (clásicas 16,95 € / 30 piezas, y 11 modelos
+  más). Faltan precio, PESO con caja y foto de cada una.
+- "Pues el punto 4": parece que está listo para verificar Stripe juntos. Quedar en
+  persona y hacer en la misma visita Stripe + acceso a Google.

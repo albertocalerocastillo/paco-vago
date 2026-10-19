@@ -1,5 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
 import { json, leerJson } from './http.js';
+import { supabaseRest } from './ligero.js';
 
 /**
  * Recibe un desistimiento hecho desde /legal/desistir y lo guarda con su fecha
@@ -61,34 +61,28 @@ export default async function desistimiento(request, env) {
     return json({ error: Object.values(errores)[0], errores }, 400);
   }
 
-  const supabase = createClient(env.VITE_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, {
-    auth: { persistSession: false },
-  });
+  // Sin la librería de Supabase: ver servidor/ligero.js (CPU en Cloudflare).
+  const supabase = supabaseRest(env.VITE_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
 
   // Doble clic o reenvío: si el mismo email ya desistió de ese pedido hace
   // menos de 10 minutos, se devuelve el mismo justificante en vez de otro.
   const haceUnRato = new Date(Date.now() - 10 * 60 * 1000).toISOString();
-  const { data: previo } = await supabase
-    .from('desistimientos')
-    .select('referencia, creado_en')
-    .eq('email', datos.email)
-    .eq('pedido_ref', datos.pedido_ref)
-    .gte('creado_en', haceUnRato)
-    .limit(1)
-    .maybeSingle();
-  if (previo) return json(previo);
+  const { data: previos } = await supabase.select('desistimientos', 'referencia,creado_en', {
+    email: `eq.${datos.email}`,
+    pedido_ref: `eq.${datos.pedido_ref}`,
+    creado_en: `gte.${haceUnRato}`,
+  }, 1);
+  if (previos?.[0]) return json(previos[0]);
 
-  const { data: pedido } = await supabase
-    .from('pedidos')
-    .select('id')
-    .eq('referencia', datos.pedido_ref)
-    .maybeSingle();
+  const { data: pedidos } = await supabase.select('pedidos', 'id', { referencia: `eq.${datos.pedido_ref}` }, 1);
+  const pedido = pedidos?.[0];
 
-  const { data, error } = await supabase
-    .from('desistimientos')
-    .insert({ ...datos, referencia: nuevaReferencia(), pedido_id: pedido?.id ?? null })
-    .select('referencia, creado_en')
-    .single();
+  const { data: filas, error } = await supabase.insert(
+    'desistimientos',
+    { ...datos, referencia: nuevaReferencia(), pedido_id: pedido?.id ?? null },
+    'referencia,creado_en'
+  );
+  const data = filas?.[0];
 
   if (error) {
     console.error('Supabase:', error.message);

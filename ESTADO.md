@@ -601,3 +601,10 @@ A tener en cuenta (sin código):
   **solo en Vercel**, nunca en `.env` ni en el repo.
 - `/api/crear-sesion` y `/api/desistimiento` no tienen límite de peticiones. Para el
   volumen de esta tienda no compensa montarlo; si algún día llega spam, es lo primero.
+
+- ✅ **Mapa de Google al pulsar** (19/10/2026). El iframe de Visítanos conectaba con Google
+  nada más abrir la portada (IP y posibles cookies de Google), lo que según la AEPD requiere
+  consentimiento previo. Ahora sale un recuadro con "Ver mapa" y un enlace para abrirlo en
+  Google Maps; hasta que no se pulsa, no se carga nada de Google. Así la web sigue **sin
+  banner de cookies**. Privacidad lo explica. ⚠️ Si algún día se añade Analytics, un
+  píxel o vídeos incrustados, entonces SÍ hará falta banner.

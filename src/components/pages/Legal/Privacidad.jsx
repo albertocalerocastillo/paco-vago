@@ -93,9 +93,19 @@ export default function Privacidad() {
 
       <h2>8. Cookies</h2>
       <p>
-        Este sitio utiliza únicamente las cookies y el almacenamiento local imprescindibles para su
-        funcionamiento (por ejemplo, recordar tu carrito de la compra). No se utilizan cookies de publicidad ni
-        de seguimiento de terceros. Si en el futuro se incorporaran, se solicitará tu consentimiento previo.
+        Este sitio utiliza únicamente el almacenamiento local imprescindible para su funcionamiento (por
+        ejemplo, recordar tu carrito de la compra). No se utilizan cookies de publicidad ni de analítica.
+      </p>
+      <p>
+        El <strong>mapa de Google</strong> de la sección «Visítanos» no se carga hasta que pulsas «Ver mapa».
+        Al pulsarlo, tu navegador se conecta con Google, que puede usar sus propias cookies conforme a su{' '}
+        <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">política de privacidad</a>.
+        Si no lo pulsas, no se envía nada a Google.
+      </p>
+      <p>
+        Al pagar, la pasarela <strong>Stripe</strong> usa sus propias cookies técnicas para procesar el cobro de
+        forma segura y prevenir el fraude. Si en el futuro incorporáramos cookies no imprescindibles, te
+        pediríamos antes tu consentimiento.
       </p>
     </LegalLayout>
   );

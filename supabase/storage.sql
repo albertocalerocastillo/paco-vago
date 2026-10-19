@@ -9,6 +9,18 @@ insert into storage.buckets (id, name, public)
 values ('productos', 'productos', true)
 on conflict (id) do nothing;
 
+-- Solo fotos, y de tamaño razonable (aplicado el 19/10/2026). El bucket es
+-- PÚBLICO: sin esto, quien robara una contraseña del panel podría colgar
+-- cualquier archivo (una página HTML de phishing, un ejecutable…) en una
+-- dirección con el nombre de la tienda. Supabase lo rechaza en el servidor,
+-- incluso con la service_role; el panel avisa antes, pero eso se puede saltar.
+-- Ojo: HEIC (fotos de iPhone) no entra. El iPhone suele convertirlas a JPG al
+-- subirlas desde la web; si alguna falla, guardarla como JPG.
+update storage.buckets
+set allowed_mime_types = array['image/jpeg', 'image/png', 'image/webp'],
+    file_size_limit    = 10485760   -- 10 MB
+where id = 'productos';
+
 -- Subir / actualizar / borrar fotos: SOLO usuarios autenticados (el panel).
 create policy "storage subir productos"
   on storage.objects for insert

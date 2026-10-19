@@ -1,6 +1,3 @@
-import crearSesion from '../servidor/crear-sesion.js';
-import stripeWebhook from '../servidor/stripe-webhook.js';
-import desistimiento from '../servidor/desistimiento.js';
 
 /**
  * Entrada del Worker de Cloudflare.
@@ -10,23 +7,28 @@ import desistimiento from '../servidor/desistimiento.js';
  * con la portada como respaldo para las rutas de React (/tienda, /admin…).
  *
  * La lógica está en /servidor, igual que la usaría Vercel: aquí solo se reparte.
+ *
+ * Cada función se carga SOLO cuando se pide (import dinámico). Así el cobro no
+ * arrastra la librería de Stripe que necesita el webhook: en el plan gratis
+ * cada petición tiene 10 ms de CPU y preparar código que no se usa también cuenta.
  */
 const RUTAS = {
-  '/api/crear-sesion': crearSesion,
-  '/api/stripe-webhook': stripeWebhook,
-  '/api/desistimiento': desistimiento,
+  '/api/crear-sesion': () => import('../servidor/crear-sesion.js'),
+  '/api/stripe-webhook': () => import('../servidor/stripe-webhook.js'),
+  '/api/desistimiento': () => import('../servidor/desistimiento.js'),
 };
 
 export default {
   async fetch(request, env) {
     const { pathname } = new URL(request.url);
-    const manejar = RUTAS[pathname];
-    if (!manejar) {
+    const cargar = RUTAS[pathname];
+    if (!cargar) {
       return new Response(JSON.stringify({ error: 'No encontrado.' }), {
         status: 404,
         headers: { 'Content-Type': 'application/json' },
       });
     }
+    const { default: manejar } = await cargar();
     return manejar(request, env);
   },
 };

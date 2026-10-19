@@ -677,8 +677,16 @@ Stripe → gracias → Stripe avisa solo → pedido guardado como pagado (PV-YVD
 
 **CPU medida con `wrangler tail`** (límite del plan gratis: 10 ms por petición):
 webhook 1-2 ms · desistimiento 4 ms · **crear-sesion 11 y 14 ms en frío, 4 ms en
-caliente**. Cloudflare no dio error, pero el cobro en frío está POR ENCIMA del límite
-y no hay que fiarse de su tolerancia. Decidir: Workers de pago (5 $/mes, 30 s de CPU)
-o aligerar `crear-sesion`.
+caliente**. Por encima del límite en frío.
+
+✅ **ALIGERADO el mismo día, y SE QUEDA EN EL PLAN GRATIS.** El servidor ya no usa las
+librerías de Stripe ni de Supabase: todo va con `fetch` en **`servidor/ligero.js`**
+(formulario de la API de Stripe, lectura/escritura REST de Supabase y la comprobación de
+la firma del webhook con el criptográfico estándar, según la receta de Stripe: firma,
+caducidad de 5 min y comparación en tiempo constante). El Worker pasó de 1,6 MB a 25 KB.
+Medido en frío en 3 despliegues: **cobro 3-6 ms · webhook 0-2 ms · desistimiento 1-4 ms**.
+Probado: firma buena, varias v1, falsa, caducada, cuerpo alterado y sin cabecera; pedido
+real de punta a punta (PV-Z7EF23L7) guardado con todas sus líneas.
+`stripe` queda solo como dependencia de desarrollo (lo usa `scripts/probar-webhook.js`).
 ⚠️ La página de gracias dice "te llega un correo con el resumen": solo es verdad si se
 activan los recibos por email en Stripe (en modo real). No abrir sin activarlos.

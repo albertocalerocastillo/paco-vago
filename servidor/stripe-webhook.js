@@ -1,7 +1,6 @@
-import Stripe from 'stripe';
-import { createClient } from '@supabase/supabase-js';
 import { zonaFueraDePeninsula } from '../src/data/envios.js';
 import { json } from './http.js';
+import { verificarAvisoStripe, lineasCobradas, supabaseRest } from './ligero.js';
 
 /**
  * Aviso de Stripe cuando un pago se completa. Aquí es donde un pedido existe
@@ -13,9 +12,10 @@ import { json } from './http.js';
  * (En el entorno Node de Vercel, Vercel se lo leía y troceaba antes que
  * nosotros y la firma nunca validaba: costó un arreglo.)
  *
- * Corre en Cloudflare (o en el "edge" de Vercel), sin Node: Stripe necesita un
- * cliente HTTP basado en fetch y el criptográfico del navegador para validar
- * la firma. De ahí constructEventAsync en vez del constructEvent de siempre.
+ * Sin librerías (ver servidor/ligero.js): la firma se comprueba con el
+ * criptográfico estándar siguiendo la receta de Stripe, y Stripe y Supabase se
+ * llaman con fetch. Probado con scripts/probar-webhook.js: firma buena, firma
+ * falsa y aviso repetido.
  *
  * Tres cosas que no son opcionales:
  *
@@ -54,20 +54,14 @@ export default async function stripeWebhook(request, env) {
     return new Response('Webhook sin configurar', { status: 500 });
   }
 
-  const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
-    httpClient: Stripe.createFetchHttpClient(),
-  });
-
   // ── 1. Comprobar que el aviso viene de Stripe ───────────────
   let evento;
   try {
     const crudo = await request.text();
-    evento = await stripe.webhooks.constructEventAsync(
+    evento = await verificarAvisoStripe(
       crudo,
       request.headers.get('stripe-signature'),
-      env.STRIPE_WEBHOOK_SECRET,
-      undefined,
-      Stripe.createSubtleCryptoProvider()
+      env.STRIPE_WEBHOOK_SECRET
     );
   } catch (e) {
     console.error('Firma del webhook no válida:', e.message);
@@ -93,7 +87,7 @@ export default async function stripeWebhook(request, env) {
 
   try {
     // ── 2. Qué se cobró exactamente, según Stripe ─────────────
-    const lineItems = await stripe.checkout.sessions.listLineItems(sesion.id, { limit: 100 });
+    const lineItems = await lineasCobradas(env.STRIPE_SECRET_KEY, sesion.id);
 
     // metadata.productos viene como "3x1,36x2": de ahí salen los ids.
     const idsPorNombre = new Map();
@@ -103,17 +97,12 @@ export default async function stripeWebhook(request, env) {
       .map(par => Number(par.split('x')[0]))
       .filter(Number.isInteger);
 
-    const supabase = createClient(
-      env.VITE_SUPABASE_URL,
-      env.SUPABASE_SERVICE_ROLE_KEY,
-      { auth: { persistSession: false } }
-    );
+    const supabase = supabaseRest(env.VITE_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
 
     if (idsPedidos.length) {
-      const { data: productos } = await supabase
-        .from('productos')
-        .select('id, nombre')
-        .in('id', idsPedidos);
+      const { data: productos } = await supabase.select(
+        'productos', 'id,nombre', { id: `in.(${idsPedidos.join(',')})` }
+      );
       for (const p of productos || []) idsPorNombre.set(p.nombre, p.id);
     }
 
@@ -158,7 +147,7 @@ export default async function stripeWebhook(request, env) {
       pagado_en: new Date().toISOString(),
     };
 
-    const { error } = await supabase.from('pedidos').insert(pedido);
+    const { error } = await supabase.insert('pedidos', pedido);
 
     if (error) {
       // 23505 = clave duplicada. Es el aviso repetido de Stripe, no un fallo:

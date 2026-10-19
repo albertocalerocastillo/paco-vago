@@ -1,9 +1,8 @@
-import Stripe from 'stripe';
-import { createClient } from '@supabase/supabase-js';
 import { calcularPorte } from '../src/data/envios.js';
 import { provinciaDeCP } from '../src/data/provincias.js';
 import { validarDireccion } from '../src/data/direccion.js';
 import { json, leerJson } from './http.js';
+import { crearSesionCheckout, productosDisponibles } from './ligero.js';
 
 /**
  * Crea la sesión de pago de Stripe y devuelve el enlace al que mandar al cliente.
@@ -95,12 +94,10 @@ export default async function crearSesion(request, env) {
   }
 
   // ── La verdad: precios y pesos de la base de datos ──────────
-  const supabase = createClient(env.VITE_SUPABASE_URL, env.VITE_SUPABASE_ANON_KEY);
-  const { data: productos, error } = await supabase
-    .from('productos')
-    .select('id, nombre, precio, peso, foto')
-    .in('id', [...pedidas.keys()])
-    .eq('disponible', true);
+  // Sin la librería de Supabase: ver servidor/ligero.js (CPU en Cloudflare).
+  const { data: productos, error } = await productosDisponibles(
+    env.VITE_SUPABASE_URL, env.VITE_SUPABASE_ANON_KEY, [...pedidas.keys()]
+  );
 
   if (error) {
     console.error('Supabase:', error.message);
@@ -153,11 +150,9 @@ export default async function crearSesion(request, env) {
 
   // ── Cobro ───────────────────────────────────────────────────
   const referencia = nuevaReferencia();
-  // Cliente HTTP basado en fetch: el de Node no existe en Cloudflare.
-  const stripe = new Stripe(env.STRIPE_SECRET_KEY, { httpClient: Stripe.createFetchHttpClient() });
-
   try {
-    const sesion = await stripe.checkout.sessions.create({
+    // Sin la librería de Stripe: ver servidor/ligero.js (CPU en Cloudflare).
+    const sesion = await crearSesionCheckout(env.STRIPE_SECRET_KEY, {
       mode: 'payment',
       locale: 'es',
       line_items: lineasStripe,

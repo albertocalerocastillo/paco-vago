@@ -11,9 +11,9 @@ import { EMPRESA } from '../../../data/empresa';
  */
 export default function Condiciones() {
   return (
-    // borrador: queda pendiente la forma de pago A PROPÓSITO. No se puede
-    // publicar esta página anunciando cobro con tarjeta antes de que Stripe
-    // esté funcionando. Al activarlo: rellenar el dato y quitar `borrador`.
+    // borrador: la forma de pago YA está rellena (19/10/2026), pero el aviso se
+    // mantiene A PROPÓSITO hasta que Stripe esté activo a nombre del titular y
+    // con Bizum encendido. Ese día: quitar `borrador` y desplegar.
     <LegalLayout
       borrador
       titulo="Condiciones generales de venta"
@@ -57,8 +57,9 @@ export default function Condiciones() {
 
       <h2>4. Formas de pago</h2>
       <p>
-        <Dato valor="[Indicar los medios de pago aceptados: tarjeta (pasarela), Bizum, transferencia, contra reembolso, pago en tienda…]" />.
-        El pago con tarjeta se procesa mediante una pasarela segura; la tienda no almacena los datos de la tarjeta.
+        <Dato valor="Tarjeta de débito o crédito y Bizum. El cobro se hace en el momento de confirmar el pedido" />.
+        El pago se procesa a través de Stripe, pasarela de pago segura; la tienda no ve ni almacena los datos de
+        la tarjeta. Los pedidos por WhatsApp se pagan como se acuerde directamente con la tienda.
       </p>
 
       <h2>5. Envíos y plazos</h2>

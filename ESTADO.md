@@ -669,3 +669,16 @@ en el servidor y Canarias rechazado. Para volver a desplegar: `npm run build` y
    `paco-vago.vercel.app` sigue sirviendo la web actual (master) sin cambios.
 5. Cambiar a `pacovago.es` lo que apunta a vercel.app (`data/empresa.js`, `index.html`,
    `useSeo`, sitemap, robots) y el webhook de Stripe.
+
+**Prueba completa en Cloudflare (19/10/2026):** webhook de Stripe en MODO PRUEBA creado
+apuntando a `https://paco-vago.paco-vago.workers.dev/api/stripe-webhook` (su clave está en
+los secretos del Worker). Pedido de punta a punta desde el navegador: carrito → datos →
+Stripe → gracias → Stripe avisa solo → pedido guardado como pagado (PV-YVDQ3EAH, 24 €).
+
+**CPU medida con `wrangler tail`** (límite del plan gratis: 10 ms por petición):
+webhook 1-2 ms · desistimiento 4 ms · **crear-sesion 11 y 14 ms en frío, 4 ms en
+caliente**. Cloudflare no dio error, pero el cobro en frío está POR ENCIMA del límite
+y no hay que fiarse de su tolerancia. Decidir: Workers de pago (5 $/mes, 30 s de CPU)
+o aligerar `crear-sesion`.
+⚠️ La página de gracias dice "te llega un correo con el resumen": solo es verdad si se
+activan los recibos por email en Stripe (en modo real). No abrir sin activarlos.

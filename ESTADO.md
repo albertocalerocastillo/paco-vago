@@ -611,3 +611,17 @@ A tener en cuenta (sin código):
   más). Faltan precio, PESO con caja y foto de cada una.
 - "Pues el punto 4": parece que está listo para verificar Stripe juntos. Quedar en
   persona y hacer en la misma visita Stripe + acceso a Google.
+
+## ⚠️ VERCEL GRATIS NO VALE PARA UNA TIENDA (comprobado el 19/10/2026)
+
+Las condiciones de Vercel (Fair Use Guidelines, "Commercial usage") dicen que el plan
+**Hobby es solo para uso personal NO comercial**, y ponen como ejemplos cobrar a los
+visitantes, anunciar productos a la venta y que te paguen por hacer o mantener la web.
+Aquí se dan los tres. **Antes de abrir el cobro: pasar a Pro (20 $/mes)** y poner un
+límite de gasto (Spend Management), porque en Pro lo que pase del crédito incluido SÍ se
+factura. Incluirlo en lo que se le cobre al tío por el mantenimiento.
+
+Plan acordado (19/10/2026): **Alberto lo gestiona todo de momento con los datos del tío**
+(sin videollamadas ni quedadas, todo por WhatsApp) y más adelante le pasa parte de la
+gestión o le cobra un mantenimiento mensual. Si cobra: contrato sencillo + contrato de
+encargado del tratamiento (RGPD art. 28), porque accede a los datos de los clientes.

@@ -4,6 +4,7 @@ import { useAuth } from '../../../hooks/useAuth';
 import { useSeo } from '../../../hooks/useSeo';
 import GestionProductos from './GestionProductos';
 import GestionPedidos from './GestionPedidos';
+import GestionDesistimientos from './GestionDesistimientos';
 
 /**
  * Panel de administración (/admin).
@@ -127,8 +128,9 @@ function Panel({ sesion }) {
             </button>
           </div>
         </div>
-        <nav className="px-6 flex gap-2">
+        <nav className="px-6 flex gap-2 overflow-x-auto">
           {pestana('pedidos', 'Pedidos')}
+          {pestana('desistimientos', 'Desistimientos')}
           {pestana('productos', 'Productos')}
         </nav>
       </header>
@@ -142,6 +144,16 @@ function Panel({ sesion }) {
               márcalos como enviados para no perderles la pista.
             </p>
             <GestionPedidos />
+          </>
+        ) : pantalla === 'desistimientos' ? (
+          <>
+            <h1 className="text-3xl font-bold mb-2">Desistimientos</h1>
+            <p className="text-stone-600 mb-8">
+              Clientes que han desistido de una compra desde la web. Contéstales por email para
+              confirmar que lo has recibido y cómo devolver el producto, y reembolsa el importe
+              (con el porte de ida) en un máximo de 14 días desde que llegó.
+            </p>
+            <GestionDesistimientos />
           </>
         ) : (
           <>

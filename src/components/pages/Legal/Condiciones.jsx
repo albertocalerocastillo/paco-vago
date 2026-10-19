@@ -47,7 +47,8 @@ export default function Condiciones() {
       <p>
         Para comprar, añade los productos al carrito y sigue los pasos del proceso de pedido. Antes de confirmar,
         verás el resumen con los productos, el importe y los gastos de envío. Al confirmar aceptas estas
-        condiciones. Recibirás la confirmación del pedido por el medio que indiques.
+        condiciones. Al completar el pago verás la confirmación del pedido con su número de referencia y
+        recibirás el justificante del pago en el email que indiques.
       </p>
       <p className="text-sm text-stone-500">
         Mientras no esté activo el pago con tarjeta, los pedidos pueden tramitarse por WhatsApp, acordando el pago
@@ -76,12 +77,15 @@ export default function Condiciones() {
         Como consumidor tienes derecho a desistir de la compra en los términos previstos por la ley. Consulta la
         <Link to="/legal/devoluciones"> política de devoluciones</Link> para conocer el procedimiento, los plazos
         y las excepciones (por ejemplo, productos perecederos o alimentos precintados que se hayan abierto).
+        Puedes desistir directamente desde la web en <Link to="/legal/desistir">Desistir del contrato</Link>.
       </p>
 
       <h2>7. Garantía</h2>
       <p>
-        Los productos cuentan con la garantía legal aplicable. Si recibes un producto defectuoso o erróneo,
-        contacta con nosotros y lo resolveremos sin coste para ti.
+        Los productos tienen la garantía legal de conformidad de <strong>tres años</strong> desde la entrega
+        (RDL 1/2007, art. 120). En los alimentos, sin perjuicio de su fecha de consumo preferente o de
+        caducidad. Si recibes un producto defectuoso o erróneo, contacta con nosotros y lo resolveremos sin
+        coste para ti.
       </p>
 
       <h2>8. Facturación</h2>
@@ -91,10 +95,14 @@ export default function Condiciones() {
 
       <h2>9. Atención al cliente y reclamaciones</h2>
       <p>
-        Para cualquier reclamación, escribe a <Dato valor={EMPRESA.email} /> o llama al {EMPRESA.telefono}. Como
-        consumidor, también puedes acudir a la plataforma de resolución de litigios en línea de la Comisión
-        Europea: <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener noreferrer">ec.europa.eu/consumers/odr</a>.
+        Para cualquier reclamación, escribe a <Dato valor={EMPRESA.email} /> o llama al {EMPRESA.telefono}.
+        Tenemos a tu disposición hojas de quejas y reclamaciones oficiales de la Junta de Andalucía, en la
+        tienda y también en formato electrónico a través de{' '}
+        <a href="https://www.consumoresponde.es" target="_blank" rel="noopener noreferrer">Consumo Responde</a>.
       </p>
+      {/* La plataforma europea de resolucion de litigios en linea (ODR) cerro el
+          20/07/2025 (Reglamento UE 2024/3228). Ya no hay obligacion de enlazarla
+          y enlazarla mandaria al cliente a una pagina que no existe. */}
 
       <h2>10. Legislación y jurisdicción</h2>
       <p>

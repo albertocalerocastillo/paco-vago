@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { CreditCard, Lock, WhatsAppIcon } from '../../../theme/icons';
 import { useCarrito } from '../../../hooks/useCarrito';
 import { whatsappLink } from '../../../data/contacto';
@@ -225,6 +226,15 @@ export default function DatosDeEnvio() {
 
           <p className="flex items-center justify-center gap-1.5 text-xs text-stone-400 mt-3">
             <Lock size={12} /> Pago seguro. Los datos de la tarjeta no pasan por esta web.
+          </p>
+          {/* Antes de pagar el cliente tiene que tener a mano las condiciones, el
+              desistimiento y la privacidad (RDL 1/2007, art. 97 y 98). */}
+          <p className="text-xs text-stone-500 text-center mt-2 leading-relaxed">
+            Al pagar aceptas las{' '}
+            <Link to="/legal/condiciones-de-venta" target="_blank" className="underline hover:text-amber-700">condiciones de venta</Link>.
+            Tienes 14 días para desistir (<Link to="/legal/devoluciones" target="_blank" className="underline hover:text-amber-700">devoluciones</Link>).
+            Tratamos tus datos según la{' '}
+            <Link to="/legal/privacidad" target="_blank" className="underline hover:text-amber-700">política de privacidad</Link>.
           </p>
         </div>
       )}

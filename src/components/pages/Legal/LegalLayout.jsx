@@ -75,6 +75,7 @@ export default function LegalLayout({ titulo, intro, borrador = false, children 
           <Link to="/legal/privacidad" className="text-stone-500 hover:text-amber-700">Privacidad</Link>
           <Link to="/legal/condiciones-de-venta" className="text-stone-500 hover:text-amber-700">Condiciones de venta</Link>
           <Link to="/legal/devoluciones" className="text-stone-500 hover:text-amber-700">Devoluciones</Link>
+          <Link to="/legal/desistir" className="text-stone-500 hover:text-amber-700">Desistir del contrato</Link>
         </div>
       </main>
 

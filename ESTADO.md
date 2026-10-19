@@ -549,3 +549,28 @@ await new Promise(r => { requestAnimationFrame(() => r(true)); })
 
 Se puede sortear lanzando los eventos a mano (`el.dispatchEvent(new Event('scroll'))`),
 que sí invoca a los oyentes aunque la página no se pinte.
+
+## ⚖️ REPASO LEGAL — 19 octubre 2026
+
+Rama `feature/portes`, sin desplegar. Lo que faltaba o había cambiado en la ley:
+
+- ✅ **Función de desistimiento online** (`/legal/desistir`). Directiva (UE) 2023/2673,
+  obligatoria desde el **19/06/2026** para toda tienda online: desistir tiene que ser tan
+  fácil como comprar. Enlace en el pie y en las legales, formulario mínimo, botón
+  "Confirmar desistimiento" y justificante con fecha y hora. Lo guarda
+  `api/desistimiento.js` en la tabla `desistimientos` y el titular lo ve en la pestaña
+  **Desistimientos** de `/admin`, con el plazo de reembolso (14 días) a la vista.
+  ⚠️ **Falta ejecutar `supabase/desistimientos.sql`** en el SQL Editor.
+  ⚠️ El acuse de recibo por **email** depende de Resend + dominio, igual que el aviso de
+  pedidos. Mientras tanto el titular contesta a mano desde su Gmail, sin dejarlo pasar.
+- ✅ **Modelo de formulario de desistimiento** (Anexo B RDL 1/2007) al final de Devoluciones.
+- ✅ **Quitado el enlace a la plataforma ODR** de la UE: cerró el 20/07/2025.
+- ✅ **Hojas de reclamaciones de la Junta de Andalucía** mencionadas en Condiciones.
+- ✅ **Garantía de 3 años** explícita (antes decía "la aplicable").
+- ✅ **Privacidad**: fuera la "nota técnica para revisión", que se veía en la página.
+  Ahora nombra Stripe, Vercel y Supabase y explica las transferencias a EE. UU.
+- ✅ **Junto al botón de pagar**, enlaces a condiciones, devoluciones y privacidad.
+
+**Para el día de abrir** (añadir a "PARA EL FINAL"): en Stripe, activar los **recibos por
+email** de pagos correctos (Settings → Emails): Condiciones dice que el cliente recibe el
+justificante en su email.

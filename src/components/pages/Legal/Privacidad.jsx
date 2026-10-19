@@ -30,6 +30,10 @@ export default function Privacidad() {
           consulta o pedido. La conversación se realiza en la plataforma de WhatsApp, sujeta a su propia política.
         </li>
         <li>
+          <strong>Desistimientos y devoluciones:</strong> nombre, email, número de pedido y lo que nos indiques,
+          para tramitar tu desistimiento y el reembolso, y poder acreditar cuándo lo ejerciste.
+        </li>
+        <li>
           <strong>Consultas de contacto:</strong> los datos que nos facilites para responderte.
         </li>
       </ul>
@@ -54,13 +58,23 @@ export default function Privacidad() {
       </p>
       <ul>
         <li>Empresa de transporte/mensajería, para entregar tu pedido.</li>
-        <li>Pasarela de pago, para procesar el cobro con tarjeta de forma segura.</li>
-        <li>Proveedores tecnológicos (alojamiento web y base de datos) que actúan como encargados del tratamiento.</li>
+        <li>
+          <strong>Stripe Payments Europe, Ltd.</strong> (Irlanda), que procesa el pago. Los datos de tu tarjeta
+          los recibe directamente Stripe; nosotros nunca los vemos.
+        </li>
+        <li>
+          Proveedores tecnológicos que actúan como encargados del tratamiento: <strong>Vercel Inc.</strong>{' '}
+          (alojamiento de la web) y <strong>Supabase Inc.</strong> (base de datos, con servidores en la Unión
+          Europea).
+        </li>
         <li>Administración tributaria, cuando exista obligación legal.</li>
       </ul>
-      <p className="text-sm text-stone-500">
-        Nota técnica para revisión: el sitio se aloja en Vercel y los datos de catálogo/pedidos en Supabase
-        (servidores en la Unión Europea). La pasarela de pago se concretará en la Fase 3b.
+
+      <h3>Transferencias internacionales</h3>
+      <p>
+        Vercel, Supabase y Stripe pertenecen a grupos con sede en Estados Unidos, por lo que puede haber
+        accesos a los datos desde allí. Estas transferencias se amparan en el Marco de Privacidad de Datos
+        UE-EE. UU. o, en su defecto, en las cláusulas contractuales tipo aprobadas por la Comisión Europea.
       </p>
 
       <h2>6. Tus derechos</h2>

@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import LegalLayout, { Dato } from './LegalLayout';
 import { EMPRESA } from '../../../data/empresa';
 
@@ -14,12 +15,16 @@ export default function Devoluciones() {
       <p>
         Tienes derecho a desistir de la compra en un plazo de <strong>14 días naturales</strong> desde que
         recibes el producto, sin necesidad de justificación. Para ejercerlo, comunícanoslo de forma inequívoca
-        (por email o teléfono) antes de que finalice ese plazo.
+        antes de que finalice ese plazo. Basta con que la comunicación salga dentro del plazo.
       </p>
 
       <h2>2. Cómo solicitar la devolución</h2>
       <ol>
-        <li>Escríbenos a <Dato valor={EMPRESA.email} /> o llama al {EMPRESA.telefono} indicando tu número de pedido.</li>
+        <li>
+          Desde la web, en <Link to="/legal/desistir">Desistir del contrato</Link>, o escribiéndonos a{' '}
+          <Dato valor={EMPRESA.email} /> o llamando al {EMPRESA.telefono} con tu número de pedido. Si lo
+          prefieres, puedes usar el modelo de formulario del final de esta página, aunque no es obligatorio.
+        </li>
         <li>Te confirmaremos la dirección y la forma de envío de la devolución.</li>
         <li>Devuelve el producto en buen estado, a ser posible con su embalaje original.</li>
       </ol>
@@ -58,6 +63,28 @@ export default function Devoluciones() {
         de la entrega. Cualquier incidencia con productos frescos debe comunicarse de forma inmediata para poder
         gestionarla correctamente.
       </p>
+
+      {/* Modelo del Anexo B del RDL 1/2007. Hay que ofrecerlo (art. 97.1.i y
+          art. 102); el texto es el oficial, solo se rellenan los datos del titular. */}
+      <h2>7. Modelo de formulario de desistimiento</h2>
+      <p className="text-sm text-stone-500">
+        Sólo debe cumplimentar y enviar el presente formulario si desea desistir del contrato.
+      </p>
+      <div className="border border-stone-300 bg-white px-5 py-4 text-sm">
+        <p>
+          A la atención de <Dato valor={EMPRESA.titular} />, <Dato valor={EMPRESA.domicilio} />,{' '}
+          <Dato valor={EMPRESA.email} />:
+        </p>
+        <ul>
+          <li>Por la presente le comunico/comunicamos (*) que desisto de mi/desistimos de nuestro (*) contrato de venta del siguiente bien/prestación del siguiente servicio (*):</li>
+          <li>Pedido el/recibido el (*):</li>
+          <li>Nombre del consumidor o de los consumidores:</li>
+          <li>Domicilio del consumidor o de los consumidores:</li>
+          <li>Firma del consumidor o de los consumidores (solo si el presente formulario se presenta en papel):</li>
+          <li>Fecha:</li>
+        </ul>
+        <p className="mb-0">(*) Táchese lo que no proceda.</p>
+      </div>
     </LegalLayout>
   );
 }

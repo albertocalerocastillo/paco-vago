@@ -70,12 +70,12 @@ export default function GestionDesistimientos({ onPendientes }) {
         </div>
       ) : (
         <div className="grid gap-4 2xl:grid-cols-2 items-start">
-          {lista.map(d => {
+          {lista.map((d, i) => {
             const limite = new Date(new Date(d.creado_en).getTime() + 14 * DIA);
             const quedan = Math.ceil((limite - Date.now()) / DIA);
             const pendiente = d.estado === 'recibido';
             return (
-              <article key={d.id} className={`bg-white border rounded-lg p-4 sm:p-5 ${pendiente ? 'border-amber-500' : 'border-stone-200'}`}>
+              <article key={d.id} style={{ animationDelay: `${Math.min(i, 6) * 50}ms` }} className={`animate-entrar bg-white border rounded-lg p-4 sm:p-5 ${pendiente ? 'border-amber-500' : 'border-stone-200'}`}>
                 <div className="flex flex-wrap items-center gap-3 mb-3">
                   <span className="font-bold text-lg tracking-wide">{d.referencia}</span>
                   <span className="text-sm text-stone-400">{fecha(d.creado_en)}</span>
@@ -91,7 +91,7 @@ export default function GestionDesistimientos({ onPendientes }) {
                     <p className="text-stone-500 break-all">{d.email}</p>
                     <a
                       href={`mailto:${d.email}?subject=${encodeURIComponent(`Tu devolución ${d.referencia} · Paco Vago`)}`}
-                      className="mt-2 h-11 px-4 inline-flex items-center gap-2 rounded-lg border border-stone-300 text-sm text-stone-700 hover:border-amber-700 hover:text-amber-700 transition-colors"
+                      className="mt-2 h-11 px-4 inline-flex items-center gap-2 rounded-lg border border-stone-300 text-sm text-stone-700 hover:border-amber-700 hover:text-amber-700 transition active:scale-95"
                     >
                       <ExternalLink size={16} /> Contestar por email
                     </a>
@@ -117,7 +117,7 @@ export default function GestionDesistimientos({ onPendientes }) {
                   {pendiente ? (
                     <button
                       onClick={() => marcar(d, true)}
-                      className="w-full sm:w-auto h-12 px-6 inline-flex items-center justify-center gap-2 rounded-lg bg-stone-900 hover:bg-amber-700 text-stone-50 font-semibold transition-colors"
+                      className="w-full sm:w-auto h-12 px-6 inline-flex items-center justify-center gap-2 rounded-lg bg-stone-900 hover:bg-amber-700 text-stone-50 font-semibold transition active:scale-[0.97]"
                     >
                       <Check size={16} /> Marcar como tramitado
                     </button>

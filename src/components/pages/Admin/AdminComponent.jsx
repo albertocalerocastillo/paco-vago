@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { supabase } from '../../../lib/supabase';
 import { useAuth } from '../../../hooks/useAuth';
 import { useSeo } from '../../../hooks/useSeo';
@@ -119,17 +119,19 @@ function Panel({ sesion }) {
   const [pendientes, setPendientes] = useState({ pedidos: 0, desistimientos: 0 });
   const salir = () => supabase.auth.signOut();
 
-  const contar = (clave) => (n) => setPendientes(p => (p[clave] === n ? p : { ...p, [clave]: n }));
+  const contar = useCallback(
+    (clave) => (n) => setPendientes(p => (p[clave] === n ? p : { ...p, [clave]: n })),
+    []
+  );
+  const contarPedidos = useMemo(() => contar('pedidos'), [contar]);
+  const contarDesistimientos = useMemo(() => contar('desistimientos'), [contar]);
 
-  const Burbuja = ({ n }) =>
-    n > 0 ? (
-      <span className="min-w-5 h-5 px-1.5 rounded-full bg-amber-600 text-white text-xs font-sans font-bold leading-5 text-center">
-        {n}
-      </span>
-    ) : null;
+  // Al volver a una sección, su contenido entra con un fundido (la clase se
+  // quita al ocultarla y se vuelve a poner al mostrarla: la animación se repite).
+  const seccion = (id) => ({ hidden: pantalla !== id, className: pantalla === id ? 'animate-entrar' : '' });
 
   return (
-    <div className="min-h-screen bg-stone-100 text-stone-900 font-serif pb-20 md:pb-0">
+    <div className="panel-gestion min-h-screen bg-stone-100 text-stone-900 font-serif pb-20 md:pb-0">
       <header className="bg-stone-900 text-stone-50 sticky top-0 z-30">
         <div className="max-w-6xl 2xl:max-w-[88rem] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
           <span className="font-bold text-lg shrink-0">Paco Vago <span className="text-stone-400 font-normal">· Panel</span></span>
@@ -141,7 +143,7 @@ function Panel({ sesion }) {
                 key={id}
                 onClick={() => setPantalla(id)}
                 aria-current={pantalla === id ? 'page' : undefined}
-                className={`h-full px-4 flex items-center gap-2 border-b-2 transition-colors ${
+                className={`h-full px-4 flex items-center gap-2 border-b-2 transition-colors duration-200 active:opacity-70 ${
                   pantalla === id
                     ? 'border-amber-400 text-amber-400'
                     : 'border-transparent text-stone-300 hover:text-stone-50'
@@ -158,7 +160,7 @@ function Panel({ sesion }) {
             <span className="text-stone-400 hidden lg:inline truncate max-w-56">{sesion.user.email}</span>
             <button
               onClick={salir}
-              className="flex items-center gap-1.5 px-2 py-2 -mr-2 text-stone-300 hover:text-amber-400 transition-colors"
+              className="flex items-center gap-1.5 px-2 py-2 -mr-2 text-stone-300 hover:text-amber-400 active:scale-95 transition"
             >
               <LogOut size={18} />
               <span className="hidden sm:inline">Salir</span>
@@ -168,20 +170,20 @@ function Panel({ sesion }) {
       </header>
 
       <main className="max-w-6xl 2xl:max-w-[88rem] mx-auto px-4 sm:px-6 py-6 sm:py-10">
-        <div hidden={pantalla !== 'pedidos'}>
+        <div {...seccion('pedidos')}>
           <Titulo texto="Pedidos" ayuda="Prepara los pedidos pagados y márcalos como enviados." />
-          <GestionPedidos onPendientes={contar('pedidos')} />
+          <GestionPedidos onPendientes={contarPedidos} />
         </div>
-        <div hidden={pantalla !== 'productos'}>
+        <div {...seccion('productos')}>
           <Titulo texto="Productos" ayuda="Toca un producto para cambiar su precio, foto o si se ve en la web." />
           <GestionProductos />
         </div>
-        <div hidden={pantalla !== 'desistimientos'}>
+        <div {...seccion('desistimientos')}>
           <Titulo
             texto="Devoluciones"
             ayuda="Clientes que han desistido de una compra. Contéstales y devuélveles el dinero en 14 días como máximo."
           />
-          <GestionDesistimientos onPendientes={contar('desistimientos')} />
+          <GestionDesistimientos onPendientes={contarDesistimientos} />
         </div>
       </main>
 
@@ -192,12 +194,18 @@ function Panel({ sesion }) {
             key={id}
             onClick={() => { setPantalla(id); window.scrollTo(0, 0); }}
             aria-current={pantalla === id ? 'page' : undefined}
-            className={`relative h-16 flex flex-col items-center justify-center gap-1 text-xs transition-colors ${
+            className={`relative h-16 flex flex-col items-center justify-center gap-1 text-xs transition-colors duration-200 active:bg-stone-800 ${
               pantalla === id ? 'text-amber-400' : 'hover:text-stone-50'
             }`}
           >
             <span className="relative">
-              <Icono size={22} />
+              {/* Pastilla detrás del icono activo, que crece al elegirlo */}
+              <span
+                className={`absolute -inset-x-3 -inset-y-1 rounded-full bg-amber-400/15 transition-all duration-300 ease-[var(--ease-suave)] ${
+                  pantalla === id ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
+                }`}
+              />
+              <Icono size={22} className={`relative transition-transform duration-300 ${pantalla === id ? '-translate-y-0.5' : ''}`} />
               <span className="absolute -top-2 left-4">
                 <Burbuja n={pendientes[id] || 0} />
               </span>
@@ -207,6 +215,19 @@ function Panel({ sesion }) {
         ))}
       </nav>
     </div>
+  );
+}
+
+/** Numerito naranja de pendientes. Da un saltito cada vez que cambia. */
+function Burbuja({ n }) {
+  if (!(n > 0)) return null;
+  return (
+    <span
+      key={n}
+      className="inline-block animate-pop min-w-5 h-5 px-1.5 rounded-full bg-amber-600 text-white text-xs font-sans font-bold leading-5 text-center"
+    >
+      {n}
+    </span>
   );
 }
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../../../lib/supabase';
 import { Check, Phone, Copy, RefreshCw, MessageCircle } from '../../../theme/icons';
 import { formatoPrecio } from '../../../utils/formato';
@@ -47,6 +47,10 @@ export default function GestionPedidos({ onPendientes }) {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
   const [vista, setVista] = useState('preparar');
+  const [saliendo, setSaliendo] = useState(null); // id del pedido que se está yendo de la lista
+  const [aviso, setAviso] = useState(null); // { texto, deshacer }
+  const temporizador = useRef(null);
+  const avisosRef = useRef(0); // para que cada aviso nuevo se anime aunque el texto se repita
 
   const cargar = useCallback(async () => {
     const { data, error } = await supabase
@@ -81,6 +85,34 @@ export default function GestionPedidos({ onPendientes }) {
     setPedidos(lista => lista.map(p => (p.id === pedido.id ? { ...p, ...cambios } : p)));
   };
 
+  // Avisito abajo con "Deshacer", por si se pulsó sin querer. Se va solo.
+  const avisar = (texto, deshacer) => {
+    clearTimeout(temporizador.current);
+    avisosRef.current += 1;
+    setAviso({ texto, deshacer, id: avisosRef.current });
+    temporizador.current = setTimeout(() => setAviso(null), 10000);
+  };
+  useEffect(() => () => clearTimeout(temporizador.current), []);
+
+  const marcarEnviado = (p) => {
+    const antes = { estado: p.estado, enviado_en: p.enviado_en };
+    const hecho = async () => {
+      setSaliendo(null);
+      await cambiarEstado(p, { estado: 'enviado', enviado_en: new Date().toISOString() });
+      avisar(
+        `${p.referencia} marcado como ${esRepartoLocal(p.direccion?.cp) ? 'entregado' : 'enviado'}`,
+        () => { setAviso(null); cambiarEstado(p, antes); }
+      );
+    };
+    // En "Por preparar" el pedido se va de la lista: primero se le ve irse.
+    if (vista === 'preparar') {
+      setSaliendo(p.id);
+      setTimeout(hecho, 300);
+    } else {
+      hecho();
+    }
+  };
+
   const filtro = VISTAS.find(v => v.id === vista);
   const visibles = filtro?.estados
     ? pedidos.filter(p => filtro.estados.includes(p.estado))
@@ -103,7 +135,7 @@ export default function GestionPedidos({ onPendientes }) {
             <button
               key={v.id}
               onClick={() => setVista(v.id)}
-              className={`h-10 px-2 sm:px-5 rounded-md text-sm flex items-center justify-center gap-1.5 transition-colors ${
+              className={`h-10 px-2 sm:px-5 rounded-md text-sm flex items-center justify-center gap-1.5 transition duration-200 active:scale-95 ${
                 vista === v.id ? 'bg-stone-900 text-stone-50' : 'text-stone-600 hover:bg-stone-100'
               }`}
             >
@@ -125,28 +157,49 @@ export default function GestionPedidos({ onPendientes }) {
           onClick={() => { setCargando(true); cargar(); }}
           aria-label="Actualizar la lista"
           title="Actualizar"
-          className="w-12 shrink-0 flex items-center justify-center bg-white border border-stone-300 rounded-lg text-stone-600 hover:border-amber-700 hover:text-amber-700 transition-colors"
+          className="group w-12 shrink-0 flex items-center justify-center bg-white border border-stone-300 rounded-lg text-stone-600 hover:border-amber-700 hover:text-amber-700 transition active:scale-90"
         >
-          <RefreshCw size={18} />
+          <RefreshCw size={18} className="transition-transform duration-500 group-active:rotate-180" />
         </button>
       </div>
 
       {visibles.length === 0 ? (
-        <div className="bg-white border border-stone-200 rounded-lg p-8 text-center text-stone-500">
+        <div key={vista} className="animate-entrar bg-white border border-stone-200 rounded-lg p-8 text-center text-stone-500">
           {vista === 'preparar'
             ? '✓ No hay pedidos pendientes de preparar. Todo al día.'
             : 'No hay pedidos en esta lista.'}
         </div>
       ) : (
-        <div className="grid gap-4 2xl:grid-cols-2 items-start">
-          {visibles.map(p => (
+        <div key={vista} className="grid gap-4 2xl:grid-cols-2 items-start">
+          {visibles.map((p, i) => (
             <Pedido
               key={p.id}
               pedido={p}
-              onEnviado={() => cambiarEstado(p, { estado: 'enviado', enviado_en: new Date().toISOString() })}
+              retraso={Math.min(i, 6) * 50}
+              saliendo={saliendo === p.id}
+              onEnviado={() => marcarEnviado(p)}
               onDeshacer={() => cambiarEstado(p, { estado: 'pagado', enviado_en: null })}
             />
           ))}
+        </div>
+      )}
+
+      {aviso && (
+        <div
+          key={aviso.id}
+          role="status"
+          className="animate-aviso fixed z-40 left-4 right-4 bottom-20 md:bottom-6 md:left-auto md:right-6 md:w-96 bg-stone-900 text-stone-50 rounded-xl shadow-2xl px-4 py-3 flex items-center gap-3"
+        >
+          <Check size={18} className="text-green-400 shrink-0" />
+          <span className="flex-1 text-sm">{aviso.texto}</span>
+          {aviso.deshacer && (
+            <button
+              onClick={aviso.deshacer}
+              className="h-9 px-3 rounded-lg text-amber-400 font-semibold text-sm hover:bg-stone-800 active:scale-95 transition"
+            >
+              Deshacer
+            </button>
+          )}
         </div>
       )}
     </div>
@@ -154,7 +207,7 @@ export default function GestionPedidos({ onPendientes }) {
 }
 
 /* ── Un pedido ────────────────────────────────────────────── */
-function Pedido({ pedido: p, onEnviado, onDeshacer }) {
+function Pedido({ pedido: p, onEnviado, onDeshacer, retraso = 0, saliendo = false }) {
   const [copiado, setCopiado] = useState(false);
   const etiqueta = ETIQUETA[p.estado] || ETIQUETA.pendiente;
   const d = p.direccion || {};
@@ -180,10 +233,15 @@ function Pedido({ pedido: p, onEnviado, onDeshacer }) {
   };
 
   const botonContacto =
-    'flex-1 sm:flex-none h-11 px-4 inline-flex items-center justify-center gap-2 rounded-lg border border-stone-300 text-sm text-stone-700 hover:border-amber-700 hover:text-amber-700 transition-colors';
+    'flex-1 sm:flex-none h-11 px-4 inline-flex items-center justify-center gap-2 rounded-lg border border-stone-300 text-sm text-stone-700 hover:border-amber-700 hover:text-amber-700 transition active:scale-95';
 
   return (
-    <article className={`bg-white border rounded-lg overflow-hidden ${p.estado === 'revisar' ? 'border-red-400' : 'border-stone-200'}`}>
+    <article
+      style={{ animationDelay: saliendo ? '0ms' : `${retraso}ms` }}
+      className={`bg-white border rounded-lg overflow-hidden ${saliendo ? 'animate-irse pointer-events-none' : 'animate-entrar'} ${
+        p.estado === 'revisar' ? 'border-red-400' : 'border-stone-200'
+      }`}
+    >
       {/* Cabecera */}
       <div className="px-4 sm:px-5 pt-4 flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
         <div className="min-w-0">
@@ -251,7 +309,7 @@ function Pedido({ pedido: p, onEnviado, onDeshacer }) {
               </a>
             )}
             <button onClick={copiar} className={botonContacto}>
-              {copiado ? <Check size={16} /> : <Copy size={16} />}
+              {copiado ? <Check size={16} className="animate-pop text-green-700" /> : <Copy size={16} />}
               {copiado ? 'Copiada' : 'Copiar dirección'}
             </button>
           </div>
@@ -301,7 +359,7 @@ function Pedido({ pedido: p, onEnviado, onDeshacer }) {
           ) : (
             <button
               onClick={onEnviado}
-              className="w-full sm:w-auto h-12 px-6 inline-flex items-center justify-center gap-2 rounded-lg bg-stone-900 hover:bg-amber-700 text-stone-50 font-semibold transition-colors"
+              className="w-full sm:w-auto h-12 px-6 inline-flex items-center justify-center gap-2 rounded-lg bg-stone-900 hover:bg-amber-700 text-stone-50 font-semibold transition active:scale-[0.97]"
             >
               <Check size={18} /> {local ? 'Marcar como entregado' : 'Marcar como enviado'}
             </button>

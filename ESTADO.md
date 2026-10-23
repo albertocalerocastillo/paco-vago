@@ -826,3 +826,12 @@ Pensado para el móvil del tío (y bien en tablet, portátil y pantalla grande):
 - **Modo demo para revisar el diseño:** `npm run demo` → http://localhost:5174/admin.
   Supabase de mentira (`demo/supabase-demo.js`): entra sin contraseña, pedidos inventados,
   productos leídos de la web en solo lectura, nada se guarda. No va en la web publicada.
+
+**Movimiento en el panel (23/10/2026):** animaciones cortas definidas en `theme.css`
+(`animate-entrar`, `subir-hoja`/`bajar-hoja`, `zoom-entrar`/`zoom-salir`, `pop`, `irse`,
+`aviso`). Secciones con fundido al cambiar; listas en cascada; la ficha sube desde abajo
+en el móvil y hace zoom en escritorio, y SALE animada (la `Ventana` avisa con `onCerrado`
+al terminar; se cierra desde fuera con `controlRef`); efecto al pulsar en botones y
+tarjetas; contadores con saltito. Al marcar un pedido como enviado, se va de la lista y
+sale un aviso con **Deshacer** (10 s) que lo devuelve a su estado anterior. Con "reducir
+movimiento" activado en el móvil, todo se queda quieto (clase `panel-gestion`).

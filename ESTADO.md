@@ -769,3 +769,25 @@ cabeceras de seguridad están ahora en `public/_headers` (Cloudflare).
 - **Pendiente antes de anunciar:** compra real de prueba (AOVE 1 L, 15 €) + reembolso;
   app de Stripe en el móvil del tío para avisos de pedidos; su usuario en /admin;
   horario de invierno; productos nuevos (gildas, etc.).
+
+## ✉️ CORREOS ACTIVOS (23/10/2026)
+
+Resend (cuenta de Alberto, albertocctrabajo), dominio `pacovago.es` verificado (región
+Irlanda, registros DNS puestos en Cloudflare con "Auto configure"). Clave con permiso
+**solo de envío** y solo para pacovago.es, en el secreto `RESEND_API_KEY` del Worker.
+Remitente `avisos@pacovago.es`. Código en `servidor/correo.js`:
+- **Cada pedido pagado** → correo a pacovagopuertasevilla@gmail.com con lo comprado,
+  total y dirección (reply-to = cliente). Solo tras guardar: un aviso repetido de Stripe
+  no manda dos correos.
+- **Cada desistimiento** → acuse al cliente (exigencia legal) + copia a la tienda.
+- Si el correo falla, el pedido se guarda igual (solo se apunta en el log).
+Probado de verdad: llegaron los 2 correos de un desistimiento de prueba (ya borrado).
+
+**Productos nuevos subidos** con `scripts/subir-producto.js` (foto + fila de una vez):
+9 gildas/banderillas (Lopyleo, El Menú, Lotamar), pepinillos rellenos y un licor
+(Begemot, con botón de WhatsApp a propósito: alcohol = falta casilla +18 y saber si la
+paquetería lo admite). Aceite 5 L subido a 35 €. Horario de invierno puesto.
+
+⚠️ **PENDIENTE IMPORTANTE:** las gildas, banderillas y pepinillos son SEMICONSERVA
+("mantener entre 0 y 7 °C"). Un envío normal de 2-5 días sin frío no vale. Decidir con
+el tío: quitarles el "Comprar" (dejar WhatsApp) o enviarlas refrigeradas/urgentes.

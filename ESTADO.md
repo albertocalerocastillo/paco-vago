@@ -706,3 +706,14 @@ activan los recibos por email en Stripe (en modo real). No abrir sin activarlos.
 `SITIO_URL=https://pacovago.es`, cambiar `paco-vago.vercel.app` por `pacovago.es` en el
 código (empresa.js, index.html, useSeo, sitemap, robots) y dar de alta el dominio en
 Search Console.
+
+## 🚚 PORTES NUEVOS (23/10/2026, decididos por el tío: "2 y C")
+
+- Primer tramo **hasta 5 kg: 6,50 €** (antes 7,50). Resto igual: 12 / 18 / 25 €.
+- **Envío gratis desde 100 € de productos si el pedido pesa MENOS de 10 kg.** El límite
+  de peso evita regalar portes de 18-25 € en garrafas. Con el catálogo actual (solo AOVE,
+  ~8,5 €/kg) casi nunca se da; está pensado para gildas, conservas, licores…
+- `src/data/envios.js` (`ENVIO_GRATIS`, `tieneEnvioGratis`, `faltaParaEnvioGratis`).
+  Se calcula en céntimos y el servidor lo recalcula con su propio subtotal.
+- El carrito avisa "te faltan X € para el envío gratis". Condiciones actualizadas.
+- Probado en Cloudflare: AOVE 1 L → 8,50 + 6,50 = 15 €.

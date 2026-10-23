@@ -61,7 +61,7 @@ export default function Condiciones() {
       <h2>5. Envíos y plazos</h2>
       <ul>
         <li><strong>Zona de envío:</strong> <Dato valor="Península. Los envíos a Baleares y Canarias se preparan bajo presupuesto: consúltanos antes por WhatsApp o email y te confirmamos el coste del transporte" />.</li>
-        <li><strong>Gastos de envío:</strong> <Dato valor="Según el peso del pedido: hasta 5 kg, 7,50 €; hasta 10 kg, 12 €; hasta 15 kg, 18 €; más de 15 kg, 25 €. IVA incluido. Baleares y Canarias, bajo presupuesto" />.</li>
+        <li><strong>Gastos de envío:</strong> <Dato valor="Según el peso del pedido: hasta 5 kg, 6,50 €; hasta 10 kg, 12 €; hasta 15 kg, 18 €; más de 15 kg, 25 €. IVA incluido. Envío gratis en pedidos desde 100 € de productos que pesen menos de 10 kg. Baleares y Canarias, bajo presupuesto" />.</li>
         <li><strong>Plazo de entrega estimado:</strong> <Dato valor="Entre 2 y 5 días laborables en península desde la confirmación del pedido. Si algún producto tarda más, te avisamos" />.</li>
       </ul>
       <p>

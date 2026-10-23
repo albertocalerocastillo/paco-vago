@@ -4,7 +4,7 @@ import { useCarrito } from '../../../hooks/useCarrito';
 import { useSeo } from '../../../hooks/useSeo';
 import { whatsappLink } from '../../../data/contacto';
 import { formatoPrecio } from '../../../utils/formato';
-import { formatoPeso, ZONAS_SIN_VENTA_ONLINE } from '../../../data/envios';
+import { formatoPeso, ZONAS_SIN_VENTA_ONLINE, ENVIO_GRATIS } from '../../../data/envios';
 import { imagen, ANCHOS } from '../../../utils/imagenes';
 import DatosDeEnvio from './DatosDeEnvio';
 import TiendaHeader from '../Tienda/TiendaHeader';
@@ -20,14 +20,14 @@ export default function CarritoComponent() {
   // nada como resultado de busqueda.
   useSeo({ ruta: '/tienda/carrito', titulo: 'Tu carrito | Paco Vago', noindex: true });
 
-  const { items, cambiarCantidad, quitar, vaciar, subtotal, pesoTotal, pesoDesconocido, porte, total } = useCarrito();
+  const { items, cambiarCantidad, quitar, vaciar, subtotal, pesoTotal, pesoDesconocido, porte, total, faltaGratis } = useCarrito();
 
   const mensajePedido = () => {
     const lineas = items.map(
       x => `• ${x.cantidad} x ${x.nombre}${x.precio ? ` (${formatoPrecio(x.precio)})` : ''}`
     );
     const envio = porte != null
-      ? `Envío (${formatoPeso(pesoTotal)}): ${formatoPrecio(porte)}`
+      ? `Envío (${formatoPeso(pesoTotal)}): ${porte === 0 ? 'gratis' : formatoPrecio(porte)}`
       : 'Envío: a confirmar';
     return (
       `Hola, quiero hacer este pedido en Paco Vago:\n${lineas.join('\n')}\n\n` +
@@ -114,11 +114,19 @@ export default function CarritoComponent() {
                   )}
                 </span>
                 <span>
-                  {porte != null
-                    ? formatoPrecio(porte)
-                    : <span className="text-stone-400 text-sm">a confirmar</span>}
+                  {porte === 0
+                    ? <span className="text-green-700 font-semibold">Gratis</span>
+                    : porte != null
+                      ? formatoPrecio(porte)
+                      : <span className="text-stone-400 text-sm">a confirmar</span>}
                 </span>
               </div>
+
+              {faltaGratis != null && (
+                <p className="text-sm text-green-800 bg-green-50 border-l-4 border-green-600 px-3 py-2">
+                  Te faltan <strong>{formatoPrecio(faltaGratis)}</strong> para el envío gratis.
+                </p>
+              )}
 
               <div className="flex items-center justify-between pt-3 border-t border-stone-200">
                 <span className="text-lg">Total</span>
@@ -128,6 +136,7 @@ export default function CarritoComponent() {
 
             <p className="text-xs text-stone-500 mt-3">
               Gastos de envío a península, IVA incluido, calculados por el peso del pedido.
+              Envío gratis desde {formatoPrecio(ENVIO_GRATIS.desdeEuros)} en pedidos de menos de {ENVIO_GRATIS.menosDeKg} kg.
               Para {ZONAS_SIN_VENTA_ONLINE.join(', ')} escríbenos y te presupuestamos el envío.
             </p>
 

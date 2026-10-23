@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { calcularPorte } from '../data/envios';
+import { calcularPorte, faltaParaEnvioGratis } from '../data/envios';
 
 /**
  * Carrito de la tienda. Estado global (Context) que se guarda en localStorage,
@@ -58,14 +58,15 @@ export function CarritoProvider({ children }) {
   // sin él. En ese caso no inventamos un porte: se avisa y se pide por WhatsApp.
   const pesoDesconocido = items.some(x => !(Number(x.peso) > 0));
   const pesoTotal = items.reduce((s, x) => s + (Number(x.peso) || 0) * x.cantidad, 0);
-  const porte = pesoDesconocido ? null : calcularPorte(pesoTotal);
+  const porte = pesoDesconocido ? null : calcularPorte(pesoTotal, subtotal);
   const total = subtotal + (porte ?? 0);
+  const faltaGratis = pesoDesconocido ? null : faltaParaEnvioGratis(pesoTotal, subtotal);
 
   return (
     <CarritoContext.Provider
       value={{
         items, añadir, cambiarCantidad, quitar, vaciar,
-        cantidadTotal, subtotal, pesoTotal, pesoDesconocido, porte, total,
+        cantidadTotal, subtotal, pesoTotal, pesoDesconocido, porte, total, faltaGratis,
         abierto, abrirCarrito, cerrarCarrito,
       }}
     >

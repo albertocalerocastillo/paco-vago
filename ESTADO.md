@@ -731,3 +731,17 @@ automáticas semanales (lunes), Radar Lite, sin Stripe Tax ni Climate. Métodos:
 Apple Pay, Google Pay, Link; **Bizum "aprobación pendiente"** (si no está aprobado al
 abrir, quitar "o Bizum" del botón y de Condiciones). Recibos por email activados; soporte
 pacovagopuertasevilla@gmail.com, dirección pública la de la tienda.
+
+## 💳 COBRO REAL ACTIVADO (23/10/2026)
+
+- Supabase limpio: borrados los 5 pedidos y 5 desistimientos de prueba.
+- Webhook REAL en Stripe "Pedidos pacovago.es" → `https://pacovago.es/api/stripe-webhook`,
+  eventos `checkout.session.completed` y `checkout.session.async_payment_succeeded`.
+- `STRIPE_SECRET_KEY` (sk_live) y `STRIPE_WEBHOOK_SECRET` del webhook real metidos por
+  Alberto con `npx wrangler secret put` (no están en ningún fichero). Comprobado: la web
+  crea sesiones `cs_live_` y rechaza firmas falsas.
+- El `.env` local sigue con las claves de PRUEBA (para `npm run cf`). El webhook de prueba
+  (workers.dev) ya no casa con el secreto del Worker: si se quiere probar en remoto con
+  modo prueba, hay que usar `npm run cf` en local.
+- **Siguiente:** compra real de prueba (AOVE 1 L, 15 €) → comprobar pedido en /admin y
+  email de recibo → reembolsarla desde Stripe.

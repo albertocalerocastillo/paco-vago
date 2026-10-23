@@ -69,7 +69,7 @@ export default function VisitanosComponent() {
                 <div className="flex items-center gap-3 mb-4 flex-wrap">
                   <h3 className="text-sm font-bold uppercase tracking-wider">Horario semanal</h3>
                   <span className="text-xs bg-amber-500/20 text-amber-300 px-3 py-1 rounded-full">
-                    ☀️ {TEMPORADA}
+                    {TEMPORADA.includes('invierno') ? '❄️' : '☀️'} {TEMPORADA}
                   </span>
                 </div>
                 <HorariosGrid />

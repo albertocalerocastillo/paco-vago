@@ -25,6 +25,24 @@ export {
   Truck
 } from 'lucide-react';
 
+// Iconos del panel de gestión (lucide-react)
+export {
+  Package,
+  Store,
+  Undo2,
+  LogOut,
+  RefreshCw,
+  Search,
+  ChevronUp,
+  ChevronDown,
+  Pencil,
+  Copy,
+  ImagePlus,
+  ExternalLink,
+  EyeOff,
+  MessageCircle
+} from 'lucide-react';
+
 // Iconos de categorías de producto (lucide-react)
 export {
   Wheat,

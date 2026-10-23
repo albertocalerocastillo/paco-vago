@@ -7,7 +7,8 @@
  * Recuerda actualizar también los tramos al cambiar de temporada.
  */
 // Invierno desde el 23/10/2026 (lo confirmó el titular): tardes 17:30-20:30,
-// media hora antes que en verano (18:00-21:00). Mañanas y sábado, igual.
+// media hora antes que en verano (18:00-21:00). Sábado de 9:30 a 14:00
+// (confirmado el 23/10/2026; antes ponía 10:00).
 export const TEMPORADA = 'Horario de invierno';
 
 export const HORARIOS_SEMANA = [
@@ -44,7 +45,7 @@ export const HORARIOS_SEMANA = [
   {
     dia: 'Sábado',
     short: 'Sáb',
-    morning:   { open: '10:00', close: '14:00' },
+    morning:   { open: '9:30',  close: '14:00' },
     afternoon: null
   },
   {

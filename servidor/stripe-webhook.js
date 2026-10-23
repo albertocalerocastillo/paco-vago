@@ -1,6 +1,7 @@
 import { zonaFueraDePeninsula } from '../src/data/envios.js';
 import { json } from './http.js';
 import { verificarAvisoStripe, lineasCobradas, supabaseRest } from './ligero.js';
+import { enviarCorreo, correoPedido, CORREO_TIENDA } from './correo.js';
 
 /**
  * Aviso de Stripe cuando un pago se completa. Aquí es donde un pedido existe
@@ -160,6 +161,12 @@ export default async function stripeWebhook(request, env) {
     }
 
     console.log('Pedido guardado:', pedido.referencia, pedido.total, 'EUR', pedido.estado);
+
+    // Aviso a la tienda. Solo aquí, tras guardar: un aviso repetido de Stripe
+    // sale antes por el 23505 y no manda un segundo correo del mismo pedido.
+    const aviso = correoPedido(pedido);
+    await enviarCorreo(env, { para: CORREO_TIENDA, ...aviso, responderA: pedido.email });
+
     return json({ recibido: true, referencia: pedido.referencia });
   } catch (e) {
     console.error('Error procesando el pago', m.referencia, e.message);

@@ -20,5 +20,14 @@
     // SITIO_URL (a dónde vuelve el cliente tras pagar) se pone al desplegar, con
     // la dirección real: primero la de workers.dev, luego https://pacovago.es.
   },
+  // Dominio propio (comprado el 23/10/2026, titular el tío, DNS en Cloudflare).
+  // Cloudflare crea solo los registros DNS y el certificado de cada uno.
+  "routes": [
+    { "pattern": "pacovago.es", "custom_domain": true },
+    { "pattern": "www.pacovago.es", "custom_domain": true }
+  ],
+  // La dirección de prueba *.workers.dev sigue viva mientras dure el cambio
+  // (el webhook de Stripe en modo prueba apunta ahí).
+  "workers_dev": true,
   "observability": { "enabled": true }
 }

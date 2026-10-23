@@ -648,7 +648,7 @@ http://localhost:8787 con las variables del `.env`). Para el webhook:
 `DESTINO_WEBHOOK=http://localhost:8787/api/stripe-webhook node scripts/probar-webhook.js`.
 (`vercel dev` ya no hace falta.)
 
-**DESPLEGADO DE PRUEBA (19/10/2026): https://paco-vago.paco-vago.workers.dev**, con las
+**DESPLEGADO DE PRUEBA (19/10/2026): https://paco-vago.albertocalero.workers.dev**, con las
 claves de PRUEBA de Stripe. Cuenta de Cloudflare de Alberto (login con Google). Comprobado
 ahí: páginas, cabeceras, catálogo desde Supabase, cobro de prueba con el precio recalculado
 en el servidor y Canarias rechazado. Para volver a desplegar: `npm run build` y
@@ -671,7 +671,7 @@ en el servidor y Canarias rechazado. Para volver a desplegar: `npm run build` y
    `useSeo`, sitemap, robots) y el webhook de Stripe.
 
 **Prueba completa en Cloudflare (19/10/2026):** webhook de Stripe en MODO PRUEBA creado
-apuntando a `https://paco-vago.paco-vago.workers.dev/api/stripe-webhook` (su clave está en
+apuntando a `https://paco-vago.albertocalero.workers.dev/api/stripe-webhook` (su clave está en
 los secretos del Worker). Pedido de punta a punta desde el navegador: carrito → datos →
 Stripe → gracias → Stripe avisa solo → pedido guardado como pagado (PV-YVDQ3EAH, 24 €).
 

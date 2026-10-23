@@ -835,3 +835,10 @@ al terminar; se cierra desde fuera con `controlRef`); efecto al pulsar en botone
 tarjetas; contadores con saltito. Al marcar un pedido como enviado, se va de la lista y
 sale un aviso con **Deshacer** (10 s) que lo devuelve a su estado anterior. Con "reducir
 movimiento" activado en el móvil, todo se queda quieto (clase `panel-gestion`).
+
+⚠️ **Trampa (23/10/2026):** un `position: fixed` dentro de un bloque con animación de
+`transform` deja de ser fijo a la pantalla. Las secciones del panel entran con
+`animate-entrar` (desplaza 10 px) y la ficha de producto se abría arriba del todo: al
+bajar por la lista y tocar un producto, pantalla en blanco. Arreglado pintando la
+`Ventana` y el aviso de "Deshacer" en `<body>` con `createPortal`. Cualquier cosa fija
+nueva del panel, igual.

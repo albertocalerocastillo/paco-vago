@@ -5,6 +5,7 @@ import { useSeo } from '../../../hooks/useSeo';
 import GestionProductos from './GestionProductos';
 import GestionPedidos from './GestionPedidos';
 import GestionDesistimientos from './GestionDesistimientos';
+import { Package, Store, Undo2, LogOut } from '../../../theme/icons';
 
 /**
  * Panel de administración (/admin).
@@ -97,75 +98,123 @@ function Login() {
 }
 
 /* ── Zona privada ─────────────────────────────────────────── */
+const SECCIONES = [
+  { id: 'pedidos', texto: 'Pedidos', Icono: Package },
+  { id: 'productos', texto: 'Productos', Icono: Store },
+  { id: 'desistimientos', texto: 'Devoluciones', Icono: Undo2 },
+];
+
+/**
+ * Pensado para usarse sobre todo desde el MÓVIL, por alguien que no es
+ * informático. En el móvil la navegación va abajo (al alcance del pulgar),
+ * como en cualquier app; en pantallas grandes, arriba.
+ *
+ * Las tres secciones se quedan montadas (solo se ocultan) para no perder lo que
+ * se estaba haciendo al cambiar de una a otra, y para que los números de
+ * pendientes de la navegación estén siempre al día.
+ */
 function Panel({ sesion }) {
-  // Arranca en Pedidos: es lo que hay que mirar cada día. El catálogo se toca
-  // de vez en cuando, los pedidos entran solos.
+  // Arranca en Pedidos: es lo que hay que mirar cada día.
   const [pantalla, setPantalla] = useState('pedidos');
+  const [pendientes, setPendientes] = useState({ pedidos: 0, desistimientos: 0 });
   const salir = () => supabase.auth.signOut();
 
-  const pestana = (id, texto) => (
-    <button
-      onClick={() => setPantalla(id)}
-      className={`px-4 py-3 uppercase text-sm tracking-widest transition-colors ${
-        pantalla === id
-          ? 'text-amber-400 border-b-2 border-amber-400'
-          : 'text-stone-300 hover:text-stone-50 border-b-2 border-transparent'
-      }`}
-    >
-      {texto}
-    </button>
-  );
+  const contar = (clave) => (n) => setPendientes(p => (p[clave] === n ? p : { ...p, [clave]: n }));
+
+  const Burbuja = ({ n }) =>
+    n > 0 ? (
+      <span className="min-w-5 h-5 px-1.5 rounded-full bg-amber-600 text-white text-xs font-sans font-bold leading-5 text-center">
+        {n}
+      </span>
+    ) : null;
 
   return (
-    <div className="min-h-screen bg-stone-100 text-stone-900 font-serif">
-      <header className="bg-stone-900 text-stone-50">
-        <div className="px-6 py-4 flex items-center justify-between">
-          <span className="font-bold">Paco Vago · Panel</span>
-          <div className="flex items-center gap-4 text-sm">
-            <span className="text-stone-300 hidden sm:inline">{sesion.user.email}</span>
-            <button onClick={salir} className="hover:text-amber-400 uppercase tracking-widest transition-colors">
-              Salir
+    <div className="min-h-screen bg-stone-100 text-stone-900 font-serif pb-20 md:pb-0">
+      <header className="bg-stone-900 text-stone-50 sticky top-0 z-30">
+        <div className="max-w-6xl 2xl:max-w-[88rem] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
+          <span className="font-bold text-lg shrink-0">Paco Vago <span className="text-stone-400 font-normal">· Panel</span></span>
+
+          {/* Navegación de escritorio */}
+          <nav className="hidden md:flex items-center gap-1 h-full">
+            {SECCIONES.map(({ id, texto, Icono }) => (
+              <button
+                key={id}
+                onClick={() => setPantalla(id)}
+                aria-current={pantalla === id ? 'page' : undefined}
+                className={`h-full px-4 flex items-center gap-2 border-b-2 transition-colors ${
+                  pantalla === id
+                    ? 'border-amber-400 text-amber-400'
+                    : 'border-transparent text-stone-300 hover:text-stone-50'
+                }`}
+              >
+                <Icono size={18} />
+                {texto}
+                <Burbuja n={pendientes[id] || 0} />
+              </button>
+            ))}
+          </nav>
+
+          <div className="flex items-center gap-3 text-sm shrink-0">
+            <span className="text-stone-400 hidden lg:inline truncate max-w-56">{sesion.user.email}</span>
+            <button
+              onClick={salir}
+              className="flex items-center gap-1.5 px-2 py-2 -mr-2 text-stone-300 hover:text-amber-400 transition-colors"
+            >
+              <LogOut size={18} />
+              <span className="hidden sm:inline">Salir</span>
             </button>
           </div>
         </div>
-        <nav className="px-6 flex gap-2 overflow-x-auto">
-          {pestana('pedidos', 'Pedidos')}
-          {pestana('desistimientos', 'Desistimientos')}
-          {pestana('productos', 'Productos')}
-        </nav>
       </header>
 
-      <main className="max-w-4xl mx-auto px-6 py-12">
-        {pantalla === 'pedidos' ? (
-          <>
-            <h1 className="text-3xl font-bold mb-2">Pedidos</h1>
-            <p className="text-stone-600 mb-8">
-              Los pedidos que entran por la tienda online. Prepara los que están por preparar y
-              márcalos como enviados para no perderles la pista.
-            </p>
-            <GestionPedidos />
-          </>
-        ) : pantalla === 'desistimientos' ? (
-          <>
-            <h1 className="text-3xl font-bold mb-2">Desistimientos</h1>
-            <p className="text-stone-600 mb-8">
-              Clientes que han desistido de una compra desde la web. Contéstales por email para
-              confirmar que lo has recibido y cómo devolver el producto, y reembolsa el importe
-              (con el porte de ida) en un máximo de 14 días desde que llegó.
-            </p>
-            <GestionDesistimientos />
-          </>
-        ) : (
-          <>
-            <h1 className="text-3xl font-bold mb-2">Productos</h1>
-            <p className="text-stone-600 mb-8">
-              Edita el nombre, la descripción o si un producto se muestra en la web. Los cambios
-              se guardan al instante y aparecen en la tienda.
-            </p>
-            <GestionProductos />
-          </>
-        )}
+      <main className="max-w-6xl 2xl:max-w-[88rem] mx-auto px-4 sm:px-6 py-6 sm:py-10">
+        <div hidden={pantalla !== 'pedidos'}>
+          <Titulo texto="Pedidos" ayuda="Prepara los pedidos pagados y márcalos como enviados." />
+          <GestionPedidos onPendientes={contar('pedidos')} />
+        </div>
+        <div hidden={pantalla !== 'productos'}>
+          <Titulo texto="Productos" ayuda="Toca un producto para cambiar su precio, foto o si se ve en la web." />
+          <GestionProductos />
+        </div>
+        <div hidden={pantalla !== 'desistimientos'}>
+          <Titulo
+            texto="Devoluciones"
+            ayuda="Clientes que han desistido de una compra. Contéstales y devuélveles el dinero en 14 días como máximo."
+          />
+          <GestionDesistimientos onPendientes={contar('desistimientos')} />
+        </div>
       </main>
+
+      {/* Navegación del móvil: abajo, al alcance del pulgar */}
+      <nav className="md:hidden fixed bottom-0 inset-x-0 z-30 bg-stone-900 text-stone-300 grid grid-cols-3 pb-[env(safe-area-inset-bottom)]">
+        {SECCIONES.map(({ id, texto, Icono }) => (
+          <button
+            key={id}
+            onClick={() => { setPantalla(id); window.scrollTo(0, 0); }}
+            aria-current={pantalla === id ? 'page' : undefined}
+            className={`relative h-16 flex flex-col items-center justify-center gap-1 text-xs transition-colors ${
+              pantalla === id ? 'text-amber-400' : 'hover:text-stone-50'
+            }`}
+          >
+            <span className="relative">
+              <Icono size={22} />
+              <span className="absolute -top-2 left-4">
+                <Burbuja n={pendientes[id] || 0} />
+              </span>
+            </span>
+            {texto}
+          </button>
+        ))}
+      </nav>
+    </div>
+  );
+}
+
+function Titulo({ texto, ayuda }) {
+  return (
+    <div className="mb-5 sm:mb-8">
+      <h1 className="text-2xl sm:text-3xl font-bold">{texto}</h1>
+      <p className="text-stone-500 text-sm sm:text-base mt-1">{ayuda}</p>
     </div>
   );
 }

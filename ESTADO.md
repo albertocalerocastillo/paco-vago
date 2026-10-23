@@ -811,3 +811,18 @@ Panel: la línea de envío dice "Reparto en Carmona · Gratis".
 **Prueba de pago REAL hecha (23/10/2026):** PV-ZEN5BBQY, AOVE 1 L, 8,50 € con Apple Pay,
 reparto en Carmona. OK: pedido en el panel, correo "Nuevo pedido" al tío, recibo de Stripe
 al cliente. Pendiente: reembolsarlo desde Stripe (la comisión, ~0,38 €, no se recupera).
+
+## 📱 PANEL REDISEÑADO (23/10/2026)
+
+Pensado para el móvil del tío (y bien en tablet, portátil y pantalla grande):
+- Navegación **abajo en el móvil** (Pedidos · Productos · Devoluciones, con contadores de
+  pendientes) y arriba en pantallas grandes. Las 3 secciones quedan montadas al cambiar.
+- **Pedidos:** botones grandes de **Llamar**, **WhatsApp** y Copiar dirección; "Marcar
+  como entregado" en los de Carmona.
+- **Productos:** lista de tarjetas (foto, precio, "Se vende online / Solo WhatsApp /
+  Oculto"); al tocar, ficha a pantalla completa (ventana centrada en escritorio) con cajas
+  grandes. **Precio y peso aceptan coma** (9,95). Interruptor "Se ve en la web", subir/
+  bajar posición y borrar dentro de la ficha. Categorías también en ventana.
+- **Modo demo para revisar el diseño:** `npm run demo` → http://localhost:5174/admin.
+  Supabase de mentira (`demo/supabase-demo.js`): entra sin contraseña, pedidos inventados,
+  productos leídos de la web en solo lectura, nada se guarda. No va en la web publicada.

@@ -1,21 +1,46 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../../lib/supabase';
 import { imagen, ANCHOS } from '../../../utils/imagenes';
+import { formatoPrecio } from '../../../utils/formato';
+import { X, Plus, Search, ChevronUp, ChevronDown, Pencil, ImagePlus, EyeOff, Trash2 } from '../../../theme/icons';
 
 // Minúsculas + sin acentos, para buscar "atun" y que encuentre "atún".
 const normaliza = (s) => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
+// "9,95" o "9.95" → 9.95 · "" → null · algo que no es número → NaN
+const leerDecimal = (txt) => {
+  const t = String(txt ?? '').trim().replace(',', '.');
+  if (t === '') return null;
+  const n = Number(t);
+  return Number.isFinite(n) && n >= 0 ? n : NaN;
+};
+// 9.95 → "9,95" para enseñarlo como se escribe en España
+const escribirDecimal = (n) => (n == null ? '' : String(n).replace('.', ','));
+
+const ordenar = (lista) => lista.slice().sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0));
+
+/** En qué situación está un producto en la web, para enseñarlo de un vistazo. */
+function situacion(p) {
+  if (!p.disponible) return { texto: 'Oculto', clase: 'bg-stone-100 text-stone-500 border-stone-300' };
+  if (p.precio != null && Number(p.peso) > 0) return { texto: 'Se vende online', clase: 'bg-green-50 text-green-800 border-green-300' };
+  return { texto: 'Solo WhatsApp', clase: 'bg-amber-50 text-amber-800 border-amber-300' };
+}
+
 /**
- * Gestión de productos del panel de admin (2c.2 + 2c.3 + orden).
- * Lista las categorías con sus productos y permite editar, crear, borrar y
- * reordenar (flechas ▲▼), guardando cada cambio en Supabase.
+ * Gestión de productos del panel (/admin).
+ *
+ * Pensada para el MÓVIL y para alguien que no es informático: una lista clara
+ * (foto, nombre, precio y si se vende o no) y, al tocar un producto, una ficha
+ * a pantalla completa con cajas grandes. Antes cada producto era un formulario
+ * abierto y en el móvil no se podía ni pulsar "Guardar".
  */
 export default function GestionProductos() {
   const [categorias, setCategorias] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
-  const [migrando, setMigrando] = useState(null); // null | { hechas, total, errores, done }
   const [busqueda, setBusqueda] = useState('');
+  // Qué hay abierto: { tipo: 'producto', producto, catId } | { tipo: 'nuevo', catId } | { tipo: 'categoria', catId }
+  const [abierto, setAbierto] = useState(null);
 
   useEffect(() => {
     (async () => {
@@ -30,184 +55,115 @@ export default function GestionProductos() {
     })();
   }, []);
 
-  const añadirProducto = (catId, nuevo) =>
-    setCategorias(cats =>
-      cats.map(c => (c.id === catId ? { ...c, productos: [...(c.productos || []), nuevo] } : c))
-    );
+  // ── Cambios en el estado local tras guardar en Supabase ──────
+  const cambiarProductos = (catId, fn) =>
+    setCategorias(cats => cats.map(c => (c.id === catId ? { ...c, productos: fn(c.productos || []) } : c)));
 
-  const quitarProducto = (catId, prodId) =>
-    setCategorias(cats =>
-      cats.map(c =>
-        c.id === catId ? { ...c, productos: (c.productos || []).filter(p => p.id !== prodId) } : c
-      )
-    );
-
-  const actualizarCategoria = (catId, campos) =>
+  const productoGuardado = (catId, id, campos) =>
+    cambiarProductos(catId, ps => ps.map(p => (p.id === id ? { ...p, ...campos } : p)));
+  const productoCreado = (catId, nuevo) => cambiarProductos(catId, ps => [...ps, nuevo]);
+  const productoBorrado = (catId, id) => cambiarProductos(catId, ps => ps.filter(p => p.id !== id));
+  const categoriaGuardada = (catId, campos) =>
     setCategorias(cats => cats.map(c => (c.id === catId ? { ...c, ...campos } : c)));
 
   // Intercambia el orden de un producto con su vecino (dir: -1 sube, +1 baja)
   const moverProducto = async (catId, prodId, dir) => {
     const cat = categorias.find(c => c.id === catId);
-    if (!cat) return;
-    const orden = (cat.productos || []).slice().sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0));
-    const i = orden.findIndex(p => p.id === prodId);
+    const lista = ordenar(cat?.productos || []);
+    const i = lista.findIndex(p => p.id === prodId);
     const j = i + dir;
-    if (i < 0 || j < 0 || j >= orden.length) return;
+    if (i < 0 || j < 0 || j >= lista.length) return;
+    const [a, b] = [lista[i], lista[j]];
+    const [ordenA, ordenB] = [a.orden ?? i, b.orden ?? j];
 
-    const a = orden[i];
-    const b = orden[j];
-    const ordenA = a.orden ?? i;
-    const ordenB = b.orden ?? j;
-
-    // Optimista: reflejamos el cambio en local ya
-    setCategorias(cats =>
-      cats.map(c =>
-        c.id !== catId
-          ? c
-          : {
-              ...c,
-              productos: c.productos.map(p =>
-                p.id === a.id ? { ...p, orden: ordenB } : p.id === b.id ? { ...p, orden: ordenA } : p
-              ),
-            }
-      )
+    cambiarProductos(catId, ps =>
+      ps.map(p => (p.id === a.id ? { ...p, orden: ordenB } : p.id === b.id ? { ...p, orden: ordenA } : p))
     );
-
     const [r1, r2] = await Promise.all([
       supabase.from('productos').update({ orden: ordenB }).eq('id', a.id),
       supabase.from('productos').update({ orden: ordenA }).eq('id', b.id),
     ]);
-    if (r1.error || r2.error) window.alert('Error al reordenar. Recarga la página.');
+    if (r1.error || r2.error) window.alert('No se ha podido cambiar el orden. Recarga la página.');
   };
 
-  // Intercambia el orden de una categoría con su vecina (dir: -1 sube, +1 baja)
+  // Intercambia el orden de una categoría con su vecina
   const moverCategoria = async (catId, dir) => {
-    const orden = categorias.slice().sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0));
-    const i = orden.findIndex(c => c.id === catId);
+    const lista = ordenar(categorias);
+    const i = lista.findIndex(c => c.id === catId);
     const j = i + dir;
-    if (i < 0 || j < 0 || j >= orden.length) return;
-
-    const a = orden[i];
-    const b = orden[j];
-    const ordenA = a.orden ?? i;
-    const ordenB = b.orden ?? j;
+    if (i < 0 || j < 0 || j >= lista.length) return;
+    const [a, b] = [lista[i], lista[j]];
+    const [ordenA, ordenB] = [a.orden ?? i, b.orden ?? j];
 
     setCategorias(cats =>
-      cats.map(c =>
-        c.id === a.id ? { ...c, orden: ordenB } : c.id === b.id ? { ...c, orden: ordenA } : c
-      )
+      cats.map(c => (c.id === a.id ? { ...c, orden: ordenB } : c.id === b.id ? { ...c, orden: ordenA } : c))
     );
-
     const [r1, r2] = await Promise.all([
       supabase.from('categorias').update({ orden: ordenB }).eq('id', a.id),
       supabase.from('categorias').update({ orden: ordenA }).eq('id', b.id),
     ]);
-    if (r1.error || r2.error) window.alert('Error al reordenar categorías. Recarga la página.');
+    if (r1.error || r2.error) window.alert('No se ha podido cambiar el orden. Recarga la página.');
   };
 
-  // Salta a la sección de una categoría
   const irA = (catId) => {
-    const el = document.getElementById(`cat-${catId}`);
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
-
-  // Migra (una sola vez) las fotos que aún viven en /fotos/ a Supabase Storage.
-  const migrarFotos = async () => {
-    const pendientes = [];
-    categorias.forEach(c =>
-      (c.productos || []).forEach(p => {
-        if (p.foto && p.foto.startsWith('/fotos/')) pendientes.push({ catId: c.id, p });
-      })
-    );
-    if (pendientes.length === 0) {
-      window.alert('No hay fotos antiguas que migrar. Todo está ya en Storage.');
-      return;
-    }
-    if (!window.confirm(`Se migrarán ${pendientes.length} fotos a Storage. ¿Continuar?`)) return;
-
-    let hechas = 0;
-    let errores = 0;
-    setMigrando({ hechas, total: pendientes.length, errores, done: false });
-
-    for (const { catId, p } of pendientes) {
-      try {
-        const resp = await fetch(p.foto);
-        if (!resp.ok) throw new Error('imagen no encontrada');
-        const blob = await resp.blob();
-        const ext = (p.foto.split('.').pop() || 'jpg').toLowerCase();
-        const ruta = `mig-${p.id}-${Date.now()}.${ext}`;
-
-        const { error: upErr } = await supabase.storage
-          .from('productos')
-          .upload(ruta, blob, { cacheControl: '3600', upsert: false, contentType: blob.type || undefined });
-        if (upErr) throw upErr;
-
-        const { data } = supabase.storage.from('productos').getPublicUrl(ruta);
-        const { error: dbErr } = await supabase.from('productos').update({ foto: data.publicUrl }).eq('id', p.id);
-        if (dbErr) throw dbErr;
-
-        setCategorias(cats =>
-          cats.map(c =>
-            c.id === catId
-              ? { ...c, productos: c.productos.map(x => (x.id === p.id ? { ...x, foto: data.publicUrl } : x)) }
-              : c
-          )
-        );
-        hechas++;
-      } catch {
-        errores++;
-      }
-      setMigrando({ hechas, total: pendientes.length, errores, done: false });
-    }
-    setMigrando({ hechas, total: pendientes.length, errores, done: true });
+    document.getElementById(`cat-${catId}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   if (cargando) return <p className="text-stone-500">Cargando productos…</p>;
   if (error) return <p className="text-red-700">Error al cargar: {error}</p>;
 
-  const cats = categorias.slice().sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0));
-
-  // ¿Quedan fotos antiguas (/fotos/) sin migrar? Solo entonces tiene sentido Mantenimiento.
-  const hayFotosAntiguas = categorias.some(c =>
-    (c.productos || []).some(p => p.foto && p.foto.startsWith('/fotos/'))
-  );
-
-  // Búsqueda: filtra productos por nombre/descripción (sin acentos)
+  const cats = ordenar(categorias);
   const q = normaliza(busqueda.trim());
   const buscando = q.length > 0;
   const coincide = (p) => normaliza(`${p.nombre || ''} ${p.descripcion || ''}`).includes(q);
   const catsVisibles = buscando ? cats.filter(c => (c.productos || []).some(coincide)) : cats;
 
+  const todos = cats.flatMap(c => c.productos || []);
+  const enVenta = todos.filter(p => situacion(p).texto === 'Se vende online').length;
+
+  // Datos frescos del producto abierto (por si cambió el orden detrás)
+  const catAbierta = abierto && cats.find(c => c.id === abierto.catId);
+  const prodAbierto =
+    abierto?.tipo === 'producto' && (catAbierta?.productos || []).find(p => p.id === abierto.producto.id);
+  const listaAbierta = catAbierta ? ordenar(catAbierta.productos || []) : [];
+  const posAbierta = prodAbierto ? listaAbierta.findIndex(p => p.id === prodAbierto.id) : -1;
+
   return (
     <div>
-      {/* Zona fija: buscador + índice de categorías */}
-      <div className="sticky top-0 z-20 -mx-6 px-6 py-3 mb-8 bg-stone-100/95 backdrop-blur border-b border-stone-200 space-y-3">
+      {/* Resumen + buscador + índice (fijo bajo la cabecera) */}
+      <p className="text-sm text-stone-500 -mt-3 mb-3">
+        {todos.length} productos · <span className="text-green-800">{enVenta} se venden online</span>
+      </p>
+
+      <div className="sticky top-14 z-20 -mx-4 sm:-mx-6 px-4 sm:px-6 py-3 mb-6 bg-stone-100/95 backdrop-blur border-b border-stone-200 space-y-3">
         <div className="relative">
+          <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 pointer-events-none" />
           <input
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
             placeholder="Buscar producto…"
-            className="w-full border border-stone-300 px-3 py-2 pr-8 focus:outline-none focus:border-amber-700"
+            className="w-full h-12 rounded-lg border border-stone-300 bg-white pl-10 pr-10 text-base focus:outline-none focus:border-amber-700"
           />
           {buscando && (
             <button
               onClick={() => setBusqueda('')}
-              aria-label="Limpiar búsqueda"
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700"
+              aria-label="Borrar la búsqueda"
+              className="absolute right-1 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-stone-400 hover:text-stone-700"
             >
-              ✕
+              <X size={18} />
             </button>
           )}
         </div>
         {!buscando && (
-          <nav className="flex gap-2 overflow-x-auto [scrollbar-width:thin]">
+          <nav className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:thin]">
             {cats.map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => irA(cat.id)}
-                className="shrink-0 text-sm px-3 py-1 rounded-full bg-white border border-stone-300 text-stone-700 hover:border-amber-700 hover:text-amber-700 whitespace-nowrap transition-colors"
+                className="shrink-0 h-9 px-4 rounded-full bg-white border border-stone-300 text-sm text-stone-700 hover:border-amber-700 hover:text-amber-700 whitespace-nowrap transition-colors"
               >
                 {cat.titulo}
+                <span className="text-stone-400 ml-1.5">{(cat.productos || []).length}</span>
               </button>
             ))}
           </nav>
@@ -219,406 +175,355 @@ export default function GestionProductos() {
       )}
 
       <div className="space-y-10">
-        {catsVisibles.map((cat, i) => (
-          <CategoriaSeccion
-            key={cat.id}
-            categoria={cat}
-            busqueda={buscando ? q : ''}
-            coincide={coincide}
-            esPrimera={i === 0}
-            esUltima={i === catsVisibles.length - 1}
-            onCreado={(nuevo) => añadirProducto(cat.id, nuevo)}
-            onBorrado={(prodId) => quitarProducto(cat.id, prodId)}
-            onMover={(prodId, dir) => moverProducto(cat.id, prodId, dir)}
-            onActualizada={(campos) => actualizarCategoria(cat.id, campos)}
-            onMoverCategoria={(dir) => moverCategoria(cat.id, dir)}
-          />
-        ))}
+        {catsVisibles.map((cat) => {
+          const productos = ordenar(cat.productos || []);
+          const visibles = buscando ? productos.filter(coincide) : productos;
+          return (
+            <section key={cat.id} id={`cat-${cat.id}`} className="scroll-mt-44">
+              <div className="flex flex-wrap items-end justify-between gap-3 border-b border-stone-300 pb-2 mb-4">
+                <h2 className="text-xl sm:text-2xl font-bold">
+                  {cat.titulo}
+                  <span className="text-stone-400 text-sm font-normal ml-2">
+                    {buscando ? `${visibles.length} de ${productos.length}` : `${productos.length} ${productos.length === 1 ? 'producto' : 'productos'}`}
+                  </span>
+                </h2>
+                {!buscando && (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setAbierto({ tipo: 'categoria', catId: cat.id })}
+                      className="h-10 px-3 inline-flex items-center gap-1.5 rounded-lg text-sm text-stone-600 hover:bg-stone-200 transition-colors"
+                    >
+                      <Pencil size={16} /> Categoría
+                    </button>
+                    <button
+                      onClick={() => setAbierto({ tipo: 'nuevo', catId: cat.id })}
+                      className="h-10 px-4 inline-flex items-center gap-1.5 rounded-lg bg-amber-700 hover:bg-amber-800 text-white text-sm font-semibold transition-colors"
+                    >
+                      <Plus size={16} /> Añadir
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {visibles.length === 0 ? (
+                <p className="text-stone-400 text-sm italic">Sin productos todavía.</p>
+              ) : (
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+                  {visibles.map((p) => (
+                    <TarjetaProducto
+                      key={p.id}
+                      producto={p}
+                      onAbrir={() => setAbierto({ tipo: 'producto', producto: p, catId: cat.id })}
+                    />
+                  ))}
+                </div>
+              )}
+            </section>
+          );
+        })}
       </div>
 
-      {/* Mantenimiento: solo si quedan fotos antiguas por migrar (o mientras se migran) */}
-      {(hayFotosAntiguas || migrando) && (
-      <div className="mt-16 pt-6 border-t border-stone-200">
-        <h3 className="text-sm font-bold text-stone-500 uppercase tracking-wider mb-2">Mantenimiento</h3>
-        <p className="text-sm text-stone-500 mb-3">
-          Pasa las fotos antiguas (las que están en <code>/fotos/</code>) al almacenamiento de
-          Supabase. Es una tarea de una sola vez; las fotos nuevas ya van directas a Storage.
-        </p>
-        <button
-          onClick={migrarFotos}
-          disabled={migrando && !migrando.done}
-          className="border border-stone-400 hover:border-amber-700 hover:text-amber-700 disabled:opacity-40 text-stone-700 px-4 py-1.5 text-sm uppercase tracking-wider transition-colors"
-        >
-          {migrando && !migrando.done ? 'Migrando…' : 'Migrar fotos antiguas a Storage'}
-        </button>
-        {migrando && !migrando.done && (
-          <p className="text-sm mt-2 text-stone-600">Migrando {migrando.hechas} de {migrando.total}…</p>
-        )}
-        {migrando && migrando.done && (
-          <div className="text-sm mt-2 text-stone-600 flex items-center gap-3 flex-wrap">
-            <span>
-              Listo: {migrando.hechas} migradas{migrando.errores ? `, ${migrando.errores} con error` : ''}.
-              Recarga para ver todo uniforme.
-            </span>
-            <button
-              onClick={() => window.location.reload()}
-              className="border border-stone-400 hover:border-amber-700 hover:text-amber-700 text-stone-700 px-3 py-1 text-xs uppercase tracking-wider transition-colors"
-            >
-              Recargar
-            </button>
-          </div>
-        )}
-      </div>
+      {/* ── Ventanas ─────────────────────────────────────────── */}
+      {prodAbierto && (
+        <EditorProducto
+          key={prodAbierto.id}
+          producto={prodAbierto}
+          posicion={{ actual: posAbierta + 1, total: listaAbierta.length }}
+          onMover={(dir) => moverProducto(abierto.catId, prodAbierto.id, dir)}
+          onGuardado={(campos) => productoGuardado(abierto.catId, prodAbierto.id, campos)}
+          onBorrado={() => { productoBorrado(abierto.catId, prodAbierto.id); setAbierto(null); }}
+          onCerrar={() => setAbierto(null)}
+        />
+      )}
+      {abierto?.tipo === 'nuevo' && catAbierta && (
+        <EditorProducto
+          categoria={catAbierta}
+          onCreado={(nuevo) => { productoCreado(catAbierta.id, nuevo); setAbierto(null); }}
+          onCerrar={() => setAbierto(null)}
+        />
+      )}
+      {abierto?.tipo === 'categoria' && catAbierta && (
+        <EditorCategoria
+          categoria={catAbierta}
+          posicion={{ actual: cats.findIndex(c => c.id === catAbierta.id) + 1, total: cats.length }}
+          onMover={(dir) => moverCategoria(catAbierta.id, dir)}
+          onGuardado={(campos) => { categoriaGuardada(catAbierta.id, campos); setAbierto(null); }}
+          onCerrar={() => setAbierto(null)}
+        />
       )}
     </div>
   );
 }
 
-/* ── Sección de una categoría (cabecera + alta + lista) ───── */
-function CategoriaSeccion({ categoria, busqueda, coincide, esPrimera, esUltima, onCreado, onBorrado, onMover, onActualizada, onMoverCategoria }) {
-  const [añadiendo, setAñadiendo] = useState(false);
-  const [editando, setEditando] = useState(false);
-  const buscando = !!busqueda;
-  const productos = (categoria.productos || []).slice().sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0));
-  const visibles = buscando ? productos.filter(coincide) : productos;
-
+/* ── Tarjeta de la lista ──────────────────────────────────── */
+function TarjetaProducto({ producto: p, onAbrir }) {
+  const sit = situacion(p);
   return (
-    <section id={`cat-${categoria.id}`} className="scroll-mt-24">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3 border-b border-stone-300 pb-2 mb-4">
-        <h2 className="text-xl font-bold flex items-center gap-2 min-w-0">
-          {!buscando && (
-            <span className="flex flex-col shrink-0 leading-none">
-              <button
-                onClick={() => onMoverCategoria(-1)}
-                disabled={esPrimera}
-                aria-label="Subir categoría"
-                className="text-base sm:text-xs leading-none px-1 text-stone-400 hover:text-amber-700 disabled:opacity-30 disabled:hover:text-stone-400"
-              >
-                ▲
-              </button>
-              <button
-                onClick={() => onMoverCategoria(1)}
-                disabled={esUltima}
-                aria-label="Bajar categoría"
-                className="text-base sm:text-xs leading-none px-1 text-stone-400 hover:text-amber-700 disabled:opacity-30 disabled:hover:text-stone-400"
-              >
-                ▼
-              </button>
-            </span>
-          )}
-          <span>{categoria.titulo}</span>
-          <span className="text-stone-400 text-sm font-normal shrink-0">
-            {' · '}{buscando ? `${visibles.length} de ${productos.length}` : `${productos.length} productos`}
-          </span>
-        </h2>
-        {!buscando && (
-          <div className="flex items-center gap-4 shrink-0">
-            <button
-              onClick={() => setEditando(e => !e)}
-              className="text-stone-500 hover:text-stone-800 text-sm font-semibold transition-colors"
-            >
-              {editando ? 'Cancelar' : 'Editar'}
-            </button>
-            <button
-              onClick={() => setAñadiendo(a => !a)}
-              className="text-amber-700 hover:text-amber-800 text-sm font-semibold transition-colors"
-            >
-              {añadiendo ? 'Cancelar' : '+ Añadir producto'}
-            </button>
-          </div>
-        )}
-      </div>
-
-      {!buscando && editando && (
-        <CategoriaEditor
-          categoria={categoria}
-          onGuardado={(campos) => { onActualizada(campos); setEditando(false); }}
+    <button
+      onClick={onAbrir}
+      className={`text-left bg-white border border-stone-200 rounded-lg p-3 flex gap-3 items-center hover:border-amber-700 hover:shadow-sm transition ${
+        p.disponible ? '' : 'opacity-60'
+      }`}
+    >
+      {p.foto ? (
+        <img
+          src={imagen(p.foto, ANCHOS.miniatura)}
+          alt=""
+          loading="lazy"
+          className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-md shrink-0 bg-stone-100"
         />
-      )}
-
-      {!buscando && añadiendo && (
-        <NuevoProducto
-          categoria={categoria}
-          onCreado={(nuevo) => { onCreado(nuevo); setAñadiendo(false); }}
-        />
-      )}
-
-      {visibles.length === 0 ? (
-        <p className="text-stone-400 text-sm italic">Sin productos todavía.</p>
       ) : (
-        <div className="space-y-4">
-          {visibles.map((p, i) => (
-            <ProductoFila
-              key={p.id}
-              producto={p}
-              mostrarOrden={!buscando}
-              esPrimero={i === 0}
-              esUltimo={i === visibles.length - 1}
-              onBorrado={() => onBorrado(p.id)}
-              onMover={(dir) => onMover(p.id, dir)}
-            />
-          ))}
+        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-md shrink-0 bg-stone-100 flex items-center justify-center text-stone-400">
+          <ImagePlus size={22} />
         </div>
       )}
-    </section>
+      <div className="min-w-0 flex-1">
+        <p className="font-semibold leading-snug line-clamp-2">{p.nombre}</p>
+        <p className="text-lg font-bold mt-0.5">
+          {p.precio != null ? formatoPrecio(p.precio) : <span className="text-stone-400 text-sm font-normal">Sin precio</span>}
+        </p>
+        <span className={`inline-flex items-center gap-1 text-xs border rounded px-1.5 py-0.5 mt-1 ${sit.clase}`}>
+          {!p.disponible && <EyeOff size={12} />}
+          {sit.texto}
+        </span>
+      </div>
+      <Pencil size={18} className="text-stone-300 shrink-0 self-start" />
+    </button>
   );
 }
 
-/* ── Fila editable de un producto ─────────────────────────── */
-function ProductoFila({ producto, mostrarOrden = true, esPrimero, esUltimo, onBorrado, onMover }) {
-  const [nombre, setNombre] = useState(producto.nombre || '');
-  const [descripcion, setDescripcion] = useState(producto.descripcion || '');
-  const [foto, setFoto] = useState(producto.foto || '');
-  const [precio, setPrecio] = useState(producto.precio != null ? String(producto.precio) : '');
-  const [peso, setPeso] = useState(producto.peso != null ? String(producto.peso) : '');
-  const [disponible, setDisponible] = useState(producto.disponible);
+/* ── Ventana: a pantalla completa en el móvil, centrada en escritorio ── */
+function Ventana({ titulo, onCerrar, pie, children }) {
+  // Cierra con Escape y no deja que se mueva la página de detrás
+  useEffect(() => {
+    const tecla = (e) => e.key === 'Escape' && onCerrar();
+    window.addEventListener('keydown', tecla);
+    const antes = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', tecla);
+      document.body.style.overflow = antes;
+    };
+  }, [onCerrar]);
+
+  return (
+    <div className="fixed inset-0 z-50 flex sm:items-center sm:justify-center sm:p-6" role="dialog" aria-modal="true" aria-label={titulo}>
+      <div className="absolute inset-0 bg-stone-900/50 hidden sm:block" onClick={onCerrar} />
+      <div className="relative bg-white w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-2xl sm:rounded-xl shadow-xl flex flex-col">
+        <div className="h-14 shrink-0 px-4 sm:px-6 flex items-center justify-between border-b border-stone-200">
+          <h2 className="font-bold text-lg truncate">{titulo}</h2>
+          <button
+            onClick={onCerrar}
+            aria-label="Cerrar"
+            className="w-11 h-11 -mr-2 flex items-center justify-center rounded-lg text-stone-500 hover:bg-stone-100"
+          >
+            <X size={22} />
+          </button>
+        </div>
+        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-5">{children}</div>
+        {pie && (
+          <div className="shrink-0 px-4 sm:px-6 py-3 border-t border-stone-200 bg-stone-50 sm:rounded-b-xl pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+            {pie}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+const claseCaja =
+  'w-full h-12 rounded-lg border border-stone-300 px-3 text-base bg-white focus:outline-none focus:border-amber-700 focus:ring-2 focus:ring-amber-700/20';
+
+function Campo({ etiqueta, ayuda, error, children }) {
+  return (
+    <label className="block">
+      <span className="block text-sm font-semibold text-stone-700 mb-1">{etiqueta}</span>
+      {children}
+      {error ? (
+        <span className="block text-sm text-red-700 mt-1">{error}</span>
+      ) : (
+        ayuda && <span className="block text-xs text-stone-500 mt-1">{ayuda}</span>
+      )}
+    </label>
+  );
+}
+
+/* ── Editar o crear un producto ───────────────────────────── */
+function EditorProducto({ producto, categoria, posicion, onMover, onGuardado, onCreado, onBorrado, onCerrar }) {
+  const nuevo = !producto;
+  const inicial = {
+    nombre: producto?.nombre || '',
+    descripcion: producto?.descripcion || '',
+    foto: producto?.foto || '',
+    precio: escribirDecimal(producto?.precio),
+    peso: escribirDecimal(producto?.peso),
+    disponible: producto ? producto.disponible : true,
+  };
+  const [f, setF] = useState(inicial);
   const [estado, setEstado] = useState('idle'); // idle | guardando | guardado | error
+  const [errorTexto, setErrorTexto] = useState(null);
   const [borrando, setBorrando] = useState(false);
 
-  const precioNum = precio.trim() === '' || Number.isNaN(Number(precio)) ? null : Number(precio);
-  const pesoNum = peso.trim() === '' || Number.isNaN(Number(peso)) ? null : Number(peso);
+  const set = (campo) => (e) => setF(x => ({ ...x, [campo]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }));
 
-  const modificado =
-    nombre !== (producto.nombre || '') ||
-    descripcion !== (producto.descripcion || '') ||
-    foto !== (producto.foto || '') ||
-    precioNum !== (producto.precio ?? null) ||
-    pesoNum !== (producto.peso ?? null) ||
-    disponible !== producto.disponible;
+  const precio = leerDecimal(f.precio);
+  const peso = leerDecimal(f.peso);
+  const errores = {
+    nombre: f.nombre.trim() ? null : 'Pon un nombre.',
+    precio: Number.isNaN(precio) ? 'Escribe solo el número, por ejemplo 9,95' : null,
+    peso: Number.isNaN(peso) ? 'Escribe solo el número, por ejemplo 0,5' : null,
+  };
+  const hayErrores = Object.values(errores).some(Boolean);
+  const modificado = JSON.stringify(f) !== JSON.stringify(inicial);
+  const seVende = f.disponible && precio != null && !Number.isNaN(precio) && peso > 0;
+
+  const cerrar = () => {
+    if (modificado && estado !== 'guardado' && !window.confirm('Tienes cambios sin guardar. ¿Salir sin guardar?')) return;
+    onCerrar();
+  };
 
   const guardar = async () => {
+    if (hayErrores) return;
     setEstado('guardando');
-    const { error } = await supabase
-      .from('productos')
-      .update({ nombre, descripcion, foto: foto || null, precio: precioNum, peso: pesoNum, disponible })
-      .eq('id', producto.id);
+    setErrorTexto(null);
+    const campos = {
+      nombre: f.nombre.trim(),
+      descripcion: f.descripcion.trim() || null,
+      foto: f.foto || null,
+      precio,
+      peso,
+      disponible: f.disponible,
+    };
 
-    if (error) {
-      setEstado('error');
-    } else {
-      producto.nombre = nombre;
-      producto.descripcion = descripcion;
-      producto.foto = foto;
-      producto.precio = precioNum;
-      producto.peso = pesoNum;
-      producto.disponible = disponible;
-      setEstado('guardado');
-      setTimeout(() => setEstado('idle'), 2000);
+    if (nuevo) {
+      const ordenes = (categoria.productos || []).map(p => p.orden ?? 0);
+      const { data, error } = await supabase
+        .from('productos')
+        .insert({ ...campos, categoria_id: categoria.id, orden: (ordenes.length ? Math.max(...ordenes) : 0) + 1 })
+        .select()
+        .single();
+      if (error) { setEstado('error'); setErrorTexto(error.message); return; }
+      onCreado(data);
+      return;
     }
+
+    const { error } = await supabase.from('productos').update(campos).eq('id', producto.id);
+    if (error) { setEstado('error'); setErrorTexto(error.message); return; }
+    onGuardado(campos);
+    setEstado('guardado');
+    setTimeout(() => onCerrar(), 700);
   };
 
   const borrar = async () => {
-    if (!window.confirm(`¿Borrar "${producto.nombre}"? No se puede deshacer.`)) return;
+    if (!window.confirm(`¿Borrar "${producto.nombre}" para siempre? Si solo quieres que no se vea, quita "Se ve en la web".`)) return;
     setBorrando(true);
     const { error } = await supabase.from('productos').delete().eq('id', producto.id);
     if (error) {
       setBorrando(false);
-      window.alert('Error al borrar: ' + error.message);
-    } else {
-      onBorrado();
-    }
-  };
-
-  return (
-    <div className="bg-white border border-stone-200 p-4 flex gap-3">
-      {/* Flechas de orden (ocultas durante la búsqueda) */}
-      {mostrarOrden && (
-        <div className="flex flex-col justify-center gap-1 shrink-0">
-          <button
-            onClick={() => onMover(-1)}
-            disabled={esPrimero}
-            aria-label="Subir"
-            className="w-7 h-7 flex items-center justify-center border border-stone-300 text-stone-600 hover:border-amber-700 hover:text-amber-700 disabled:opacity-30 disabled:hover:border-stone-300 disabled:hover:text-stone-600 transition-colors"
-          >
-            ▲
-          </button>
-          <button
-            onClick={() => onMover(1)}
-            disabled={esUltimo}
-            aria-label="Bajar"
-            className="w-7 h-7 flex items-center justify-center border border-stone-300 text-stone-600 hover:border-amber-700 hover:text-amber-700 disabled:opacity-30 disabled:hover:border-stone-300 disabled:hover:text-stone-600 transition-colors"
-          >
-            ▼
-          </button>
-        </div>
-      )}
-
-      <SubirFoto foto={foto} onSubida={setFoto} />
-
-      <div className="flex-1 min-w-0">
-        <input
-          value={nombre}
-          onChange={(e) => setNombre(e.target.value)}
-          className="w-full font-semibold border border-stone-300 px-2 py-1 mb-2 focus:outline-none focus:border-amber-700"
-        />
-        <textarea
-          value={descripcion}
-          onChange={(e) => setDescripcion(e.target.value)}
-          rows={2}
-          placeholder="Descripción…"
-          className="w-full text-sm text-stone-600 border border-stone-300 px-2 py-1 resize-y focus:outline-none focus:border-amber-700"
-        />
-
-        <div className="flex items-center gap-2 mt-2 text-sm text-stone-600 flex-wrap">
-          <label htmlFor={`precio-${producto.id}`}>Precio (€):</label>
-          <input
-            id={`precio-${producto.id}`}
-            type="number"
-            step="0.01"
-            min="0"
-            value={precio}
-            onChange={(e) => setPrecio(e.target.value)}
-            placeholder="—"
-            className="w-24 border border-stone-300 px-2 py-1 focus:outline-none focus:border-amber-700"
-          />
-          <label htmlFor={`peso-${producto.id}`}>Peso (kg):</label>
-          <input
-            id={`peso-${producto.id}`}
-            type="number"
-            step="0.1"
-            min="0"
-            value={peso}
-            onChange={(e) => setPeso(e.target.value)}
-            placeholder="—"
-            className="w-24 border border-stone-300 px-2 py-1 focus:outline-none focus:border-amber-700"
-          />
-          <span className="text-stone-400 text-xs w-full">
-            Con precio Y peso se vende por la web. Si falta alguno, sale el botón de WhatsApp.
-            El peso es con la caja puesta, sirve aproximado.
-          </span>
-        </div>
-
-        <div className="flex items-center justify-between mt-2 gap-3 flex-wrap">
-          <label className="flex items-center gap-2 text-sm text-stone-600 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={disponible}
-              onChange={(e) => setDisponible(e.target.checked)}
-            />
-            Disponible (visible en la web)
-          </label>
-
-          <div className="flex items-center gap-3">
-            {estado === 'guardado' && <span className="text-green-700 text-sm">✓ Guardado</span>}
-            {estado === 'error' && <span className="text-red-700 text-sm">Error al guardar</span>}
-            <button
-              onClick={borrar}
-              disabled={borrando}
-              className="text-red-700 hover:text-red-800 disabled:opacity-40 px-3 py-1.5 text-sm uppercase tracking-wider transition-colors"
-            >
-              {borrando ? 'Borrando…' : 'Borrar'}
-            </button>
-            <button
-              onClick={guardar}
-              disabled={!modificado || estado === 'guardando'}
-              className="bg-stone-900 hover:bg-amber-700 disabled:opacity-40 disabled:hover:bg-stone-900 text-stone-50 px-4 py-1.5 text-sm uppercase tracking-wider transition-colors"
-            >
-              {estado === 'guardando' ? 'Guardando…' : 'Guardar'}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ── Formulario para añadir un producto ───────────────────── */
-function NuevoProducto({ categoria, onCreado }) {
-  const [nombre, setNombre] = useState('');
-  const [descripcion, setDescripcion] = useState('');
-  const [foto, setFoto] = useState('');
-  const [precio, setPrecio] = useState('');
-  const [peso, setPeso] = useState('');
-  const [guardando, setGuardando] = useState(false);
-  const [error, setError] = useState(null);
-
-  const crear = async (e) => {
-    e.preventDefault();
-    setGuardando(true);
-    setError(null);
-
-    const ordenes = (categoria.productos || []).map(p => p.orden ?? 0);
-    const orden = (ordenes.length ? Math.max(...ordenes) : 0) + 1;
-
-    const { data, error } = await supabase
-      .from('productos')
-      .insert({
-        categoria_id: categoria.id,
-        nombre,
-        descripcion: descripcion || null,
-        foto: foto || null,
-        precio: precio.trim() === '' || Number.isNaN(Number(precio)) ? null : Number(precio),
-        peso: peso.trim() === '' || Number.isNaN(Number(peso)) ? null : Number(peso),
-        disponible: true,
-        orden,
-      })
-      .select()
-      .single();
-
-    setGuardando(false);
-    if (error) {
-      setError(error.message);
+      window.alert('No se ha podido borrar: ' + error.message);
       return;
     }
-    onCreado(data);
+    onBorrado();
   };
 
-  return (
-    <form onSubmit={crear} className="bg-stone-50 border border-dashed border-stone-300 p-4 space-y-3 mb-4">
-      <input
-        value={nombre}
-        onChange={(e) => setNombre(e.target.value)}
-        required
-        placeholder="Nombre del producto"
-        className="w-full font-semibold border border-stone-300 px-2 py-1 focus:outline-none focus:border-amber-700"
-      />
-      <textarea
-        value={descripcion}
-        onChange={(e) => setDescripcion(e.target.value)}
-        rows={2}
-        placeholder="Descripción (opcional)"
-        className="w-full text-sm text-stone-600 border border-stone-300 px-2 py-1 resize-y focus:outline-none focus:border-amber-700"
-      />
-      <div className="flex items-center gap-2 text-sm text-stone-600 flex-wrap">
-        <label>Precio (€):</label>
-        <input
-          type="number"
-          step="0.01"
-          min="0"
-          value={precio}
-          onChange={(e) => setPrecio(e.target.value)}
-          placeholder="—"
-          className="w-24 border border-stone-300 px-2 py-1 focus:outline-none focus:border-amber-700"
-        />
-        <label>Peso (kg):</label>
-        <input
-          type="number"
-          step="0.1"
-          min="0"
-          value={peso}
-          onChange={(e) => setPeso(e.target.value)}
-          placeholder="—"
-          className="w-24 border border-stone-300 px-2 py-1 focus:outline-none focus:border-amber-700"
-        />
-        <span className="text-stone-400 text-xs w-full">
-          Los dos son opcionales, pero hacen falta ambos para poder venderlo por la web.
-        </span>
-      </div>
-      <div className="flex items-center gap-3">
-        <SubirFoto foto={foto} onSubida={setFoto} />
-        <span className="text-xs text-stone-400">Foto del producto (opcional)</span>
-      </div>
-
-      {error && <p className="text-red-700 text-sm">{error}</p>}
-
+  const pie = (
+    <div className="flex items-center gap-3">
+      {!nuevo && (
+        <button
+          onClick={borrar}
+          disabled={borrando}
+          className="h-12 px-3 inline-flex items-center gap-1.5 rounded-lg text-red-700 hover:bg-red-50 disabled:opacity-40 transition-colors"
+        >
+          <Trash2 size={18} /> <span className="hidden sm:inline">{borrando ? 'Borrando…' : 'Borrar'}</span>
+        </button>
+      )}
+      <span className="flex-1 text-sm text-right">
+        {estado === 'guardado' && <span className="text-green-700 font-semibold">✓ Guardado</span>}
+        {estado === 'error' && <span className="text-red-700">No se ha podido guardar</span>}
+      </span>
       <button
-        type="submit"
-        disabled={guardando}
-        className="bg-stone-900 hover:bg-amber-700 disabled:opacity-40 text-stone-50 px-4 py-1.5 text-sm uppercase tracking-wider transition-colors"
+        onClick={guardar}
+        disabled={hayErrores || (!nuevo && !modificado) || estado === 'guardando'}
+        className="h-12 px-8 rounded-lg bg-stone-900 hover:bg-amber-700 disabled:opacity-40 disabled:hover:bg-stone-900 text-stone-50 font-semibold transition-colors"
       >
-        {guardando ? 'Creando…' : 'Crear producto'}
+        {estado === 'guardando' ? 'Guardando…' : nuevo ? 'Crear producto' : 'Guardar'}
       </button>
-    </form>
+    </div>
+  );
+
+  return (
+    <Ventana titulo={nuevo ? `Nuevo producto en ${categoria.titulo}` : 'Editar producto'} onCerrar={cerrar} pie={pie}>
+      <div className="space-y-5">
+        <SubirFoto foto={f.foto} onSubida={(url) => setF(x => ({ ...x, foto: url }))} />
+
+        <Campo etiqueta="Nombre" error={errores.nombre && f.nombre !== inicial.nombre ? errores.nombre : null}>
+          <input value={f.nombre} onChange={set('nombre')} className={`${claseCaja} font-semibold`} />
+        </Campo>
+
+        <Campo etiqueta="Descripción" ayuda="Corta y con gancho: es lo que se lee en la tienda.">
+          <textarea
+            value={f.descripcion}
+            onChange={set('descripcion')}
+            rows={3}
+            className={`${claseCaja} h-auto py-2 resize-y`}
+          />
+        </Campo>
+
+        <div className="grid grid-cols-2 gap-3">
+          <Campo etiqueta="Precio (€)" error={errores.precio}>
+            <input value={f.precio} onChange={set('precio')} inputMode="decimal" placeholder="Ej. 9,95" className={claseCaja} />
+          </Campo>
+          <Campo etiqueta="Peso con caja (kg)" error={errores.peso}>
+            <input value={f.peso} onChange={set('peso')} inputMode="decimal" placeholder="Ej. 0,5" className={claseCaja} />
+          </Campo>
+        </div>
+
+        <label className="flex items-center justify-between gap-4 p-3 rounded-lg border border-stone-200 cursor-pointer">
+          <span>
+            <span className="block font-semibold">Se ve en la web</span>
+            <span className="block text-xs text-stone-500">Quítalo si se ha agotado: no se borra, solo se oculta.</span>
+          </span>
+          <input type="checkbox" checked={f.disponible} onChange={set('disponible')} className="sr-only peer" />
+          <span className="relative w-12 h-7 shrink-0 rounded-full bg-stone-300 peer-checked:bg-green-600 transition-colors after:absolute after:top-1 after:left-1 after:w-5 after:h-5 after:rounded-full after:bg-white after:shadow after:transition-transform peer-checked:after:translate-x-5" />
+        </label>
+
+        <p className={`text-sm rounded-lg px-3 py-2 ${seVende ? 'bg-green-50 text-green-800' : 'bg-amber-50 text-amber-800'}`}>
+          {!f.disponible
+            ? 'Oculto: no aparece en la web.'
+            : seVende
+              ? '✓ Se puede comprar online, con su envío calculado por el peso.'
+              : 'Saldrá con el botón de WhatsApp. Para venderlo online hacen falta precio y peso.'}
+        </p>
+
+        {!nuevo && posicion && (
+          <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-stone-50">
+            <span className="text-sm text-stone-600">
+              Posición en la tienda: <strong>{posicion.actual}</strong> de {posicion.total}
+            </span>
+            <div className="flex gap-2">
+              <button
+                onClick={() => onMover(-1)}
+                disabled={posicion.actual <= 1}
+                aria-label="Subir de posición"
+                className="w-11 h-11 flex items-center justify-center rounded-lg border border-stone-300 bg-white hover:border-amber-700 disabled:opacity-30"
+              >
+                <ChevronUp size={20} />
+              </button>
+              <button
+                onClick={() => onMover(1)}
+                disabled={posicion.actual >= posicion.total}
+                aria-label="Bajar de posición"
+                className="w-11 h-11 flex items-center justify-center rounded-lg border border-stone-300 bg-white hover:border-amber-700 disabled:opacity-30"
+              >
+                <ChevronDown size={20} />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {errorTexto && <p className="text-sm text-red-700">{errorTexto}</p>}
+      </div>
+    </Ventana>
   );
 }
 
@@ -626,137 +531,142 @@ function NuevoProducto({ categoria, onCreado }) {
 function SubirFoto({ foto, onSubida }) {
   const [subiendo, setSubiendo] = useState(false);
   const [error, setError] = useState(null);
+  const input = useRef(null);
 
   const subir = async (e) => {
     const file = e.target.files?.[0];
+    e.target.value = ''; // permite volver a elegir el mismo archivo
     if (!file) return;
 
     // Lo mismo que acepta el almacén (ver supabase/storage.sql). Se comprueba
     // aquí para dar el aviso en cristiano en vez del error en inglés de Supabase.
     if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-      setError('Solo se pueden subir fotos JPG, PNG o WebP. Si es una foto de iPhone (HEIC), guárdala antes como JPG.');
-      e.target.value = '';
+      setError('Solo fotos JPG, PNG o WebP. Si es una foto de iPhone (HEIC), guárdala antes como JPG.');
       return;
     }
-
-    // Límite razonable para no llenar el almacenamiento gratis
     if (file.size > 5 * 1024 * 1024) {
-      setError('La imagen supera 5 MB.');
-      e.target.value = '';
+      setError('La foto pesa más de 5 MB. Prueba a hacerla más pequeña.');
       return;
     }
 
     setSubiendo(true);
     setError(null);
-
     const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
     const ruta = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-
     const { error: upErr } = await supabase.storage.from('productos').upload(ruta, file, {
       cacheControl: '3600',
       upsert: false,
     });
-
     setSubiendo(false);
-    e.target.value = ''; // permite volver a elegir el mismo archivo
     if (upErr) {
       setError(upErr.message);
       return;
     }
-
     const { data } = supabase.storage.from('productos').getPublicUrl(ruta);
     onSubida(data.publicUrl);
   };
 
   return (
-    <div className="shrink-0 w-20">
+    <div className="flex items-center gap-4">
       {foto ? (
-        <img src={imagen(foto, ANCHOS.miniatura)} alt="" className="w-20 h-20 object-cover rounded-sm border border-stone-200" />
+        <img src={imagen(foto, ANCHOS.miniatura)} alt="" className="w-28 h-28 object-cover rounded-lg border border-stone-200 shrink-0" />
       ) : (
-        <div className="w-20 h-20 bg-stone-100 border border-stone-200 rounded-sm flex items-center justify-center text-stone-400 text-xs">
-          Sin foto
+        <div className="w-28 h-28 rounded-lg border-2 border-dashed border-stone-300 bg-stone-50 flex items-center justify-center text-stone-400 shrink-0">
+          <ImagePlus size={28} />
         </div>
       )}
-      <label className="mt-1 block text-center text-xs text-amber-700 hover:text-amber-800 cursor-pointer">
-        {subiendo ? 'Subiendo…' : foto ? 'Cambiar' : 'Subir foto'}
-        <input
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          className="hidden"
-          onChange={subir}
+      <div>
+        <button
+          type="button"
+          onClick={() => input.current?.click()}
           disabled={subiendo}
-        />
-      </label>
-      {error && <p className="text-red-700 text-[11px] mt-1 leading-tight">{error}</p>}
+          className="h-11 px-4 inline-flex items-center gap-2 rounded-lg border border-stone-300 text-sm font-semibold hover:border-amber-700 hover:text-amber-700 disabled:opacity-50 transition-colors"
+        >
+          <ImagePlus size={18} />
+          {subiendo ? 'Subiendo…' : foto ? 'Cambiar foto' : 'Poner foto'}
+        </button>
+        <p className="text-xs text-stone-500 mt-1">Desde el móvil puedes hacerla con la cámara.</p>
+        {error && <p className="text-sm text-red-700 mt-1">{error}</p>}
+      </div>
+      <input ref={input} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={subir} />
     </div>
   );
 }
 
-/* ── Editar una categoría (título, descripción, etiquetas) ── */
-function CategoriaEditor({ categoria, onGuardado }) {
+/* ── Editar una categoría ─────────────────────────────────── */
+function EditorCategoria({ categoria, posicion, onMover, onGuardado, onCerrar }) {
   const [titulo, setTitulo] = useState(categoria.titulo || '');
   const [descripcion, setDescripcion] = useState(categoria.descripcion || '');
   const [tags, setTags] = useState((categoria.tags || []).join(', '));
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState(null);
 
-  const guardar = async (e) => {
-    e.preventDefault();
+  const guardar = async () => {
+    if (!titulo.trim()) return;
     setGuardando(true);
     setError(null);
-
     const tagsArr = tags.split(',').map(t => t.trim()).filter(Boolean);
-    const campos = { titulo, descripcion: descripcion || null, tags: tagsArr };
-
+    const campos = { titulo: titulo.trim(), descripcion: descripcion.trim() || null, tags: tagsArr };
     const { error } = await supabase.from('categorias').update(campos).eq('id', categoria.id);
     setGuardando(false);
     if (error) {
       setError(error.message);
       return;
     }
-    onGuardado({ titulo, descripcion, tags: tagsArr });
+    onGuardado(campos);
   };
 
-  return (
-    <form onSubmit={guardar} className="bg-stone-50 border border-dashed border-stone-300 p-4 space-y-3 mb-4">
-      <div>
-        <label className="block text-sm text-stone-600 mb-1">Título</label>
-        <input
-          value={titulo}
-          onChange={(e) => setTitulo(e.target.value)}
-          required
-          className="w-full font-semibold border border-stone-300 px-2 py-1 focus:outline-none focus:border-amber-700"
-        />
-      </div>
-      <div>
-        <label className="block text-sm text-stone-600 mb-1">Descripción</label>
-        <textarea
-          value={descripcion}
-          onChange={(e) => setDescripcion(e.target.value)}
-          rows={3}
-          className="w-full text-sm text-stone-600 border border-stone-300 px-2 py-1 resize-y focus:outline-none focus:border-amber-700"
-        />
-      </div>
-      <div>
-        <label className="block text-sm text-stone-600 mb-1">Etiquetas (separadas por comas)</label>
-        <input
-          value={tags}
-          onChange={(e) => setTags(e.target.value)}
-          placeholder="Jamones, Quesos, Conservas…"
-          className="w-full text-sm border border-stone-300 px-2 py-1 focus:outline-none focus:border-amber-700"
-        />
-        <p className="text-xs text-stone-400 mt-1">Son los pequeños chips que aparecen en la tarjeta de la categoría.</p>
-      </div>
-
-      {error && <p className="text-red-700 text-sm">{error}</p>}
-
+  const pie = (
+    <div className="flex justify-end">
       <button
-        type="submit"
-        disabled={guardando}
-        className="bg-stone-900 hover:bg-amber-700 disabled:opacity-40 text-stone-50 px-4 py-1.5 text-sm uppercase tracking-wider transition-colors"
+        onClick={guardar}
+        disabled={guardando || !titulo.trim()}
+        className="h-12 px-8 rounded-lg bg-stone-900 hover:bg-amber-700 disabled:opacity-40 text-stone-50 font-semibold transition-colors"
       >
-        {guardando ? 'Guardando…' : 'Guardar categoría'}
+        {guardando ? 'Guardando…' : 'Guardar'}
       </button>
-    </form>
+    </div>
+  );
+
+  return (
+    <Ventana titulo={`Categoría: ${categoria.titulo}`} onCerrar={onCerrar} pie={pie}>
+      <div className="space-y-5">
+        <Campo etiqueta="Título">
+          <input value={titulo} onChange={(e) => setTitulo(e.target.value)} className={`${claseCaja} font-semibold`} />
+        </Campo>
+        <Campo etiqueta="Descripción">
+          <textarea value={descripcion} onChange={(e) => setDescripcion(e.target.value)} rows={3} className={`${claseCaja} h-auto py-2 resize-y`} />
+        </Campo>
+        <Campo etiqueta="Etiquetas" ayuda="Separadas por comas. Son los chips pequeños de la tarjeta de la categoría en la portada.">
+          <input value={tags} onChange={(e) => setTags(e.target.value)} placeholder="Jamones, Quesos, Conservas…" className={claseCaja} />
+        </Campo>
+
+        <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-stone-50">
+          <span className="text-sm text-stone-600">
+            Posición en la portada: <strong>{posicion.actual}</strong> de {posicion.total}
+          </span>
+          <div className="flex gap-2">
+            <button
+              onClick={() => onMover(-1)}
+              disabled={posicion.actual <= 1}
+              aria-label="Subir categoría"
+              className="w-11 h-11 flex items-center justify-center rounded-lg border border-stone-300 bg-white hover:border-amber-700 disabled:opacity-30"
+            >
+              <ChevronUp size={20} />
+            </button>
+            <button
+              onClick={() => onMover(1)}
+              disabled={posicion.actual >= posicion.total}
+              aria-label="Bajar categoría"
+              className="w-11 h-11 flex items-center justify-center rounded-lg border border-stone-300 bg-white hover:border-amber-700 disabled:opacity-30"
+            >
+              <ChevronDown size={20} />
+            </button>
+          </div>
+        </div>
+
+        {error && <p className="text-sm text-red-700">{error}</p>}
+      </div>
+    </Ventana>
   );
 }

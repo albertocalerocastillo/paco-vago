@@ -59,6 +59,18 @@ export const CP_REPARTO_LOCAL = ['41410'];
 
 export const esRepartoLocal = (cp) => CP_REPARTO_LOCAL.includes(String(cp ?? '').trim());
 
+/**
+ * CP de Carmona pero la localidad escrita no es Carmona: posible truco para no
+ * pagar el envío (dirección de fuera con el CP 41410). No se bloquea el pago,
+ * porque el tío reparte en persona y lo ve antes de salir: el pedido se marca
+ * para revisar y el correo lo avisa.
+ */
+export function repartoLocalDudoso(cp, localidad) {
+  if (!esRepartoLocal(cp)) return false;
+  const l = String(localidad ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  return !l.includes('carmona');
+}
+
 export function tieneEnvioGratis(pesoKg, subtotal) {
   // En céntimos: sumar 33,30 + 33,30 + 33,40 en coma flotante puede dar
   // 99,99999 y quedarse sin el envío gratis que sí le corresponde.

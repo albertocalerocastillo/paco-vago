@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../../lib/supabase';
 import { Check } from '../../../theme/icons';
 import { formatoPrecio } from '../../../utils/formato';
-import { formatoPeso } from '../../../data/envios';
+import { formatoPeso, esRepartoLocal, repartoLocalDudoso } from '../../../data/envios';
 
 /**
  * Pedidos de la tienda online (/admin).
@@ -191,8 +191,15 @@ function Pedido({ pedido: p, onEnviado, onDeshacer }) {
 
       {p.estado === 'revisar' && (
         <p className="mb-3 text-sm text-red-800 bg-red-50 border-l-4 border-red-700 px-3 py-2">
-          Este pedido necesita una mirada antes de prepararlo: o la dirección queda fuera de
-          península, o las cuentas no cuadran con lo que se cobró. Compruébalo antes de enviarlo.
+          {repartoLocalDudoso(d.cp, d.localidad)
+            ? `Ha puesto el código postal de Carmona (reparto gratis) pero la localidad es "${d.localidad}". Comprueba la dirección: si está fuera de Carmona, llámale para cobrar el envío o anular el pedido.`
+            : 'Este pedido necesita una mirada antes de prepararlo: o la dirección queda fuera de península, o las cuentas no cuadran con lo que se cobró. Compruébalo antes de enviarlo.'}
+        </p>
+      )}
+
+      {esRepartoLocal(d.cp) && p.estado !== 'revisar' && (
+        <p className="mb-3 text-sm text-green-800 bg-green-50 border-l-4 border-green-600 px-3 py-2">
+          🚲 Reparto en Carmona: lo lleva la tienda. Llama al cliente para quedar en la hora.
         </p>
       )}
 
@@ -227,8 +234,12 @@ function Pedido({ pedido: p, onEnviado, onDeshacer }) {
           </ul>
           <div className="mt-2 pt-2 border-t border-stone-200 text-stone-600 space-y-0.5">
             <p className="flex justify-between">
-              <span>Envío {p.peso_total ? `(${formatoPeso(p.peso_total)})` : ''}</span>
-              <span>{formatoPrecio(p.porte)}</span>
+              <span>
+                {esRepartoLocal(d.cp)
+                  ? 'Reparto en Carmona'
+                  : `Envío ${p.peso_total ? `(${formatoPeso(p.peso_total)})` : ''}`}
+              </span>
+              <span>{Number(p.porte) > 0 ? formatoPrecio(p.porte) : 'Gratis'}</span>
             </p>
             <p className="flex justify-between font-semibold text-stone-900">
               <span>Total cobrado</span>

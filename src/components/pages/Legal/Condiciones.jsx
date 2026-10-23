@@ -11,11 +11,7 @@ import { EMPRESA } from '../../../data/empresa';
  */
 export default function Condiciones() {
   return (
-    // borrador: la forma de pago YA está rellena (19/10/2026), pero el aviso se
-    // mantiene A PROPÓSITO hasta que Stripe esté activo a nombre del titular y
-    // con Bizum encendido. Ese día: quitar `borrador` y desplegar.
     <LegalLayout
-      borrador
       titulo="Condiciones generales de venta"
       intro="Estas condiciones regulan la compra de productos a través de la tienda online y se aplican junto con la legislación de defensa de consumidores y usuarios (RDL 1/2007)."
     >

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '../../../lib/supabase';
 import { imagen, ANCHOS } from '../../../utils/imagenes';
 import { formatoPrecio } from '../../../utils/formato';
@@ -160,7 +160,7 @@ export default function GestionProductos() {
               <button
                 key={cat.id}
                 onClick={() => irA(cat.id)}
-                className="shrink-0 h-9 px-4 rounded-full bg-white border border-stone-300 text-sm text-stone-700 hover:border-amber-700 hover:text-amber-700 whitespace-nowrap transition-colors"
+                className="shrink-0 h-9 px-4 rounded-full bg-white border border-stone-300 text-sm text-stone-700 hover:border-amber-700 hover:text-amber-700 whitespace-nowrap transition active:scale-95"
               >
                 {cat.titulo}
                 <span className="text-stone-400 ml-1.5">{(cat.productos || []).length}</span>
@@ -191,13 +191,13 @@ export default function GestionProductos() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => setAbierto({ tipo: 'categoria', catId: cat.id })}
-                      className="h-10 px-3 inline-flex items-center gap-1.5 rounded-lg text-sm text-stone-600 hover:bg-stone-200 transition-colors"
+                      className="h-10 px-3 inline-flex items-center gap-1.5 rounded-lg text-sm text-stone-600 hover:bg-stone-200 transition active:scale-95"
                     >
                       <Pencil size={16} /> Categoría
                     </button>
                     <button
                       onClick={() => setAbierto({ tipo: 'nuevo', catId: cat.id })}
-                      className="h-10 px-4 inline-flex items-center gap-1.5 rounded-lg bg-amber-700 hover:bg-amber-800 text-white text-sm font-semibold transition-colors"
+                      className="h-10 px-4 inline-flex items-center gap-1.5 rounded-lg bg-amber-700 hover:bg-amber-800 text-white text-sm font-semibold transition active:scale-95"
                     >
                       <Plus size={16} /> Añadir
                     </button>
@@ -209,9 +209,10 @@ export default function GestionProductos() {
                 <p className="text-stone-400 text-sm italic">Sin productos todavía.</p>
               ) : (
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-                  {visibles.map((p) => (
+                  {visibles.map((p, i) => (
                     <TarjetaProducto
                       key={p.id}
+                      retraso={Math.min(i, 8) * 35}
                       producto={p}
                       onAbrir={() => setAbierto({ tipo: 'producto', producto: p, catId: cat.id })}
                     />
@@ -256,12 +257,13 @@ export default function GestionProductos() {
 }
 
 /* ── Tarjeta de la lista ──────────────────────────────────── */
-function TarjetaProducto({ producto: p, onAbrir }) {
+function TarjetaProducto({ producto: p, onAbrir, retraso = 0 }) {
   const sit = situacion(p);
   return (
     <button
       onClick={onAbrir}
-      className={`text-left bg-white border border-stone-200 rounded-lg p-3 flex gap-3 items-center hover:border-amber-700 hover:shadow-sm transition ${
+      style={{ animationDelay: `${retraso}ms` }}
+      className={`animate-entrar group text-left bg-white border border-stone-200 rounded-lg p-3 flex gap-3 items-center transition duration-200 hover:border-amber-700 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] active:shadow-none ${
         p.disponible ? '' : 'opacity-60'
       }`}
     >
@@ -287,16 +289,36 @@ function TarjetaProducto({ producto: p, onAbrir }) {
           {sit.texto}
         </span>
       </div>
-      <Pencil size={18} className="text-stone-300 shrink-0 self-start" />
+      <Pencil size={18} className="text-stone-300 shrink-0 self-start transition-colors group-hover:text-amber-700" />
     </button>
   );
 }
 
-/* ── Ventana: a pantalla completa en el móvil, centrada en escritorio ── */
-function Ventana({ titulo, onCerrar, pie, children }) {
+/* ── Ventana: a pantalla completa en el móvil, centrada en escritorio ──
+ * En el móvil sube desde abajo como una hoja (igual que en las apps); en
+ * pantallas grandes aparece con un pequeño zoom. Al cerrarse hace lo contrario,
+ * y solo cuando termina la animación avisa con onCerrado.
+ *
+ * - puedeCerrar(): opcional; si devuelve false no se cierra (cambios sin guardar).
+ * - controlRef: ref donde la ventana deja su función cerrar(), para que quien la
+ *   usa pueda cerrarla con animación (p. ej. tras guardar).
+ */
+function Ventana({ titulo, puedeCerrar, onCerrado, controlRef, pie, children }) {
+  const [saliendo, setSaliendo] = useState(false);
+
+  const cerrar = useCallback((forzar = false) => {
+    if (!forzar && puedeCerrar && !puedeCerrar()) return;
+    setSaliendo(true);
+    setTimeout(onCerrado, 220);
+  }, [puedeCerrar, onCerrado]);
+
+  useEffect(() => {
+    if (controlRef) controlRef.current = cerrar;
+  }, [controlRef, cerrar]);
+
   // Cierra con Escape y no deja que se mueva la página de detrás
   useEffect(() => {
-    const tecla = (e) => e.key === 'Escape' && onCerrar();
+    const tecla = (e) => e.key === 'Escape' && cerrar();
     window.addEventListener('keydown', tecla);
     const antes = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -304,18 +326,25 @@ function Ventana({ titulo, onCerrar, pie, children }) {
       window.removeEventListener('keydown', tecla);
       document.body.style.overflow = antes;
     };
-  }, [onCerrar]);
+  }, [cerrar]);
 
   return (
     <div className="fixed inset-0 z-50 flex sm:items-center sm:justify-center sm:p-6" role="dialog" aria-modal="true" aria-label={titulo}>
-      <div className="absolute inset-0 bg-stone-900/50 hidden sm:block" onClick={onCerrar} />
-      <div className="relative bg-white w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-2xl sm:rounded-xl shadow-xl flex flex-col">
+      <div
+        className={`absolute inset-0 bg-stone-900/50 hidden sm:block ${saliendo ? 'animate-fundido-fuera' : 'animate-fundido'}`}
+        onClick={() => cerrar()}
+      />
+      <div
+        className={`relative bg-white w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-2xl sm:rounded-xl shadow-xl flex flex-col ${
+          saliendo ? 'animate-bajar-hoja sm:animate-zoom-salir' : 'animate-subir-hoja sm:animate-zoom-entrar'
+        }`}
+      >
         <div className="h-14 shrink-0 px-4 sm:px-6 flex items-center justify-between border-b border-stone-200">
           <h2 className="font-bold text-lg truncate">{titulo}</h2>
           <button
-            onClick={onCerrar}
+            onClick={() => cerrar()}
             aria-label="Cerrar"
-            className="w-11 h-11 -mr-2 flex items-center justify-center rounded-lg text-stone-500 hover:bg-stone-100"
+            className="w-11 h-11 -mr-2 flex items-center justify-center rounded-lg text-stone-500 hover:bg-stone-100 active:scale-90 transition"
           >
             <X size={22} />
           </button>
@@ -363,6 +392,8 @@ function EditorProducto({ producto, categoria, posicion, onMover, onGuardado, on
   const [estado, setEstado] = useState('idle'); // idle | guardando | guardado | error
   const [errorTexto, setErrorTexto] = useState(null);
   const [borrando, setBorrando] = useState(false);
+  const controlRef = useRef(null); // cerrar() de la ventana, con animación
+  const resultado = useRef(null); // qué avisar al terminar de cerrarse
 
   const set = (campo) => (e) => setF(x => ({ ...x, [campo]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }));
 
@@ -377,9 +408,15 @@ function EditorProducto({ producto, categoria, posicion, onMover, onGuardado, on
   const modificado = JSON.stringify(f) !== JSON.stringify(inicial);
   const seVende = f.disponible && precio != null && !Number.isNaN(precio) && peso > 0;
 
-  const cerrar = () => {
-    if (modificado && estado !== 'guardado' && !window.confirm('Tienes cambios sin guardar. ¿Salir sin guardar?')) return;
-    onCerrar();
+  const puedeCerrar = () =>
+    !modificado || estado === 'guardado' || window.confirm('Tienes cambios sin guardar. ¿Salir sin guardar?');
+
+  // Cuando la ventana ha terminado de cerrarse, se avisa de lo que pasó.
+  const cerrado = () => {
+    const r = resultado.current;
+    if (r?.creado) onCreado(r.creado);
+    else if (r?.borrado) onBorrado();
+    else onCerrar();
   };
 
   const guardar = async () => {
@@ -403,7 +440,9 @@ function EditorProducto({ producto, categoria, posicion, onMover, onGuardado, on
         .select()
         .single();
       if (error) { setEstado('error'); setErrorTexto(error.message); return; }
-      onCreado(data);
+      setEstado('guardado');
+      resultado.current = { creado: data };
+      setTimeout(() => controlRef.current?.(true), 500);
       return;
     }
 
@@ -411,7 +450,7 @@ function EditorProducto({ producto, categoria, posicion, onMover, onGuardado, on
     if (error) { setEstado('error'); setErrorTexto(error.message); return; }
     onGuardado(campos);
     setEstado('guardado');
-    setTimeout(() => onCerrar(), 700);
+    setTimeout(() => controlRef.current?.(true), 700);
   };
 
   const borrar = async () => {
@@ -423,7 +462,8 @@ function EditorProducto({ producto, categoria, posicion, onMover, onGuardado, on
       window.alert('No se ha podido borrar: ' + error.message);
       return;
     }
-    onBorrado();
+    resultado.current = { borrado: true };
+    controlRef.current?.(true);
   };
 
   const pie = (
@@ -432,19 +472,19 @@ function EditorProducto({ producto, categoria, posicion, onMover, onGuardado, on
         <button
           onClick={borrar}
           disabled={borrando}
-          className="h-12 px-3 inline-flex items-center gap-1.5 rounded-lg text-red-700 hover:bg-red-50 disabled:opacity-40 transition-colors"
+          className="h-12 px-3 inline-flex items-center gap-1.5 rounded-lg text-red-700 hover:bg-red-50 disabled:opacity-40 transition active:scale-95"
         >
           <Trash2 size={18} /> <span className="hidden sm:inline">{borrando ? 'Borrando…' : 'Borrar'}</span>
         </button>
       )}
       <span className="flex-1 text-sm text-right">
-        {estado === 'guardado' && <span className="text-green-700 font-semibold">✓ Guardado</span>}
+        {estado === 'guardado' && <span className="inline-block animate-pop text-green-700 font-semibold">✓ Guardado</span>}
         {estado === 'error' && <span className="text-red-700">No se ha podido guardar</span>}
       </span>
       <button
         onClick={guardar}
         disabled={hayErrores || (!nuevo && !modificado) || estado === 'guardando'}
-        className="h-12 px-8 rounded-lg bg-stone-900 hover:bg-amber-700 disabled:opacity-40 disabled:hover:bg-stone-900 text-stone-50 font-semibold transition-colors"
+        className="h-12 px-8 rounded-lg bg-stone-900 hover:bg-amber-700 disabled:opacity-40 disabled:hover:bg-stone-900 text-stone-50 font-semibold transition active:scale-[0.97]"
       >
         {estado === 'guardando' ? 'Guardando…' : nuevo ? 'Crear producto' : 'Guardar'}
       </button>
@@ -452,7 +492,13 @@ function EditorProducto({ producto, categoria, posicion, onMover, onGuardado, on
   );
 
   return (
-    <Ventana titulo={nuevo ? `Nuevo producto en ${categoria.titulo}` : 'Editar producto'} onCerrar={cerrar} pie={pie}>
+    <Ventana
+      titulo={nuevo ? `Nuevo producto en ${categoria.titulo}` : 'Editar producto'}
+      puedeCerrar={puedeCerrar}
+      onCerrado={cerrado}
+      controlRef={controlRef}
+      pie={pie}
+    >
       <div className="space-y-5">
         <SubirFoto foto={f.foto} onSubida={(url) => setF(x => ({ ...x, foto: url }))} />
 
@@ -487,7 +533,7 @@ function EditorProducto({ producto, categoria, posicion, onMover, onGuardado, on
           <span className="relative w-12 h-7 shrink-0 rounded-full bg-stone-300 peer-checked:bg-green-600 transition-colors after:absolute after:top-1 after:left-1 after:w-5 after:h-5 after:rounded-full after:bg-white after:shadow after:transition-transform peer-checked:after:translate-x-5" />
         </label>
 
-        <p className={`text-sm rounded-lg px-3 py-2 ${seVende ? 'bg-green-50 text-green-800' : 'bg-amber-50 text-amber-800'}`}>
+        <p className={`text-sm rounded-lg px-3 py-2 transition-colors duration-300 ${seVende ? 'bg-green-50 text-green-800' : 'bg-amber-50 text-amber-800'}`}>
           {!f.disponible
             ? 'Oculto: no aparece en la web.'
             : seVende
@@ -505,7 +551,7 @@ function EditorProducto({ producto, categoria, posicion, onMover, onGuardado, on
                 onClick={() => onMover(-1)}
                 disabled={posicion.actual <= 1}
                 aria-label="Subir de posición"
-                className="w-11 h-11 flex items-center justify-center rounded-lg border border-stone-300 bg-white hover:border-amber-700 disabled:opacity-30"
+                className="w-11 h-11 flex items-center justify-center rounded-lg border border-stone-300 bg-white hover:border-amber-700 disabled:opacity-30 transition active:scale-90"
               >
                 <ChevronUp size={20} />
               </button>
@@ -513,7 +559,7 @@ function EditorProducto({ producto, categoria, posicion, onMover, onGuardado, on
                 onClick={() => onMover(1)}
                 disabled={posicion.actual >= posicion.total}
                 aria-label="Bajar de posición"
-                className="w-11 h-11 flex items-center justify-center rounded-lg border border-stone-300 bg-white hover:border-amber-700 disabled:opacity-30"
+                className="w-11 h-11 flex items-center justify-center rounded-lg border border-stone-300 bg-white hover:border-amber-700 disabled:opacity-30 transition active:scale-90"
               >
                 <ChevronDown size={20} />
               </button>
@@ -569,7 +615,7 @@ function SubirFoto({ foto, onSubida }) {
   return (
     <div className="flex items-center gap-4">
       {foto ? (
-        <img src={imagen(foto, ANCHOS.miniatura)} alt="" className="w-28 h-28 object-cover rounded-lg border border-stone-200 shrink-0" />
+        <img key={foto} src={imagen(foto, ANCHOS.miniatura)} alt="" className="animate-entrar w-28 h-28 object-cover rounded-lg border border-stone-200 shrink-0" />
       ) : (
         <div className="w-28 h-28 rounded-lg border-2 border-dashed border-stone-300 bg-stone-50 flex items-center justify-center text-stone-400 shrink-0">
           <ImagePlus size={28} />
@@ -580,7 +626,7 @@ function SubirFoto({ foto, onSubida }) {
           type="button"
           onClick={() => input.current?.click()}
           disabled={subiendo}
-          className="h-11 px-4 inline-flex items-center gap-2 rounded-lg border border-stone-300 text-sm font-semibold hover:border-amber-700 hover:text-amber-700 disabled:opacity-50 transition-colors"
+          className="h-11 px-4 inline-flex items-center gap-2 rounded-lg border border-stone-300 text-sm font-semibold hover:border-amber-700 hover:text-amber-700 disabled:opacity-50 transition active:scale-95"
         >
           <ImagePlus size={18} />
           {subiendo ? 'Subiendo…' : foto ? 'Cambiar foto' : 'Poner foto'}
@@ -595,6 +641,8 @@ function SubirFoto({ foto, onSubida }) {
 
 /* ── Editar una categoría ─────────────────────────────────── */
 function EditorCategoria({ categoria, posicion, onMover, onGuardado, onCerrar }) {
+  const controlRef = useRef(null);
+  const guardadoCon = useRef(null);
   const [titulo, setTitulo] = useState(categoria.titulo || '');
   const [descripcion, setDescripcion] = useState(categoria.descripcion || '');
   const [tags, setTags] = useState((categoria.tags || []).join(', '));
@@ -613,7 +661,8 @@ function EditorCategoria({ categoria, posicion, onMover, onGuardado, onCerrar })
       setError(error.message);
       return;
     }
-    onGuardado(campos);
+    guardadoCon.current = campos;
+    controlRef.current?.(true);
   };
 
   const pie = (
@@ -621,7 +670,7 @@ function EditorCategoria({ categoria, posicion, onMover, onGuardado, onCerrar })
       <button
         onClick={guardar}
         disabled={guardando || !titulo.trim()}
-        className="h-12 px-8 rounded-lg bg-stone-900 hover:bg-amber-700 disabled:opacity-40 text-stone-50 font-semibold transition-colors"
+        className="h-12 px-8 rounded-lg bg-stone-900 hover:bg-amber-700 disabled:opacity-40 text-stone-50 font-semibold transition active:scale-[0.97]"
       >
         {guardando ? 'Guardando…' : 'Guardar'}
       </button>
@@ -629,7 +678,12 @@ function EditorCategoria({ categoria, posicion, onMover, onGuardado, onCerrar })
   );
 
   return (
-    <Ventana titulo={`Categoría: ${categoria.titulo}`} onCerrar={onCerrar} pie={pie}>
+    <Ventana
+      titulo={`Categoría: ${categoria.titulo}`}
+      controlRef={controlRef}
+      onCerrado={() => (guardadoCon.current ? onGuardado(guardadoCon.current) : onCerrar())}
+      pie={pie}
+    >
       <div className="space-y-5">
         <Campo etiqueta="Título">
           <input value={titulo} onChange={(e) => setTitulo(e.target.value)} className={`${claseCaja} font-semibold`} />
@@ -650,7 +704,7 @@ function EditorCategoria({ categoria, posicion, onMover, onGuardado, onCerrar })
               onClick={() => onMover(-1)}
               disabled={posicion.actual <= 1}
               aria-label="Subir categoría"
-              className="w-11 h-11 flex items-center justify-center rounded-lg border border-stone-300 bg-white hover:border-amber-700 disabled:opacity-30"
+              className="w-11 h-11 flex items-center justify-center rounded-lg border border-stone-300 bg-white hover:border-amber-700 disabled:opacity-30 transition active:scale-90"
             >
               <ChevronUp size={20} />
             </button>
@@ -658,7 +712,7 @@ function EditorCategoria({ categoria, posicion, onMover, onGuardado, onCerrar })
               onClick={() => onMover(1)}
               disabled={posicion.actual >= posicion.total}
               aria-label="Bajar categoría"
-              className="w-11 h-11 flex items-center justify-center rounded-lg border border-stone-300 bg-white hover:border-amber-700 disabled:opacity-30"
+              className="w-11 h-11 flex items-center justify-center rounded-lg border border-stone-300 bg-white hover:border-amber-700 disabled:opacity-30 transition active:scale-90"
             >
               <ChevronDown size={20} />
             </button>

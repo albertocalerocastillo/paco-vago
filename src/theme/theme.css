@@ -70,3 +70,66 @@
     html { scroll-behavior: auto; }
   }
 }
+
+/* ─── MOVIMIENTO DEL PANEL DE GESTIÓN ───────────────────────
+   Animaciones cortas (200-350 ms) y suaves: ayudan a entender qué pasa
+   (de dónde sale la ficha, que un pedido se ha ido) sin hacer esperar.
+   Curva "ease-out" con un poco de inercia: arranca rápido y frena suave.
+   ──────────────────────────────────────────────────────────── */
+@theme {
+  --ease-suave: cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-entrar: entrar 0.35s var(--ease-suave) both;
+  --animate-fundido: fundido 0.2s ease-out both;
+  --animate-fundido-fuera: fundido-fuera 0.2s ease-in both;
+  --animate-subir-hoja: subir-hoja 0.32s var(--ease-suave) both;
+  --animate-bajar-hoja: bajar-hoja 0.22s ease-in both;
+  --animate-zoom-entrar: zoom-entrar 0.25s var(--ease-suave) both;
+  --animate-zoom-salir: zoom-salir 0.18s ease-in both;
+  --animate-pop: pop 0.35s var(--ease-suave);
+  --animate-irse: irse 0.32s ease-in both;
+  --animate-aviso: aviso 0.3s var(--ease-suave) both;
+
+  @keyframes entrar {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: none; }
+  }
+  @keyframes fundido      { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes fundido-fuera { from { opacity: 1; } to { opacity: 0; } }
+  @keyframes subir-hoja {
+    from { transform: translateY(100%); }
+    to   { transform: none; }
+  }
+  @keyframes bajar-hoja {
+    from { transform: none; }
+    to   { transform: translateY(100%); }
+  }
+  @keyframes zoom-entrar {
+    from { opacity: 0; transform: scale(0.96) translateY(8px); }
+    to   { opacity: 1; transform: none; }
+  }
+  @keyframes zoom-salir {
+    from { opacity: 1; transform: none; }
+    to   { opacity: 0; transform: scale(0.97); }
+  }
+  @keyframes pop {
+    0%   { transform: scale(0.6); }
+    60%  { transform: scale(1.15); }
+    100% { transform: scale(1); }
+  }
+  @keyframes irse {
+    to { opacity: 0; transform: translateX(24px) scale(0.98); }
+  }
+  @keyframes aviso {
+    from { opacity: 0; transform: translateY(16px) scale(0.98); }
+    to   { opacity: 1; transform: none; }
+  }
+}
+
+/* Si el móvil tiene activado "reducir movimiento": sin animaciones del panel. */
+@media (prefers-reduced-motion: reduce) {
+  .panel-gestion *, .panel-gestion *::before, .panel-gestion *::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 1ms !important;
+  }
+}

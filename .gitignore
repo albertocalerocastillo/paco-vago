@@ -41,3 +41,6 @@ logo-paco-vago.png
 # Cloudflare (local)
 .dev.vars*
 .wrangler
+
+# Fotos de productos pendientes de subir (van a Supabase Storage, no al repo)
+nuevos-productos/

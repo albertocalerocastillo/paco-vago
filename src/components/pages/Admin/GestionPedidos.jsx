@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { supabase } from '../../../lib/supabase';
 import { Check, Phone, Copy, RefreshCw, MessageCircle } from '../../../theme/icons';
 import { formatoPrecio } from '../../../utils/formato';
@@ -184,7 +185,9 @@ export default function GestionPedidos({ onPendientes }) {
         </div>
       )}
 
-      {aviso && (
+      {/* En <body> (portal), por lo mismo que la ficha de producto: dentro de la
+          sección, que entra con un desplazamiento, el `fixed` no se queda abajo. */}
+      {aviso && createPortal(
         <div
           key={aviso.id}
           role="status"
@@ -200,7 +203,8 @@ export default function GestionPedidos({ onPendientes }) {
               Deshacer
             </button>
           )}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

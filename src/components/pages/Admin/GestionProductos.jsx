@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { supabase } from '../../../lib/supabase';
 import { imagen, ANCHOS } from '../../../utils/imagenes';
 import { formatoPrecio } from '../../../utils/formato';
@@ -300,6 +301,11 @@ function TarjetaProducto({ producto: p, onAbrir, retraso = 0 }) {
  * y solo cuando termina la animación avisa con onCerrado.
  *
  * - puedeCerrar(): opcional; si devuelve false no se cierra (cambios sin guardar).
+ * Se pinta directamente en <body> (portal) y no dentro de la sección: las
+ * secciones entran con una animación que las desplaza, y un `fixed` dentro de
+ * algo desplazado deja de ser fijo a la pantalla. Pasaba al bajar por la lista
+ * y abrir un producto: la ficha se abría arriba del todo y se veía en blanco.
+ *
  * - controlRef: ref donde la ventana deja su función cerrar(), para que quien la
  *   usa pueda cerrarla con animación (p. ej. tras guardar).
  */
@@ -328,8 +334,8 @@ function Ventana({ titulo, puedeCerrar, onCerrado, controlRef, pie, children }) 
     };
   }, [cerrar]);
 
-  return (
-    <div className="fixed inset-0 z-50 flex sm:items-center sm:justify-center sm:p-6" role="dialog" aria-modal="true" aria-label={titulo}>
+  return createPortal(
+    <div className="panel-gestion fixed inset-0 z-50 flex sm:items-center sm:justify-center sm:p-6 font-serif text-stone-900" role="dialog" aria-modal="true" aria-label={titulo}>
       <div
         className={`absolute inset-0 bg-stone-900/50 hidden sm:block ${saliendo ? 'animate-fundido-fuera' : 'animate-fundido'}`}
         onClick={() => cerrar()}
@@ -356,7 +362,8 @@ function Ventana({ titulo, puedeCerrar, onCerrado, controlRef, pie, children }) 
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 

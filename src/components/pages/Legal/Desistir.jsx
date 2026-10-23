@@ -132,7 +132,7 @@ function Justificante({ j }) {
         </p>
       </div>
       <p className="mt-6">
-        Te escribiremos a <strong>{j.email}</strong> para confirmártelo y decirte cómo devolver el producto.
+        Te hemos enviado este justificante a <strong>{j.email}</strong> (mira también en spam) y te escribiremos para decirte cómo devolver el producto.
         El reembolso se hace en un máximo de 14 días naturales desde hoy, por el mismo medio de pago.
       </p>
       <button

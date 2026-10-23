@@ -1,5 +1,6 @@
 import { json, leerJson } from './http.js';
 import { supabaseRest } from './ligero.js';
+import { enviarCorreo, correoDesistimiento, CORREO_TIENDA } from './correo.js';
 
 /**
  * Recibe un desistimiento hecho desde /legal/desistir y lo guarda con su fecha
@@ -88,6 +89,12 @@ export default async function desistimiento(request, env) {
     console.error('Supabase:', error.message);
     return json({ error: 'No hemos podido registrarlo. Escríbenos por email, vale igual.' }, 502);
   }
+
+  // Acuse de recibo en soporte duradero (Directiva UE 2023/2673): al cliente,
+  // y copia a la tienda para que no se le pase el plazo de reembolso.
+  const acuse = correoDesistimiento({ ...datos, ...data });
+  await enviarCorreo(env, { para: datos.email, ...acuse, responderA: CORREO_TIENDA });
+  await enviarCorreo(env, { para: CORREO_TIENDA, ...acuse, asunto: `↩️ Desistimiento ${data.referencia} · pedido ${datos.pedido_ref}`, responderA: datos.email });
 
   return json(data);
 }

@@ -221,7 +221,9 @@ export default function DatosDeEnvio() {
             className="w-full inline-flex items-center justify-center gap-2 bg-stone-900 hover:bg-amber-700 disabled:bg-stone-300 disabled:cursor-not-allowed text-stone-50 font-semibold px-6 py-3 uppercase text-sm tracking-widest transition-colors"
           >
             <CreditCard size={18} />
-            {enviando ? 'Abriendo el pago…' : 'Pagar con tarjeta o Bizum'}
+            {/* Bizum: "aprobación pendiente" en Stripe (23/10/2026). Cuando lo aprueben,
+                volver a poner 'Pagar con tarjeta o Bizum' y el texto de Condiciones. */}
+            {enviando ? 'Abriendo el pago…' : 'Pagar con tarjeta'}
           </button>
 
           <p className="flex items-center justify-center gap-1.5 text-xs text-stone-400 mt-3">

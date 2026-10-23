@@ -31,7 +31,7 @@ function baseDelSitio(request, env) {
   const url = new URL(request.url);
   const host = url.host;
   const esLocal = host === 'localhost' || host.startsWith('localhost:') || host.startsWith('127.0.0.1:');
-  if (!esLocal) return env.SITIO_URL || 'https://paco-vago.vercel.app';
+  if (!esLocal) return env.SITIO_URL || 'https://pacovago.es';
   return `${url.protocol}//${host}`;
 }
 

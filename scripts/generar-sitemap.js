@@ -20,7 +20,7 @@ import { cargarEnv } from './cargar-env.js';
 
 cargarEnv();
 
-const SITIO = process.env.SITIO_PUBLICO || 'https://paco-vago.vercel.app';
+const SITIO = process.env.SITIO_PUBLICO || 'https://pacovago.es';
 const SALIDA = 'public/sitemap.xml';
 
 const { VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY } = process.env;

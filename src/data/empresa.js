@@ -17,7 +17,7 @@ export const EMPRESA = {
   provincia: 'Sevilla',
   telefono: '954 14 08 71',
   whatsapp: '615 323 072',
-  web: 'https://paco-vago.vercel.app',
+  web: 'https://pacovago.es',
   fundacion: 1924,
 
   // ── Datos fiscales del titular (confirmados 16/09/2026) ────────────

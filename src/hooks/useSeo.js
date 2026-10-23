@@ -21,7 +21,7 @@ import { useEffect } from 'react';
  * generar las páginas de antemano (prerenderizado).
  */
 
-export const SITIO = 'https://paco-vago.vercel.app';
+export const SITIO = 'https://pacovago.es';
 
 export const SEO_POR_DEFECTO = {
   titulo: 'Paco Vago | Tienda Centenaria en Carmona, Sevilla | Desde 1924',

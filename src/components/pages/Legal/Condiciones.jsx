@@ -53,7 +53,7 @@ export default function Condiciones() {
 
       <h2>4. Formas de pago</h2>
       <p>
-        <Dato valor="Tarjeta de débito o crédito y Bizum. El cobro se hace en el momento de confirmar el pedido" />.
+        <Dato valor="Tarjeta de débito o crédito, Apple Pay y Google Pay. El cobro se hace en el momento de confirmar el pedido" />.
         El pago se procesa a través de Stripe, pasarela de pago segura; la tienda no ve ni almacena los datos de
         la tarjeta. Los pedidos por WhatsApp se pagan como se acuerde directamente con la tienda.
       </p>

@@ -753,3 +753,19 @@ pacovagopuertasevilla@gmail.com, dirección pública la de la tienda.
 Google, WhatsApp) llegan a la tienda nueva y Google traslada el posicionamiento. La web
 real vive en Cloudflare; Vercel no la sirve (su plan gratis no admite tiendas). Las
 cabeceras de seguridad están ahora en `public/_headers` (Cloudflare).
+
+## 🔎 GOOGLE Y ÚLTIMOS AJUSTES (23/10/2026)
+
+- **Search Console:** `https://pacovago.es/` verificada (etiqueta HTML en `index.html`; hay
+  DOS etiquetas, la de vercel.app y la de pacovago.es: **no quitar ninguna**). Sitemap
+  enviado y leído ("Correcto"). **Cambio de dirección** vercel.app → pacovago.es
+  confirmado: hay que mantener la redirección de Vercel al menos 6 meses (hasta abril
+  de 2027) y luego se puede borrar el proyecto de Vercel.
+- La portada de vercel.app no redirigía (la regla `/:path*` no cubría `/`): arreglado con
+  una regla explícita para `/`.
+- **Bizum quitado** del botón ("Pagar con tarjeta") y de Condiciones (tarjeta, Apple Pay y
+  Google Pay) mientras Stripe lo tenga en "aprobación pendiente". Al aprobarlo: devolver
+  el texto (comentario en `DatosDeEnvio.jsx`).
+- **Pendiente antes de anunciar:** compra real de prueba (AOVE 1 L, 15 €) + reembolso;
+  app de Stripe en el móvil del tío para avisos de pedidos; su usuario en /admin;
+  horario de invierno; productos nuevos (gildas, etc.).

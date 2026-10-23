@@ -10,7 +10,7 @@
  * desistimiento): se registra en el log y se sigue.
  */
 
-import { esRepartoLocal } from '../src/data/envios.js';
+import { esRepartoLocal, repartoLocalDudoso } from '../src/data/envios.js';
 
 const REMITENTE = 'Paco Vago <avisos@pacovago.es>';
 export const CORREO_TIENDA = 'pacovagopuertasevilla@gmail.com';
@@ -85,11 +85,15 @@ export function correoPedido(p) {
   ].filter(Boolean).join('<br>');
 
   const local = esRepartoLocal(d.cp);
+  const dudoso = repartoLocalDudoso(d.cp, d.localidad);
   const avisos = [
+    dudoso
+      ? `<p style="background:#fee2e2;border-left:4px solid #b91c1c;padding:10px">⚠️ <strong>Ojo: ha puesto el código postal de Carmona pero la localidad es "${esc(d.localidad)}".</strong> El reparto gratis es solo en Carmona. Si la dirección está fuera, llámale para cobrarle el envío o anular el pedido.</p>`
+      : '',
     local
       ? '<p style="background:#dcfce7;border-left:4px solid #15803d;padding:10px">🚲 <strong>Reparto en Carmona: lo llevas tú.</strong> Llama al cliente para quedar en la hora.</p>'
       : '',
-    p.estado === 'revisar'
+    p.estado === 'revisar' && !dudoso
       ? '<p style="background:#fee2e2;border-left:4px solid #b91c1c;padding:10px">⚠️ <strong>Revisa este pedido antes de enviarlo:</strong> la dirección cae fuera de península o las cuentas no cuadran.</p>'
       : '',
     p.nota ? `<p style="background:#fef3c7;border-left:4px solid #d97706;padding:10px"><strong>Nota del cliente:</strong> ${esc(p.nota)}</p>` : '',
@@ -112,6 +116,7 @@ export function correoPedido(p) {
   const texto = [
     `Nuevo pedido ${p.referencia} — ${euros(p.total)}`,
     local ? 'REPARTO EN CARMONA: lo llevas tú. Llama al cliente para quedar.' : '',
+    dudoso ? `OJO: CP de Carmona pero localidad "${d.localidad}". Revisa la dirección antes de repartir.` : '',
     p.estado === 'revisar' ? '¡REVISAR ANTES DE ENVIAR!' : '',
     '',
     ...(p.lineas || []).map(l => `${l.cantidad} x ${l.nombre}  ${euros(l.importe)}`),

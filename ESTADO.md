@@ -801,3 +801,13 @@ ni límite de peso; lo lleva él en mano. `CP_REPARTO_LOCAL` en `src/data/envios
 "Reparto gratis en Carmona"; el correo de pedido avisa "🚲 lo llevas tú, llama al
 cliente". Textos en cabecera de la tienda, banda de confianza y Condiciones.
 Es además la vía segura para las semiconservas (gildas): en Carmona no viajan días sin frío.
+
+**Truco del CP (23/10/2026):** si el CP es 41410 pero la localidad no contiene "Carmona",
+el pedido entra como **"revisar"**, el correo avisa en rojo y el panel lo explica. No se
+bloquea el pago: el tío reparte en persona y lo ve antes de salir. Condiciones: el reparto
+gratis es solo dentro de Carmona; si no, se cobra el envío o se anula con reembolso.
+Panel: la línea de envío dice "Reparto en Carmona · Gratis".
+
+**Prueba de pago REAL hecha (23/10/2026):** PV-ZEN5BBQY, AOVE 1 L, 8,50 € con Apple Pay,
+reparto en Carmona. OK: pedido en el panel, correo "Nuevo pedido" al tío, recibo de Stripe
+al cliente. Pendiente: reembolsarlo desde Stripe (la comisión, ~0,38 €, no se recupera).

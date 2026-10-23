@@ -1,4 +1,4 @@
-import { zonaFueraDePeninsula } from '../src/data/envios.js';
+import { zonaFueraDePeninsula, repartoLocalDudoso } from '../src/data/envios.js';
 import { json } from './http.js';
 import { verificarAvisoStripe, lineasCobradas, supabaseRest } from './ligero.js';
 import { enviarCorreo, correoPedido, CORREO_TIENDA } from './correo.js';
@@ -126,7 +126,7 @@ export default async function stripeWebhook(request, env) {
     const pedido = {
       referencia: m.referencia || `PV-${sesion.id.slice(-8).toUpperCase()}`,
       stripe_session_id: sesion.id,
-      estado: fuera || !cuadra ? 'revisar' : 'pagado',
+      estado: fuera || !cuadra || repartoLocalDudoso(cp, m.env_localidad) ? 'revisar' : 'pagado',
       email: sesion.customer_details?.email || null,
       nombre: m.env_nombre || sesion.customer_details?.name || null,
       telefono: sesion.customer_details?.phone || null,

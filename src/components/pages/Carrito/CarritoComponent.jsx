@@ -20,14 +20,14 @@ export default function CarritoComponent() {
   // nada como resultado de busqueda.
   useSeo({ ruta: '/tienda/carrito', titulo: 'Tu carrito | Paco Vago', noindex: true });
 
-  const { items, cambiarCantidad, quitar, vaciar, subtotal, pesoTotal, pesoDesconocido, porte, total, faltaGratis } = useCarrito();
+  const { items, cambiarCantidad, quitar, vaciar, subtotal, pesoTotal, pesoDesconocido, porte, total, faltaGratis, repartoLocal } = useCarrito();
 
   const mensajePedido = () => {
     const lineas = items.map(
       x => `• ${x.cantidad} x ${x.nombre}${x.precio ? ` (${formatoPrecio(x.precio)})` : ''}`
     );
     const envio = porte != null
-      ? `Envío (${formatoPeso(pesoTotal)}): ${porte === 0 ? 'gratis' : formatoPrecio(porte)}`
+      ? `${repartoLocal ? 'Reparto en Carmona' : `Envío (${formatoPeso(pesoTotal)})`}: ${porte === 0 ? 'gratis' : formatoPrecio(porte)}`
       : 'Envío: a confirmar';
     return (
       `Hola, quiero hacer este pedido en Paco Vago:\n${lineas.join('\n')}\n\n` +
@@ -108,8 +108,8 @@ export default function CarritoComponent() {
 
               <div className="flex items-center justify-between text-stone-600">
                 <span>
-                  Envío
-                  {!pesoDesconocido && pesoTotal > 0 && (
+                  {repartoLocal ? 'Reparto en Carmona' : 'Envío'}
+                  {!repartoLocal && !pesoDesconocido && pesoTotal > 0 && (
                     <span className="text-stone-400 text-sm"> · {formatoPeso(pesoTotal)}</span>
                   )}
                 </span>
@@ -137,6 +137,7 @@ export default function CarritoComponent() {
             <p className="text-xs text-stone-500 mt-3">
               Gastos de envío a península, IVA incluido, calculados por el peso del pedido.
               Envío gratis desde {formatoPrecio(ENVIO_GRATIS.desdeEuros)} en pedidos de menos de {ENVIO_GRATIS.menosDeKg} kg.
+              {' '}<strong className="text-stone-700">En Carmona (41410) te lo llevamos gratis</strong>, sea cual sea el pedido.
               Para {ZONAS_SIN_VENTA_ONLINE.join(', ')} escríbenos y te presupuestamos el envío.
             </p>
 

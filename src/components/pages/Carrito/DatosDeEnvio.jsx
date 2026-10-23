@@ -24,7 +24,7 @@ const VACIA = {
  * nosotros y le decimos a Stripe que no la pregunte, no hay por dónde colarse.
  */
 export default function DatosDeEnvio() {
-  const { items } = useCarrito();
+  const { items, setCpEnvio, repartoLocal } = useCarrito();
   const [datos, setDatos] = useState(() => {
     try {
       return { ...VACIA, ...JSON.parse(localStorage.getItem(GUARDADO) || '{}') };
@@ -43,6 +43,11 @@ export default function DatosDeEnvio() {
       /* almacenamiento no disponible: solo se pierde la comodidad de recordarlo */
     }
   }, [datos]);
+
+  // El carrito necesita el CP para el porte (en Carmona el reparto es gratis).
+  useEffect(() => {
+    setCpEnvio(datos.cp);
+  }, [datos.cp, setCpEnvio]);
 
   // Al tocar un campo se borra su error: molesta menos que insistir en rojo.
   const set = (campo) => (e) => {
@@ -167,6 +172,13 @@ export default function DatosDeEnvio() {
         {provincia && !zona && (
           <p className="text-sm text-stone-500 -mt-2">
             Provincia: <strong className="text-stone-700">{provincia}</strong>
+          </p>
+        )}
+
+        {repartoLocal && (
+          <p className="text-sm text-green-800 bg-green-50 border-l-4 border-green-600 px-3 py-2">
+            🚲 <strong>Estás en Carmona: te lo llevamos nosotros, gratis.</strong> Te avisamos para
+            quedar en la hora de entrega.
           </p>
         )}
 

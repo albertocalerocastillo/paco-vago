@@ -49,6 +49,16 @@ export function zonaFueraDePeninsula(cp) {
  */
 export const ENVIO_GRATIS = { desdeEuros: 100, menosDeKg: 10 };
 
+/**
+ * Reparto en Carmona: GRATIS siempre, sin mínimo ni límite de peso (decidido por
+ * el titular el 23/10/2026). Lo lleva él en mano, así que tampoco hay días de
+ * viaje sin frío: es la forma segura de vender semiconservas como las gildas.
+ * Solo el CP 41410 (Carmona). Si un día reparte a más sitios, se añaden aquí.
+ */
+export const CP_REPARTO_LOCAL = ['41410'];
+
+export const esRepartoLocal = (cp) => CP_REPARTO_LOCAL.includes(String(cp ?? '').trim());
+
 export function tieneEnvioGratis(pesoKg, subtotal) {
   // En céntimos: sumar 33,30 + 33,30 + 33,40 en coma flotante puede dar
   // 99,99999 y quedarse sin el envío gratis que sí le corresponde.
@@ -61,9 +71,10 @@ export function tieneEnvioGratis(pesoKg, subtotal) {
  * Devuelve null si el peso no es utilizable (0, negativo o desconocido),
  * para que quien llame distinga "envío gratis" de "aún no se puede calcular".
  */
-export function calcularPorte(pesoKg, subtotal = 0) {
+export function calcularPorte(pesoKg, subtotal = 0, cp = '') {
   const n = Number(pesoKg);
   if (!Number.isFinite(n) || n <= 0) return null;
+  if (esRepartoLocal(cp)) return 0;
   if (tieneEnvioGratis(n, subtotal)) return 0;
   return TRAMOS.find(t => n <= t.hasta).precio;
 }
@@ -72,7 +83,8 @@ export function calcularPorte(pesoKg, subtotal = 0) {
  * Cuánto le falta al cliente para el envío gratis, o null si no aplica
  * (ya lo tiene, o su pedido pesa demasiado para tenerlo).
  */
-export function faltaParaEnvioGratis(pesoKg, subtotal) {
+export function faltaParaEnvioGratis(pesoKg, subtotal, cp = '') {
+  if (esRepartoLocal(cp)) return null;
   if (!(Number(pesoKg) > 0) || Number(pesoKg) >= ENVIO_GRATIS.menosDeKg) return null;
   const falta = (ENVIO_GRATIS.desdeEuros * 100 - Math.round(Number(subtotal) * 100)) / 100;
   return falta > 0 ? falta : null;

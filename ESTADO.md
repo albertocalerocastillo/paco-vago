@@ -791,3 +791,13 @@ paquetería lo admite). Aceite 5 L subido a 35 €. Horario de invierno puesto.
 ⚠️ **PENDIENTE IMPORTANTE:** las gildas, banderillas y pepinillos son SEMICONSERVA
 ("mantener entre 0 y 7 °C"). Un envío normal de 2-5 días sin frío no vale. Decidir con
 el tío: quitarles el "Comprar" (dejar WhatsApp) o enviarlas refrigeradas/urgentes.
+
+## 🚲 REPARTO GRATIS EN CARMONA (23/10/2026)
+
+Pedido por el tío: en Carmona (CP **41410**) el reparto es **gratis siempre**, sin mínimo
+ni límite de peso; lo lleva él en mano. `CP_REPARTO_LOCAL` en `src/data/envios.js`
+(para añadir más CP, se añaden ahí). El carrito lee el CP del formulario de envío y pone
+"Reparto en Carmona: Gratis"; el servidor lo recalcula con el CP; Stripe enseña
+"Reparto gratis en Carmona"; el correo de pedido avisa "🚲 lo llevas tú, llama al
+cliente". Textos en cabecera de la tienda, banda de confianza y Condiciones.
+Es además la vía segura para las semiconservas (gildas): en Carmona no viajan días sin frío.

@@ -1,4 +1,4 @@
-import { calcularPorte } from '../src/data/envios.js';
+import { calcularPorte, esRepartoLocal } from '../src/data/envios.js';
 import { provinciaDeCP } from '../src/data/provincias.js';
 import { validarDireccion } from '../src/data/direccion.js';
 import { json, leerJson } from './http.js';
@@ -143,7 +143,7 @@ export default async function crearSesion(request, env) {
   }
 
   // Con el subtotal recalculado aquí: el envío gratis tampoco se fía del navegador.
-  const porte = calcularPorte(pesoTotal, subtotal);
+  const porte = calcularPorte(pesoTotal, subtotal, envio.cp);
   if (porte == null) {
     console.error('Porte incalculable. Peso total:', pesoTotal);
     return json({ error: 'No hemos podido calcular el envío.' }, 500);
@@ -165,9 +165,11 @@ export default async function crearSesion(request, env) {
         shipping_rate_data: {
           type: 'fixed_amount',
           fixed_amount: { amount: Math.round(porte * 100), currency: 'eur' },
-          display_name: porte === 0
-            ? `Envío gratis a península (${pesoTotal.toFixed(1)} kg)`
-            : `Envío a península (${pesoTotal.toFixed(1)} kg)`,
+          display_name: esRepartoLocal(envio.cp)
+            ? 'Reparto gratis en Carmona (lo llevamos nosotros)'
+            : porte === 0
+              ? `Envío gratis a península (${pesoTotal.toFixed(1)} kg)`
+              : `Envío a península (${pesoTotal.toFixed(1)} kg)`,
           delivery_estimate: {
             minimum: { unit: 'business_day', value: 2 },
             maximum: { unit: 'business_day', value: 5 },

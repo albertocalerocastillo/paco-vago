@@ -1,9 +1,6 @@
 {
   "redirects": [
-    {
-      "source": "/:path*",
-      "destination": "https://pacovago.es/:path*",
-      "permanent": true
-    }
+    { "source": "/", "destination": "https://pacovago.es/", "permanent": true },
+    { "source": "/:path*", "destination": "https://pacovago.es/:path*", "permanent": true }
   ]
 }

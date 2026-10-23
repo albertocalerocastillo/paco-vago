@@ -10,6 +10,8 @@
  * desistimiento): se registra en el log y se sigue.
  */
 
+import { esRepartoLocal } from '../src/data/envios.js';
+
 const REMITENTE = 'Paco Vago <avisos@pacovago.es>';
 export const CORREO_TIENDA = 'pacovagopuertasevilla@gmail.com';
 
@@ -82,7 +84,11 @@ export function correoPedido(p) {
     esc(p.telefono),
   ].filter(Boolean).join('<br>');
 
+  const local = esRepartoLocal(d.cp);
   const avisos = [
+    local
+      ? '<p style="background:#dcfce7;border-left:4px solid #15803d;padding:10px">🚲 <strong>Reparto en Carmona: lo llevas tú.</strong> Llama al cliente para quedar en la hora.</p>'
+      : '',
     p.estado === 'revisar'
       ? '<p style="background:#fee2e2;border-left:4px solid #b91c1c;padding:10px">⚠️ <strong>Revisa este pedido antes de enviarlo:</strong> la dirección cae fuera de península o las cuentas no cuadran.</p>'
       : '',
@@ -95,7 +101,7 @@ export function correoPedido(p) {
     ${avisos}
     <h2 style="font-size:15px;margin:20px 0 8px;text-transform:uppercase;color:#78716c">Qué lleva</h2>
     <table style="width:100%;border-collapse:collapse;font-size:15px">${filas}
-      <tr><td style="padding:6px 0">Envío${p.peso_total ? ` (${esc(p.peso_total)} kg)` : ''}</td><td style="padding:6px 0;text-align:right">${p.porte ? euros(p.porte) : 'Gratis'}</td></tr>
+      <tr><td style="padding:6px 0">${local ? 'Reparto en Carmona' : `Envío${p.peso_total ? ` (${esc(p.peso_total)} kg)` : ''}`}</td><td style="padding:6px 0;text-align:right">${p.porte ? euros(p.porte) : 'Gratis'}</td></tr>
       <tr><td style="padding:8px 0;font-weight:bold">Total cobrado</td><td style="padding:8px 0;text-align:right;font-weight:bold">${euros(p.total)}</td></tr>
     </table>
     <h2 style="font-size:15px;margin:20px 0 8px;text-transform:uppercase;color:#78716c">Enviar a</h2>
@@ -105,6 +111,7 @@ export function correoPedido(p) {
 
   const texto = [
     `Nuevo pedido ${p.referencia} — ${euros(p.total)}`,
+    local ? 'REPARTO EN CARMONA: lo llevas tú. Llama al cliente para quedar.' : '',
     p.estado === 'revisar' ? '¡REVISAR ANTES DE ENVIAR!' : '',
     '',
     ...(p.lineas || []).map(l => `${l.cantidad} x ${l.nombre}  ${euros(l.importe)}`),
@@ -116,7 +123,7 @@ export function correoPedido(p) {
     p.quiere_factura ? `Pide factura. NIF ${p.nif}` : '',
   ].filter(x => x !== '').join('\n');
 
-  return { asunto: `🛒 Nuevo pedido ${p.referencia} · ${euros(p.total)}`, html, texto };
+  return { asunto: `🛒 Nuevo pedido ${p.referencia} · ${euros(p.total)}${local ? ' · 🚲 Carmona' : ''}`, html, texto };
 }
 
 /**

@@ -14,7 +14,7 @@ export default function TiendaHeader() {
     <>
       {/* Barra superior de marca (se va al hacer scroll) */}
       <div className="bg-amber-800 text-amber-50 text-center text-[11px] sm:text-xs uppercase tracking-[0.25em] py-2 px-4">
-        Envíos a toda la península · La tienda que tiene de todo desde 1924
+        Envíos a toda la península · Reparto gratis en Carmona
       </div>
 
       {/* Cabecera fija */}

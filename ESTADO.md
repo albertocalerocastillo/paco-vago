@@ -717,3 +717,17 @@ Search Console.
   Se calcula en céntimos y el servidor lo recalcula con su propio subtotal.
 - El carrito avisa "te faltan X € para el envío gratis". Condiciones actualizadas.
 - Probado en Cloudflare: AOVE 1 L → 8,50 + 6,50 = 15 €.
+
+**✅ pacovago.es EN MARCHA (23/10/2026).** Zona activa en Cloudflare; la web y `/api` se
+sirven en `https://pacovago.es` (y `www`). Todo el código apunta ya a pacovago.es (canonical,
+OG, datos estructurados, empresa.js, useSeo, robots, sitemap regenerado) y
+`SITIO_URL=https://pacovago.es`. Cobro de prueba desde el dominio OK (vuelve a
+pacovago.es/tienda/gracias). Sigue con claves de PRUEBA de Stripe.
+Pendiente en Cloudflare: redirigir www → raíz, "Always Use HTTPS" y HSTS.
+
+**Stripe en modo real activado (23/10/2026)** a nombre del tío: Vendedor/autónomo,
+"Tiendas de alimentación", extracto "PACO VAGO CARMONA", BBVA ····2159, transferencias
+automáticas semanales (lunes), Radar Lite, sin Stripe Tax ni Climate. Métodos: tarjetas,
+Apple Pay, Google Pay, Link; **Bizum "aprobación pendiente"** (si no está aprobado al
+abrir, quitar "o Bizum" del botón y de Condiciones). Recibos por email activados; soporte
+pacovagopuertasevilla@gmail.com, dirección pública la de la tienda.

@@ -690,3 +690,19 @@ real de punta a punta (PV-Z7EF23L7) guardado con todas sus líneas.
 `stripe` queda solo como dependencia de desarrollo (lo usa `scripts/probar-webhook.js`).
 ⚠️ La página de gracias dice "te llega un correo con el resumen": solo es verdad si se
 activan los recibos por email en Stripe (en modo real). No abrir sin activarlos.
+
+## 🌐 DOMINIO pacovago.es (23/10/2026)
+
+- Comprado en **DonDominio** (cuenta de Alberto, usuario Alber987), 1 año, 8,41 €. Caduca
+  el **23/10/2027**; renovación en **manual** → poner automática o un recordatorio.
+- **Titular: José Antonio López Ruiz** (datos de la tienda y móvil 615 323 072). Alberto,
+  contacto administrativo y técnico.
+- DNS cambiados a Cloudflare: `adel.ns.cloudflare.com` y `ben.ns.cloudflare.com`. DNSSEC
+  sin activar. Zona creada en la cuenta de Cloudflare de Alberto, plan Free.
+- El Worker ya tiene `pacovago.es` y `www.pacovago.es` como dominios propios
+  (`routes` en `wrangler.jsonc`); funcionarán cuando Cloudflare active la zona.
+
+**Pendiente cuando la zona esté activa:** redirigir `www` a `pacovago.es`, poner
+`SITIO_URL=https://pacovago.es`, cambiar `paco-vago.vercel.app` por `pacovago.es` en el
+código (empresa.js, index.html, useSeo, sitemap, robots) y dar de alta el dominio en
+Search Console.

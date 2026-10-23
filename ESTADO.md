@@ -745,3 +745,11 @@ pacovagopuertasevilla@gmail.com, dirección pública la de la tienda.
   modo prueba, hay que usar `npm run cf` en local.
 - **Siguiente:** compra real de prueba (AOVE 1 L, 15 €) → comprobar pedido en /admin y
   email de recibo → reembolsarla desde Stripe.
+
+## ↪️ VERCEL QUEDA SOLO COMO REDIRECCIÓN (23/10/2026)
+
+`vercel.json` ya no sirve la tienda: redirige TODO `paco-vago.vercel.app/*` a
+`https://pacovago.es/*` con 301 (conserva ruta y filtros). Así los enlaces viejos (bios,
+Google, WhatsApp) llegan a la tienda nueva y Google traslada el posicionamiento. La web
+real vive en Cloudflare; Vercel no la sirve (su plan gratis no admite tiendas). Las
+cabeceras de seguridad están ahora en `public/_headers` (Cloudflare).

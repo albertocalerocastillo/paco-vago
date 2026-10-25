@@ -172,7 +172,11 @@ visitanos, **redes**.
    `feature/admin` (fusionada a master). Incluye:
    - Login con **Supabase Auth** (email/contraseña). Registros públicos DESACTIVADOS
      (Authentication → Sign In/Up). Usuarios se crean a mano en Authentication → Users
-     (Add user + Auto Confirm). De momento solo el de Alberto; falta crear el del tío.
+     (Add user + Auto Confirm). Usuarios: Alberto y el tío (`pacovagopuertasevilla@gmail.com`,
+     creado el 25/10/2026; él eligió su contraseña). Site URL = `https://pacovago.es` y
+     Redirect URL `https://pacovago.es/**`. Anónimos desactivados (OJO: cualquier usuario
+     autenticado es admin por RLS, así que registros y anónimos deben seguir cerrados).
+     En Stripe el tío es **Administrador** (no superadministrador); Alberto sigue de titular.
    - **react-router-dom**: rutas `/` (web) y `/admin` (panel). `vercel.json` con rewrite SPA.
    - `src/components/pages/Admin/` (AdminComponent = login+layout; GestionProductos = CRUD).
      `src/hooks/useAuth.js` = sesión.
@@ -303,8 +307,7 @@ visitanos, **redes**.
    lo firma como lo firma Stripe y se lo manda al servidor. Comprueba además que un aviso
    repetido no duplica el pedido y que una firma falsa se rechaza.
 
-**Pendientes (opcionales):** crear el usuario del tío (Authentication → Users → Add user +
-Auto Confirm) y pasarle `paco-vago.vercel.app/admin`; limpiar `public/fotos/` ya migradas
+**Pendientes (opcionales):** ~~crear el usuario del tío~~ (hecho 25/10/2026); limpiar `public/fotos/` ya migradas
 (OJO: el fallback estático `data/categorias.js` aún apunta a `/fotos/`; actualizarlo antes
 de borrar para no romper la red de seguridad); seguir puliendo el responsive si hace falta.
 

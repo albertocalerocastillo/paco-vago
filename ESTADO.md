@@ -331,9 +331,25 @@ puede pasar a Supabase Storage.
 
 ## Pendientes / hoja de ruta
 
-- 🔑 **Google My Business** — cambiar el botón "Sitio web" de la ficha (con ⭐4,5/122 reseñas)
-  a la URL. Es lo que MÁS posiciona. Pendiente de que el tío dé acceso a la cuenta.
-- 🔗 Poner la URL en las bios de Instagram y TikTok (ayuda a que Google rastree más).
+- ✅ **Google My Business** — botón "Sitio web" de la ficha → pacovago.es (24/10/2026).
+  Bios de Instagram y TikTok también con el enlace.
+- ✅ **El tío gestiona el panel** (25/10/2026): tiene usuario en Supabase y es Administrador en
+  Stripe (con clave de acceso como 2.º paso). Él sube productos; Alberto lleva lo técnico
+  (Cloudflare, Supabase admin, GitHub, Resend) y cobra mantenimiento.
+- 🧀 **Quesos a peso:** la tienda no vende por kg. Se crean piezas fijas ("Queso Payoyo ·
+  500 g" 13 €, "· 1 kg" 26 €), con **"Cuña de unos 500 g · 26 €/kg" en la descripción**
+  (precio por unidad de medida obligatorio) y peso con caja 0,6. Cortar siempre por encima.
+- 💳 El tío ve alta la comisión de Stripe (1,5 % + 0,25 €). Se le dijo que pregunte en su
+  banco por un **TPV virtual (Redsys)**: si sale bastante más barato, se cambia (trabajo aparte;
+  ojo, la firma de Redsys usa 3DES, que WebCrypto no trae).
+- 🔎 Search Console (26/10/2026): 45 páginas indexadas. `tienda?q=…` sale como "alternativa
+  con canónica adecuada" (correcto, a propósito) y `tienda/producto/39` "rastreada sin
+  indexar" (normal en web nueva; si sigue así en 2 semanas, Solicitar indexación).
+- 💡 Ideas propuestas, sin hacer: guía de 1 página con capturas del panel para el tío
+  (PDF por WhatsApp) y **Google Merchant Center** (fichas gratis en Google Shopping).
+- ⬜ Pendientes de antes: Bizum cuando Stripe lo apruebe; licor online (+18, paquetería);
+  Gilda Sócrates; HSTS (~30/10/2026); renovación automática en DonDominio; código de
+  respaldo de Stripe.
 - ~~Fotos de Artesanía y Perfumería~~ ✅ HECHO: comprobado el 18/09/2026 contra la base
   de datos, **las 9 categorías tienen foto**. La nota anterior estaba desfasada.
 - ✍️ Posible repaso de marketing de todas las descripciones de categoría.

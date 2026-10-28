@@ -97,7 +97,7 @@ export default function VisitanosComponent() {
                 </p>
                 <button
                   onClick={() => setVerMapa(true)}
-                  className="bg-amber-600 hover:bg-amber-500 text-stone-50 font-semibold px-6 py-3 uppercase text-sm tracking-widest transition-colors"
+                  className="bg-amber-700 hover:bg-amber-800 text-stone-50 font-semibold px-6 py-3 uppercase text-sm tracking-widest transition-colors"
                 >
                   Ver mapa
                 </button>

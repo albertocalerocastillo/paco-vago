@@ -86,7 +86,7 @@ export default function GaleriaComponent() {
         </div>
 
         {/* Pista de "desliza" (solo móvil) */}
-        <p className="md:hidden text-center text-sm text-stone-500 mt-2">
+        <p className="md:hidden text-center text-sm text-stone-600 mt-2">
           Desliza para ver más →
         </p>
       </div>

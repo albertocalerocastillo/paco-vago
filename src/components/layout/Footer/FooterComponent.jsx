@@ -22,7 +22,7 @@ export default function FooterComponent() {
           <Link to="/legal/desistir" className="hover:text-amber-500 transition-colors">Desistir del contrato</Link>
         </nav>
 
-        <p className="text-xs text-stone-500 mt-6">
+        <p className="text-xs text-stone-400 mt-6">
           © {new Date().getFullYear()} Paco Vago Puerta Sevilla. Todos los derechos reservados.
         </p>
       </div>

@@ -23,7 +23,7 @@ export default function NavComponent() {
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           className="flex items-center gap-3"
-          aria-label="Ir al inicio"
+          aria-label="Paco Vago Desde 1924, ir al inicio"
         >
           <img
             src="/logo.png"

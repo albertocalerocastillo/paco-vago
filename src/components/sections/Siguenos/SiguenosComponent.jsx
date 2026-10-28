@@ -67,7 +67,8 @@ export default function SiguenosComponent() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group relative snap-center shrink-0 w-48 sm:w-56 aspect-[9/16] overflow-hidden rounded-lg bg-gradient-to-br from-stone-900 via-amber-950 to-stone-900 flex flex-col items-center justify-center text-center"
-                aria-label={`Ver vídeo en ${video.red === 'instagram' ? 'Instagram' : 'TikTok'}`}
+                // Empieza por el texto visible («Ver en …») para que coincida al navegar por voz
+                aria-label={`Ver en ${video.red === 'instagram' ? 'Instagram' : 'TikTok'}: vídeo de Paco Vago`}
               >
                 {video.portada && (
                   <img
@@ -101,7 +102,7 @@ export default function SiguenosComponent() {
           </button>
         </div>
 
-        <p className="md:hidden text-center text-sm text-stone-500 mt-2">Desliza para ver más →</p>
+        <p className="md:hidden text-center text-sm text-stone-600 mt-2">Desliza para ver más →</p>
 
         {/* Botones de seguir perfiles */}
         <div className="grid sm:grid-cols-2 gap-6 mt-12 max-w-3xl mx-auto">

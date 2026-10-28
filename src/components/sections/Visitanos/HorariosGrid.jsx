@@ -23,7 +23,7 @@ function DiaFila({ dia, isToday }) {
       </span>
 
       <span className="flex flex-col items-end text-sm leading-tight">
-        {cerradoTodoElDia && <span className="text-stone-500 italic">Cerrado</span>}
+        {cerradoTodoElDia && <span className="text-stone-400 italic">Cerrado</span>}
         {dia.morning && (
           <span className={isToday ? 'text-amber-300' : 'text-stone-200'}>
             {dia.morning.open} – {dia.morning.close}
@@ -35,7 +35,7 @@ function DiaFila({ dia, isToday }) {
           </span>
         )}
         {dia.morning && !dia.afternoon && (
-          <span className="text-stone-500 italic text-xs">tarde cerrado</span>
+          <span className="text-stone-400 italic text-xs">tarde cerrado</span>
         )}
       </span>
     </div>
@@ -54,15 +54,17 @@ function DiaCard({ dia, isToday }) {
       className={`flex flex-col items-center text-center py-4 px-2 rounded-md border transition-all ${
         isToday
           ? 'bg-amber-500/10 border-amber-400/50 ring-1 ring-amber-400/30'
-          : 'bg-stone-800/60 border-stone-700/60'
-      } ${cerradoTodoElDia ? 'opacity-50' : ''}`}
+          : cerradoTodoElDia
+            ? 'bg-stone-900/40 border-stone-800 border-dashed' // apagado con color, no con opacidad: así se sigue leyendo (contraste AA)
+            : 'bg-stone-800/60 border-stone-700/60'
+      }`}
     >
       <div className={`text-xs font-bold uppercase tracking-widest mb-3 ${isToday ? 'text-amber-400' : 'text-stone-400'}`}>
         {dia.short}
         {isToday && <span className="block text-[10px] text-amber-400/80 font-normal normal-case">hoy</span>}
       </div>
 
-      {cerradoTodoElDia && <div className="text-xs italic text-stone-500">Cerrado</div>}
+      {cerradoTodoElDia && <div className="text-xs italic text-stone-400">Cerrado</div>}
 
       {dia.morning && (
         <div className="text-xs text-stone-200 mb-1.5">
@@ -81,7 +83,7 @@ function DiaCard({ dia, isToday }) {
       )}
 
       {soloManyana && !cerradoTodoElDia && (
-        <div className="text-[10px] italic text-stone-500 mt-2 pt-2 border-t border-stone-700/50 w-full">
+        <div className="text-[10px] italic text-stone-400 mt-2 pt-2 border-t border-stone-700/50 w-full">
           tarde cerrado
         </div>
       )}
